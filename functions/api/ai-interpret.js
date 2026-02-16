@@ -121,7 +121,7 @@ ${hexagramInfo}
 
 请根据以上信息进行解卦。`;
 
-    const models = ['gemini-2.5-pro', 'gemini-flash-latest'];
+    const models = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
     const requestBody = JSON.stringify({
       system_instruction: { parts: [{ text: systemPrompt }] },
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
