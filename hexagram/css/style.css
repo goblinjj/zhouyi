@@ -786,6 +786,98 @@ button:disabled {
     background: rgba(139, 37, 0, 0.03);
 }
 
+/* ── Manual Input Panel ── */
+.manual-input-panel {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(250, 246, 239, 0.5);
+    border: 1px solid var(--border-light);
+    border-radius: 3px;
+    text-align: left;
+}
+
+.manual-input-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.manual-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.manual-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    width: 40px;
+    flex-shrink: 0;
+    text-align: right;
+    letter-spacing: 0.05em;
+}
+
+.manual-options {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.manual-options label {
+    cursor: pointer;
+}
+
+.manual-options input[type="radio"] {
+    display: none;
+}
+
+.manual-options .opt-btn {
+    display: inline-block;
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-size: 12px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    color: var(--text-muted);
+    background: var(--bg-paper);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.manual-options input[type="radio"]:checked + .opt-btn {
+    color: var(--bg-paper);
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    font-weight: 600;
+}
+
+.manual-options .opt-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.manual-options input[type="radio"]:checked + .opt-btn:hover {
+    color: var(--bg-paper);
+}
+
+#manual-input-btn {
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #8b6914 100%);
+    border-color: rgba(184, 134, 11, 0.3);
+}
+
+#manual-input-btn:hover {
+    background: linear-gradient(135deg, #c99b1e 0%, var(--accent-gold) 100%);
+}
+
+#manual-submit-btn {
+    display: block;
+    margin: 0 auto;
+}
+
 /* ── Study Link ── */
 .study-link {
     display: block;
@@ -800,6 +892,142 @@ button:disabled {
 .study-link:hover {
     color: var(--accent-gold-light);
     text-decoration: underline;
+}
+
+/* ── AI Interpret Modal ── */
+.ai-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+.ai-textarea {
+    width: 100%;
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-paper);
+    color: var(--text-color);
+    resize: vertical;
+    line-height: 1.6;
+    letter-spacing: 0.03em;
+}
+
+.ai-textarea:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 2px rgba(184, 134, 11, 0.15);
+}
+
+.ai-submit-btn {
+    display: block;
+    margin: 12px auto 0;
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #8b6914 100%);
+    border-color: rgba(184, 134, 11, 0.3);
+}
+
+.ai-submit-btn:hover {
+    background: linear-gradient(135deg, #c99b1e 0%, var(--accent-gold) 100%);
+}
+
+.ai-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ai-content {
+    line-height: 1.9;
+    font-size: 14px;
+    color: var(--text-color);
+    letter-spacing: 0.03em;
+    min-height: 60px;
+}
+
+.ai-content h1, .ai-content h2, .ai-content h3, .ai-content h4 {
+    color: var(--accent-color);
+    margin: 16px 0 8px;
+    font-size: 1.05em;
+    letter-spacing: 0.08em;
+}
+
+.ai-content h1:first-child, .ai-content h2:first-child, .ai-content h3:first-child {
+    margin-top: 0;
+}
+
+.ai-content strong {
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+.ai-content ul, .ai-content ol {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.ai-content li {
+    margin-bottom: 4px;
+}
+
+.ai-content p {
+    margin: 8px 0;
+}
+
+.ai-error {
+    padding: 10px 14px;
+    background: rgba(194, 54, 22, 0.06);
+    border: 1px solid rgba(194, 54, 22, 0.2);
+    border-radius: 3px;
+    color: #8b2500;
+    font-size: 13px;
+    margin-top: 12px;
+}
+
+.ai-retry-btn {
+    display: block;
+    margin: 12px auto 0;
+    font-size: 13px;
+    padding: 6px 20px;
+    background: transparent;
+    color: var(--accent-gold);
+    border: 1px solid var(--accent-gold);
+    box-shadow: none;
+}
+
+.ai-retry-btn:hover {
+    background: var(--accent-gold);
+    color: var(--bg-paper);
+}
+
+.ai-btn {
+    margin-top: 8px !important;
+    font-size: 13px !important;
+    padding: 6px 16px !important;
+    background: linear-gradient(135deg, #2c6e49 0%, #1a4731 100%) !important;
+    border-color: rgba(44, 110, 73, 0.3) !important;
+    letter-spacing: 0.08em !important;
+}
+
+.ai-btn:hover {
+    background: linear-gradient(135deg, #3a8f5f 0%, #2c6e49 100%) !important;
+}
+
+.ai-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--accent-color);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 0.8s step-end infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
 }
 
 /* ── Responsive ── */

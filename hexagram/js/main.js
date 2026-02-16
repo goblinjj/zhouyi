@@ -4,6 +4,9 @@ import { Solar, Lunar } from 'lunar-javascript';
 import { Takashima } from './modules/takashima.js';
 
 const castingBtn = document.getElementById('cast-btn');
+const manualInputBtn = document.getElementById('manual-input-btn');
+const manualInputPanel = document.getElementById('manual-input-panel');
+const manualSubmitBtn = document.getElementById('manual-submit-btn');
 const resetBtn = document.getElementById('reset-btn');
 const statusMsg = document.getElementById('status-message');
 const dateInfo = document.getElementById('date-info');
@@ -135,6 +138,9 @@ window.startCasting = () => {
     castingBtn.innerText = castingButtonText[0];
     castingBtn.disabled = false;
     castingBtn.style.display = 'inline-block';
+    manualInputBtn.style.display = 'inline-block';
+    manualInputBtn.innerText = '手动排盘';
+    manualInputPanel.style.display = 'none';
     resetBtn.style.display = 'none';
     statusMsg.innerText = "点击按钮开始抛掷铜钱...";
     coinContainer.style.display = 'none';
@@ -150,8 +156,43 @@ resetBtn.addEventListener('click', () => {
     window.startCasting();
 });
 
+manualInputBtn.addEventListener('click', () => {
+    const isVisible = manualInputPanel.style.display !== 'none';
+    if (isVisible) {
+        manualInputPanel.style.display = 'none';
+        manualInputBtn.innerText = '手动排盘';
+    } else {
+        manualInputPanel.style.display = 'block';
+        manualInputBtn.innerText = '收起输入';
+        coinContainer.style.display = 'none';
+    }
+});
+
+manualSubmitBtn.addEventListener('click', () => {
+    const raw = [];
+    for (let i = 0; i < 6; i++) {
+        const selected = document.querySelector(`input[name="line${i}"]:checked`);
+        raw.push(parseInt(selected.value));
+    }
+
+    divination.castResult = raw;
+    castingStep = 6;
+    primaryHexContainer.style.display = 'block';
+    coinContainer.style.display = 'none';
+    castingBtn.style.display = 'none';
+    manualInputBtn.style.display = 'none';
+    manualInputPanel.style.display = 'none';
+    resetBtn.style.display = 'inline-block';
+    resetBtn.innerText = '重新起卦';
+    statusMsg.innerText = '手动排盘完成';
+
+    renderResult(divination.castResult);
+});
+
 function performToss() {
     castingBtn.disabled = true;
+    manualInputBtn.style.display = 'none';
+    manualInputPanel.style.display = 'none';
     statusMsg.innerText = "掷铜钱中...";
     coinContainer.style.display = 'flex';
 
@@ -413,6 +454,7 @@ function renderResult(castResult) {
     // Add button to Primary container
     addTakashimaButton(primaryHexContainer, focal.hexCode, focal.index, focal.description);
     addStudyLink(primaryHexContainer, primaryBinary, primaryChart.name);
+    addAiButton(primaryHexContainer);
 
     // Render Varied
     let variedName = null;
@@ -697,6 +739,246 @@ function addTakashimaButton(container, binaryCode, movingLineIndex, description)
         showTakashimaModal(binaryCode, movingLineIndex);
     };
 }
+
+// ── AI Interpret ──
+const aiModal = document.getElementById('ai-modal');
+const aiModalTitle = document.getElementById('ai-modal-title');
+const aiInputArea = document.getElementById('ai-input-area');
+const aiResultArea = document.getElementById('ai-result-area');
+const aiQuestion = document.getElementById('ai-question');
+const aiSubmitBtn = document.getElementById('ai-submit-btn');
+const aiContent = document.getElementById('ai-content');
+const aiError = document.getElementById('ai-error');
+const aiRetryBtn = document.getElementById('ai-retry-btn');
+const aiCloseBtn = document.querySelector('.ai-close-btn');
+
+let currentHexagramInfo = '';
+
+if (aiCloseBtn) {
+    aiCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        aiModal.style.display = 'none';
+    });
+}
+
+aiModal.addEventListener('click', (e) => {
+    if (e.target === aiModal) aiModal.style.display = 'none';
+});
+
+function collectHexagramInfo() {
+    const hexs = divination.getHexagrams();
+    const primaryChart = divination.chart(hexs.primary, currentDayStem);
+
+    const REL_CN = { "Parents": "父母", "Offspring": "子孙", "Official": "官鬼", "Wealth": "妻财", "Brothers": "兄弟" };
+    const BEAST_CN = {
+        "Green Dragon": "青龙", "Vermilion Bird": "朱雀", "Hook Snake": "勾陈",
+        "Flying Snake": "腾蛇", "White Tiger": "白虎", "Black Tortoise": "玄武"
+    };
+    const ELEMENT_CN = { "Metal": "金", "Wood": "木", "Water": "水", "Fire": "火", "Earth": "土" };
+    const BRANCH_CN = {
+        "Zi": "子", "Chou": "丑", "Yin": "寅", "Mao": "卯", "Chen": "辰", "Si": "巳",
+        "Wu": "午", "Wei": "未", "Shen": "申", "You": "酉", "Xu": "戌", "Hai": "亥"
+    };
+    const PALACE_CN = {
+        "Qian": "乾", "Dui": "兑", "Li": "离", "Zhen": "震", "Xun": "巽", "Kan": "坎", "Gen": "艮", "Kun": "坤"
+    };
+
+    const pName = PALACE_CN[primaryChart.palace.palace] || primaryChart.palace.palace;
+    const palaceEl = ELEMENT_CN[PALACE_ELEMENTS[primaryChart.palace.palace]] || '';
+    const genText = primaryChart.palace.generation === 6 ? "六冲" :
+        (primaryChart.palace.generation === "YouHun" ? "游魂" :
+            (primaryChart.palace.generation === "GuiHun" ? "归魂" :
+                primaryChart.palace.generation + "世"));
+
+    let info = `本卦：${primaryChart.name}（${pName}宫${palaceEl} ${genText}）\n`;
+    info += `世爻：第${primaryChart.palace.shi}爻  应爻：第${primaryChart.palace.ying}爻\n\n`;
+
+    const lineNames = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
+    info += `六爻详情（从初爻到上爻）：\n`;
+
+    for (let i = 0; i < 6; i++) {
+        const rel = REL_CN[primaryChart.relations[i]] || primaryChart.relations[i];
+        const branch = BRANCH_CN[primaryChart.branches[i]] || primaryChart.branches[i];
+        const element = ELEMENT_CN[primaryChart.elements[i]] || primaryChart.elements[i];
+        const beast = BEAST_CN[primaryChart.sixBeasts?.[i]] || '';
+        const isMoving = hexs.raw[i] === 6 || hexs.raw[i] === 9;
+        const movingText = isMoving ? (hexs.raw[i] === 9 ? "（动爻-老阳）" : "（动爻-老阴）") : "";
+        const shiYing = primaryChart.palace.shi === (i + 1) ? " [世]" : (primaryChart.palace.ying === (i + 1) ? " [应]" : "");
+
+        let xunkongTag = '';
+        if (currentXunKong && currentXunKong.includes(branch)) xunkongTag = ' [旬空]';
+        let ripoTag = '';
+        if (currentDayBranch && CLASH_MAP[branch] === currentDayBranch) ripoTag = ' [日破]';
+
+        info += `${lineNames[i]}：${beast} ${rel} ${branch}${element}${shiYing}${movingText}${xunkongTag}${ripoTag}\n`;
+    }
+
+    if (hexs.varied) {
+        const variedChart = divination.chart(hexs.varied, currentDayStem);
+        info += `\n变卦：${variedChart.name}\n`;
+    }
+
+    info += `\n日期：${dateInfo.textContent.trim()}\n`;
+
+    return info;
+}
+
+function addAiButton(container) {
+    let btn = container.querySelector('.ai-btn');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.className = 'ai-btn';
+        btn.style.marginTop = '10px';
+        container.querySelector('.hexagram-info').appendChild(btn);
+    }
+    btn.innerText = 'AI 解卦';
+    btn.onclick = () => {
+        currentHexagramInfo = collectHexagramInfo();
+        aiModal.style.display = 'block';
+        aiInputArea.style.display = 'block';
+        aiResultArea.style.display = 'none';
+        aiContent.innerHTML = '';
+        aiError.style.display = 'none';
+        aiRetryBtn.style.display = 'none';
+        aiQuestion.value = '';
+        aiSubmitBtn.disabled = false;
+        aiSubmitBtn.innerText = '开始解卦';
+    };
+}
+
+function simpleMarkdown(text) {
+    let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    // Headers
+    html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+    // Bold & italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    // Unordered list items
+    html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+
+    // Ordered list items
+    html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+    // Wrap consecutive <li> in <ul>
+    html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+
+    // Paragraphs: double newline
+    html = html.replace(/\n\n+/g, '</p><p>');
+    // Single newline to <br>
+    html = html.replace(/\n/g, '<br>');
+
+    html = '<p>' + html + '</p>';
+    html = html.replace(/<p><\/p>/g, '');
+    html = html.replace(/<p>(<h[1-4]>)/g, '$1');
+    html = html.replace(/(<\/h[1-4]>)<\/p>/g, '$1');
+    html = html.replace(/<p>(<ul>)/g, '$1');
+    html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+
+    return html;
+}
+
+async function startAiInterpret(question) {
+    aiInputArea.style.display = 'none';
+    aiResultArea.style.display = 'block';
+    aiContent.innerHTML = '<span class="ai-cursor"></span>';
+    aiError.style.display = 'none';
+    aiRetryBtn.style.display = 'none';
+
+    let fullText = '';
+
+    try {
+        const response = await fetch('/api/ai-interpret', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, hexagramInfo: currentHexagramInfo }),
+        });
+
+        if (!response.ok) {
+            let errorMsg = '网络连接失败，请检查网络后重试';
+            try {
+                const errData = await response.json();
+                if (errData.error) errorMsg = errData.error;
+            } catch {}
+            showAiError(errorMsg);
+            return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                const data = line.slice(6).trim();
+                if (data === '[DONE]') continue;
+
+                try {
+                    const parsed = JSON.parse(data);
+                    if (parsed.error) {
+                        fullText += '\n\n（传输中断，内容可能不完整）';
+                        aiContent.innerHTML = simpleMarkdown(fullText);
+                        showAiError(parsed.error);
+                        return;
+                    }
+                    if (parsed.text) {
+                        fullText += parsed.text;
+                        aiContent.innerHTML = simpleMarkdown(fullText) + '<span class="ai-cursor"></span>';
+                    }
+                } catch {}
+            }
+        }
+
+        // Render final
+        aiContent.innerHTML = simpleMarkdown(fullText);
+
+    } catch (err) {
+        if (fullText) {
+            fullText += '\n\n（传输中断，内容可能不完整）';
+            aiContent.innerHTML = simpleMarkdown(fullText);
+        }
+        showAiError('网络连接失败，请检查网络后重试');
+    }
+}
+
+function showAiError(msg) {
+    aiError.textContent = msg;
+    aiError.style.display = 'block';
+    aiRetryBtn.style.display = 'block';
+}
+
+aiSubmitBtn.addEventListener('click', () => {
+    const q = aiQuestion.value.trim();
+    if (!q) return;
+    startAiInterpret(q);
+});
+
+aiRetryBtn.addEventListener('click', () => {
+    const q = aiQuestion.value.trim();
+    if (!q) {
+        // Show input area again
+        aiInputArea.style.display = 'block';
+        aiResultArea.style.display = 'none';
+        return;
+    }
+    startAiInterpret(q);
+});
 
 function addStudyLink(container, binaryCode, hexName) {
     let link = container.querySelector('.study-link');

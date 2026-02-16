@@ -29,6 +29,11 @@ cd ..
 cp -r hexagram/dist dist/hexagram
 sed -i '' "s/__BUILD_VER__/$BUILD_VER/g" dist/hexagram/index.html dist/hexagram/study.html
 
+# Copy Cloudflare Pages Functions
+if [ -d "functions" ]; then
+  cp -r functions dist/functions
+fi
+
 echo "Build complete (v=$BUILD_VER). Output in dist/"
 
 # Deploy

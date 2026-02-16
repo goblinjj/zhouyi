@@ -53,8 +53,69 @@
                     <div class="coin"></div>
                 </div>
                 <button id="cast-btn">起卦</button>
+                <button id="manual-input-btn">手动排盘</button>
                 <button id="reset-btn" style="display:none;">重置</button>
                 <div id="status-message">点击按钮开始起卦...</div>
+
+                <div id="manual-input-panel" class="manual-input-panel" style="display:none;">
+                    <div class="manual-input-grid">
+                        <div class="manual-row" data-line="5">
+                            <span class="manual-label">上爻</span>
+                            <div class="manual-options">
+                                <label><input type="radio" name="line5" value="9"><span class="opt-btn">老阳⚊○</span></label>
+                                <label><input type="radio" name="line5" value="7" checked><span class="opt-btn">少阳⚊</span></label>
+                                <label><input type="radio" name="line5" value="8"><span class="opt-btn">少阴⚋</span></label>
+                                <label><input type="radio" name="line5" value="6"><span class="opt-btn">老阴⚋×</span></label>
+                            </div>
+                        </div>
+                        <div class="manual-row" data-line="4">
+                            <span class="manual-label">五爻</span>
+                            <div class="manual-options">
+                                <label><input type="radio" name="line4" value="9"><span class="opt-btn">老阳⚊○</span></label>
+                                <label><input type="radio" name="line4" value="7" checked><span class="opt-btn">少阳⚊</span></label>
+                                <label><input type="radio" name="line4" value="8"><span class="opt-btn">少阴⚋</span></label>
+                                <label><input type="radio" name="line4" value="6"><span class="opt-btn">老阴⚋×</span></label>
+                            </div>
+                        </div>
+                        <div class="manual-row" data-line="3">
+                            <span class="manual-label">四爻</span>
+                            <div class="manual-options">
+                                <label><input type="radio" name="line3" value="9"><span class="opt-btn">老阳⚊○</span></label>
+                                <label><input type="radio" name="line3" value="7" checked><span class="opt-btn">少阳⚊</span></label>
+                                <label><input type="radio" name="line3" value="8"><span class="opt-btn">少阴⚋</span></label>
+                                <label><input type="radio" name="line3" value="6"><span class="opt-btn">老阴⚋×</span></label>
+                            </div>
+                        </div>
+                        <div class="manual-row" data-line="2">
+                            <span class="manual-label">三爻</span>
+                            <div class="manual-options">
+                                <label><input type="radio" name="line2" value="9"><span class="opt-btn">老阳⚊○</span></label>
+                                <label><input type="radio" name="line2" value="7" checked><span class="opt-btn">少阳⚊</span></label>
+                                <label><input type="radio" name="line2" value="8"><span class="opt-btn">少阴⚋</span></label>
+                                <label><input type="radio" name="line2" value="6"><span class="opt-btn">老阴⚋×</span></label>
+                            </div>
+                        </div>
+                        <div class="manual-row" data-line="1">
+                            <span class="manual-label">二爻</span>
+                            <div class="manual-options">
+                                <label><input type="radio" name="line1" value="9"><span class="opt-btn">老阳⚊○</span></label>
+                                <label><input type="radio" name="line1" value="7" checked><span class="opt-btn">少阳⚊</span></label>
+                                <label><input type="radio" name="line1" value="8"><span class="opt-btn">少阴⚋</span></label>
+                                <label><input type="radio" name="line1" value="6"><span class="opt-btn">老阴⚋×</span></label>
+                            </div>
+                        </div>
+                        <div class="manual-row" data-line="0">
+                            <span class="manual-label">初爻</span>
+                            <div class="manual-options">
+                                <label><input type="radio" name="line0" value="9"><span class="opt-btn">老阳⚊○</span></label>
+                                <label><input type="radio" name="line0" value="7" checked><span class="opt-btn">少阳⚊</span></label>
+                                <label><input type="radio" name="line0" value="8"><span class="opt-btn">少阴⚋</span></label>
+                                <label><input type="radio" name="line0" value="6"><span class="opt-btn">老阴⚋×</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="manual-submit-btn">排盘</button>
+                </div>
             </div>
 
             <div class="divination-area">
@@ -86,6 +147,26 @@
             <span class="close-btn">&times;</span>
             <h2 id="modal-title"></h2>
             <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- AI Interpret Modal -->
+    <div id="ai-modal" class="modal">
+        <div class="modal-content">
+            <span class="ai-close-btn close-btn">&times;</span>
+            <h2 id="ai-modal-title">AI 解卦</h2>
+            <div id="ai-modal-body">
+                <div id="ai-input-area">
+                    <label for="ai-question" class="ai-label">请输入占卜事件：</label>
+                    <textarea id="ai-question" class="ai-textarea" rows="3" maxlength="200" placeholder="例如：问事业发展、感情走向、投资决策..."></textarea>
+                    <button id="ai-submit-btn" class="ai-submit-btn">开始解卦</button>
+                </div>
+                <div id="ai-result-area" style="display:none;">
+                    <div id="ai-content" class="ai-content"></div>
+                    <div id="ai-error" class="ai-error" style="display:none;"></div>
+                    <button id="ai-retry-btn" class="ai-retry-btn" style="display:none;">重试</button>
+                </div>
+            </div>
         </div>
     </div>
 
