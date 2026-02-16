@@ -12,6 +12,7 @@ sed "s/__BUILD_VER__/$BUILD_VER/g" index.html > dist/index.html
 cp style.css dist/
 cp robots.txt dist/
 cp sitemap.xml dist/
+cp favicon.svg dist/
 
 # Build Astrology
 cd Astrology
