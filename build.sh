@@ -1,12 +1,14 @@
 #!/bin/bash
 set -e
 
+BUILD_VER=$(date +%s)
+
 # Clean
 rm -rf dist
 mkdir -p dist
 
-# Copy homepage and SEO files
-cp index.html dist/
+# Copy homepage and SEO files, inject version
+sed "s/__BUILD_VER__/$BUILD_VER/g" index.html > dist/index.html
 cp style.css dist/
 cp robots.txt dist/
 cp sitemap.xml dist/
@@ -18,14 +20,15 @@ npm run build
 cd ..
 cp -r Astrology/dist dist/astrology
 
-# Build hexagram
+# Build hexagram (Vite handles JS/CSS hashing, but HTML refs need version)
 cd hexagram
 npm install
 npm run build
 cd ..
 cp -r hexagram/dist dist/hexagram
+sed -i '' "s/__BUILD_VER__/$BUILD_VER/g" dist/hexagram/index.html dist/hexagram/study.html
 
-echo "Build complete. Output in dist/"
+echo "Build complete (v=$BUILD_VER). Output in dist/"
 
 # Deploy
 if [ "$1" = "--deploy" ] || [ "$1" = "-d" ]; then
