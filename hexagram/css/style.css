@@ -1,0 +1,871 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Ma+Shan+Zheng&display=swap');
+
+:root {
+    --bg-color: #f4ece1;
+    --bg-paper: #faf6ef;
+    --text-color: #3a2e2a;
+    --text-muted: #7a6b5d;
+    --accent-color: #8b2500;
+    --accent-gold: #b8860b;
+    --accent-gold-light: #d4a84b;
+    --line-yang-color: #2c2420;
+    --line-yin-color: #2c2420;
+    --line-moving-color: #c23616;
+    --border-color: #c4a97d;
+    --border-light: #ddd0bc;
+    --shadow-color: rgba(74, 52, 32, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+    background-color: var(--bg-color);
+    background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(196, 169, 125, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(196, 169, 125, 0.1) 0%, transparent 50%);
+    color: var(--text-color);
+    margin: 0;
+    padding: 24px 16px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* ── Container ── */
+.container {
+    max-width: 860px;
+    width: 100%;
+    background: var(--bg-paper);
+    padding: 40px 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow:
+        0 2px 20px var(--shadow-color),
+        inset 0 0 80px rgba(196, 169, 125, 0.06);
+    position: relative;
+}
+
+/* Corner ornaments */
+.container::before,
+.container::after {
+    content: '◆';
+    position: absolute;
+    color: var(--border-color);
+    font-size: 10px;
+    opacity: 0.6;
+}
+
+.container::before {
+    top: 8px;
+    left: 12px;
+}
+
+.container::after {
+    top: 8px;
+    right: 12px;
+}
+
+/* ── Header ── */
+header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-light);
+    position: relative;
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: var(--accent-color);
+}
+
+h1 {
+    font-family: "Ma Shan Zheng", "Noto Serif SC", "KaiTi", cursive;
+    font-size: 2.4em;
+    font-weight: 400;
+    color: var(--text-color);
+    letter-spacing: 0.15em;
+    margin: 0 0 12px 0;
+}
+
+.date-info {
+    font-size: 0.88em;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.7;
+    letter-spacing: 0.03em;
+}
+
+.shichen-highlight {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.xunkong-info {
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+/* ── Tags (旬空/日破/月破/旺衰) ── */
+.tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 0 4px;
+    border-radius: 2px;
+    border: 1px solid;
+    line-height: 1.5;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.tag-kong {
+    color: #7b2d8e;
+    border-color: #7b2d8e;
+    background: rgba(123, 45, 142, 0.08);
+}
+
+.tag-ripo {
+    color: #c23616;
+    border-color: #c23616;
+    background: rgba(194, 54, 22, 0.08);
+}
+
+.tag-yuepo {
+    color: #d35400;
+    border-color: #d35400;
+    background: rgba(211, 84, 0, 0.08);
+}
+
+.tag-wang {
+    color: #27ae60;
+    border-color: #27ae60;
+    background: rgba(39, 174, 96, 0.08);
+}
+
+.tag-xiang {
+    color: #2ecc71;
+    border-color: #2ecc71;
+    background: rgba(46, 204, 113, 0.08);
+}
+
+.tag-xiu {
+    color: #95a5a6;
+    border-color: #95a5a6;
+    background: rgba(149, 165, 166, 0.08);
+}
+
+.tag-qiu {
+    color: #d35400;
+    border-color: #d35400;
+    background: rgba(211, 84, 0, 0.08);
+}
+
+.tag-si {
+    color: #c0392b;
+    border-color: #c0392b;
+    background: rgba(192, 57, 43, 0.08);
+}
+
+/* ── Controls ── */
+.controls {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+button {
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #6e1d00 100%);
+    color: #f5ebe0;
+    border: 1px solid rgba(139, 37, 0, 0.3);
+    padding: 10px 28px;
+    border-radius: 3px;
+    font-size: 15px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(139, 37, 0, 0.2);
+}
+
+button:hover {
+    background: linear-gradient(135deg, #a03000 0%, #8b2500 100%);
+    box-shadow: 0 3px 10px rgba(139, 37, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(139, 37, 0, 0.2);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#status-message {
+    margin-top: 14px;
+    font-size: 0.92em;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+}
+
+/* ── Divination Area ── */
+.divination-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.hexagram-container {
+    width: 100%;
+    margin-bottom: 0;
+    text-align: center;
+    padding: 20px 16px;
+    background: rgba(250, 246, 239, 0.5);
+    border: 1px solid var(--border-light);
+    border-radius: 3px;
+    position: relative;
+}
+
+.hexagram-container h2 {
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-size: 1.15em;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin: 0 0 16px 0;
+    letter-spacing: 0.15em;
+    position: relative;
+    display: inline-block;
+}
+
+.hexagram-container h2::before,
+.hexagram-container h2::after {
+    content: '─';
+    color: var(--border-color);
+    margin: 0 8px;
+    font-weight: 300;
+}
+
+/* ── Hexagram Lines ── */
+.hexagram-lines {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    margin: 16px 0;
+    align-items: center;
+}
+
+.line-row {
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+    width: 100%;
+    justify-content: center;
+}
+
+.line-info-left {
+    flex: 1;
+    font-size: 12px;
+    text-align: left;
+    padding-right: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+}
+
+.line-graphic {
+    width: 180px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+/* Yang Line */
+.yang-line {
+    width: 100%;
+    height: 8px;
+    background-color: var(--line-yang-color);
+    border-radius: 1px;
+}
+
+/* Yin Line */
+.yin-line {
+    width: 100%;
+    height: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.yin-line::before,
+.yin-line::after {
+    content: '';
+    width: 42%;
+    height: 100%;
+    background-color: var(--line-yin-color);
+    display: block;
+    border-radius: 1px;
+}
+
+/* Moving Lines */
+.moving .yang-line {
+    background-color: var(--line-moving-color);
+}
+
+.moving .yin-line::before,
+.moving .yin-line::after {
+    background-color: var(--line-moving-color);
+}
+
+.moving-indicator {
+    position: absolute;
+    right: -20px;
+    color: var(--line-moving-color);
+    font-weight: bold;
+}
+
+.line-info-right {
+    flex: 1;
+    font-size: 12px;
+    padding-left: 10px;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 3px;
+    letter-spacing: 0.02em;
+    text-align: right;
+}
+
+.hexagram-subtitle {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.hexagram-name {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: 0.05em;
+}
+
+.hexagram-palace {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.hexagram-info {
+    text-align: center;
+    margin-top: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: 0.05em;
+}
+
+/* ── Coin Animation ── */
+.coin-container {
+    position: relative;
+    width: 320px;
+    height: 200px;
+    margin: 0 auto 20px auto;
+}
+
+.coin {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #d4a84b, #a67c30 50%, #8b6914 100%);
+    border: 3px solid #8b6914;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Noto Serif SC", serif;
+    font-weight: 700;
+    color: #5a3d0a;
+    font-size: 18px;
+    box-shadow:
+        0 3px 8px rgba(74, 52, 32, 0.35),
+        inset 0 1px 2px rgba(255, 255, 255, 0.25);
+    transition: transform 0.3s ease-out, top 0.3s ease-out, left 0.3s ease-out;
+}
+
+.coin.yin {
+    background: radial-gradient(circle at 35% 35%, #c4b39a, #9e8e76 50%, #7a6b5d 100%);
+    border-color: #7a6b5d;
+    color: #4a3d30;
+}
+
+.coin.yang {
+    background: radial-gradient(circle at 35% 35%, #d4a84b, #a67c30 50%, #8b6914 100%);
+    border-color: #8b6914;
+    color: #5a3d0a;
+}
+
+/* Coin Animation */
+@keyframes spin {
+    0% {
+        transform: rotateY(0deg) translateY(0);
+    }
+
+    25% {
+        transform: rotateY(90deg) translateY(-20px);
+    }
+
+    50% {
+        transform: rotateY(180deg) translateY(0);
+    }
+
+    75% {
+        transform: rotateY(270deg) translateY(-20px);
+    }
+
+    100% {
+        transform: rotateY(360deg) translateY(0);
+    }
+}
+
+.coin.spinning {
+    animation: spin 0.6s infinite linear;
+}
+
+.coin.yang.spinning {
+    background-image: linear-gradient(45deg, #d4a84b, #f5e6c8, #d4a84b);
+}
+
+.coin.yin.spinning {
+    background-image: linear-gradient(45deg, #c4b39a, #e8dfd0, #c4b39a);
+    border-color: #7a6b5d;
+    color: #4a3d30;
+}
+
+/* ── Modal ── */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(42, 32, 24, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: var(--bg-paper);
+    margin: 8% auto;
+    padding: 36px;
+    border: 1px solid var(--border-color);
+    width: 85%;
+    max-width: 640px;
+    border-radius: 4px;
+    box-shadow: 0 8px 32px rgba(42, 32, 24, 0.3);
+    position: relative;
+    animation: modalFadeIn 0.3s ease;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    color: var(--text-muted);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--accent-color);
+}
+
+#modal-title {
+    margin-top: 0;
+    color: var(--accent-color);
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-size: 1.3em;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 14px;
+    position: relative;
+}
+
+#modal-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--accent-color);
+}
+
+#modal-body {
+    line-height: 1.9;
+    color: var(--text-color);
+    font-size: 15px;
+    letter-spacing: 0.03em;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.modal-section {
+    margin-bottom: 20px;
+}
+
+.modal-section:last-child {
+    margin-bottom: 0;
+}
+
+.modal-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-color);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-toggle-btn {
+    font-size: 11px;
+    padding: 2px 10px;
+    margin-left: 8px;
+    flex-shrink: 0;
+    box-shadow: none;
+}
+
+.modal-classical-text {
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-size: 16px;
+    line-height: 2;
+    color: var(--text-color);
+    padding: 12px 16px;
+    background: rgba(196, 169, 125, 0.08);
+    border-left: 3px solid var(--accent-gold);
+    border-radius: 0 3px 3px 0;
+}
+
+.modal-modern-text {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--text-muted);
+    padding: 10px 16px;
+    background: rgba(139, 37, 0, 0.03);
+    border-left: 3px solid var(--accent-color);
+    border-radius: 0 3px 3px 0;
+}
+
+.modal-takashima-text {
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--text-color);
+}
+
+/* ── Modal Toggle Button ── */
+.modal-toggle-wrap {
+    text-align: right;
+    margin-bottom: 16px;
+}
+
+.modal-toggle-btn {
+    font-size: 12px;
+    padding: 4px 14px;
+    border: 1px solid var(--accent-gold);
+    background: transparent;
+    color: var(--accent-gold);
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.modal-toggle-btn:hover {
+    background: var(--accent-gold);
+    color: var(--bg-paper);
+}
+
+.modal-toggle-btn.active {
+    background: var(--accent-gold);
+    color: var(--bg-paper);
+}
+
+/* ── Takashima Button ── */
+.takashima-btn {
+    margin-top: 12px !important;
+    font-size: 13px !important;
+    padding: 6px 16px !important;
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #8b6914 100%) !important;
+    border-color: rgba(184, 134, 11, 0.3) !important;
+    letter-spacing: 0.08em !important;
+}
+
+.takashima-btn:hover {
+    background: linear-gradient(135deg, #c99b1e 0%, var(--accent-gold) 100%) !important;
+}
+
+/* ── Modal Nav ── */
+.modal-nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 0;
+    margin-bottom: 12px;
+    background: var(--bg-paper);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.modal-nav-link {
+    font-size: 12px;
+    padding: 3px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+}
+
+.modal-nav-link:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    background: rgba(139, 37, 0, 0.05);
+}
+
+/* ── History ── */
+.history-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+}
+
+.history-title {
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin: 0 0 12px 0;
+    text-align: center;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(250, 246, 239, 0.5);
+    border: 1px solid var(--border-light);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+}
+
+.history-item:hover {
+    border-color: var(--accent-gold);
+    background: rgba(184, 134, 11, 0.06);
+}
+
+.history-date {
+    color: var(--text-muted);
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-right: 12px;
+    cursor: pointer;
+}
+
+.history-name {
+    color: var(--text-color);
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+}
+
+.history-delete {
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: 8px;
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.history-delete:hover {
+    color: var(--accent-color);
+}
+
+.history-clear-btn {
+    display: block;
+    margin: 12px auto 0;
+    font-size: 12px;
+    padding: 4px 16px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-light);
+    box-shadow: none;
+    letter-spacing: 0.05em;
+}
+
+.history-clear-btn:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    background: rgba(139, 37, 0, 0.03);
+}
+
+/* ── Study Link ── */
+.study-link {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--accent-gold);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+}
+
+.study-link:hover {
+    color: var(--accent-gold-light);
+    text-decoration: underline;
+}
+
+/* ── Responsive ── */
+@media (max-width: 680px) {
+    .container {
+        padding: 24px 16px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .line-info-left {
+        font-size: 11px;
+    }
+
+    .line-info-right {
+        font-size: 11px;
+    }
+
+    .line-graphic {
+        width: 130px;
+    }
+
+    .coin-container {
+        width: 280px;
+        height: 180px;
+    }
+
+    .coin {
+        width: 56px;
+        height: 56px;
+        font-size: 16px;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 4% auto;
+        padding: 20px;
+    }
+
+    .tag {
+        font-size: 9px;
+        padding: 0 3px;
+    }
+}
+
+@media (max-width: 400px) {
+    .container {
+        padding: 16px 10px;
+    }
+
+    .line-info-left {
+        font-size: 10px;
+    }
+
+    .line-info-right {
+        font-size: 10px;
+    }
+
+    .line-graphic {
+        width: 110px;
+    }
+
+    .coin-container {
+        width: 240px;
+        height: 150px;
+    }
+
+    .coin {
+        width: 48px;
+        height: 48px;
+        font-size: 15px;
+        border-width: 2px;
+    }
+
+    .modal-nav-link {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+
+    .tag {
+        font-size: 8px;
+        padding: 0 2px;
+    }
+
+    h1 {
+        font-size: 1.6em;
+    }
+}

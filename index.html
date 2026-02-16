@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>周易 - 古法术数</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="taiji-wrapper">
+      <svg class="taiji" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="circle">
+            <circle cx="100" cy="100" r="100"/>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#circle)">
+          <!-- White background -->
+          <circle cx="100" cy="100" r="100" fill="#f5f0e8"/>
+          <!-- Black half (right) -->
+          <rect x="100" y="0" width="100" height="200" fill="#1a1a1a"/>
+          <!-- Black bulge top -->
+          <circle cx="100" cy="50" r="50" fill="#1a1a1a"/>
+          <!-- White bulge bottom -->
+          <circle cx="100" cy="150" r="50" fill="#f5f0e8"/>
+          <!-- White dot in black -->
+          <circle cx="100" cy="50" r="12" fill="#f5f0e8"/>
+          <!-- Black dot in white -->
+          <circle cx="100" cy="150" r="12" fill="#1a1a1a"/>
+        </g>
+        <!-- Outer ring -->
+        <circle cx="100" cy="100" r="99" fill="none" stroke="#8b7355" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <h1 class="title">周易</h1>
+    <p class="subtitle">古法术数 &middot; 天人合一</p>
+
+    <nav class="entries">
+      <a href="/astrology/" class="entry-card">
+        <span class="entry-icon">&#9734;</span>
+        <span class="entry-name">紫微斗数</span>
+        <span class="entry-desc">命盘排列 &middot; 星曜推演</span>
+      </a>
+      <a href="/hexagram/" class="entry-card">
+        <span class="entry-icon">&#9776;</span>
+        <span class="entry-name">六爻占卜</span>
+        <span class="entry-desc">摇卦问事 &middot; 周易六爻</span>
+      </a>
+    </nav>
+  </div>
+</body>
+</html>

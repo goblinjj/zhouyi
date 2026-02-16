@@ -1,0 +1,18 @@
+{
+    "short_name": "星耀查询",
+    "name": "紫微斗数-星耀查询",
+    "start_url": "/",
+    "display": "standalone",
+    "icons": [
+      {
+        "src": "/astrology192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/astrology.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ]
+  }

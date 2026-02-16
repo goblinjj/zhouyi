@@ -1,0 +1,7 @@
+{
+  "name": "zhouyi",
+  "private": true,
+  "scripts": {
+    "build": "bash build.sh"
+  }
+}

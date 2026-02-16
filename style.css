@@ -1,0 +1,113 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  color: #f5f0e8;
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  overflow: hidden;
+}
+
+.container {
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Taiji */
+.taiji-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.taiji {
+  width: min(50vw, 260px);
+  height: min(50vw, 260px);
+  animation: spin 30s linear infinite;
+  filter: drop-shadow(0 0 40px rgba(139, 115, 85, 0.3));
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Title */
+.title {
+  font-size: clamp(2.4rem, 8vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  margin-bottom: 0.4rem;
+  color: #f5f0e8;
+}
+
+.subtitle {
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+  color: #8b7355;
+  letter-spacing: 0.3em;
+  margin-bottom: 3rem;
+}
+
+/* Entry cards */
+.entries {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.entry-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.8rem 2.5rem;
+  border: 1px solid #8b735544;
+  border-radius: 12px;
+  background: rgba(139, 115, 85, 0.06);
+  text-decoration: none;
+  color: #f5f0e8;
+  transition: all 0.3s ease;
+  min-width: 180px;
+}
+
+.entry-card:hover {
+  border-color: #c9a84c;
+  background: rgba(201, 168, 76, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(201, 168, 76, 0.15);
+}
+
+.entry-icon {
+  font-size: 2rem;
+  color: #c9a84c;
+}
+
+.entry-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.entry-desc {
+  font-size: 0.78rem;
+  color: #8b7355;
+  letter-spacing: 0.1em;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .entries {
+    flex-direction: column;
+    align-items: center;
+  }
+  .entry-card {
+    width: 80vw;
+  }
+}

@@ -1,0 +1,46 @@
+/* 中国风古典主题 */
+:root {
+  --color-background: #faf6ef;
+  --color-background-soft: #fffcf5;
+  --color-background-mute: #f5f0e8;
+
+  --color-border: #d4c5a9;
+  --color-border-hover: #b8a88a;
+
+  --color-heading: #8b2500;
+  --color-text: #3c2415;
+
+  --color-accent: #8b2500;
+  --color-accent-gold: #b8860b;
+  --color-highlight: #c41e3a;
+
+  --section-gap: 160px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  line-height: 1.6;
+  font-family:
+    "楷体",
+    "STKaiti",
+    "KaiTi",
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
