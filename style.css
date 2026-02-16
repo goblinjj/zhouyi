@@ -19,7 +19,7 @@ body {
 
 .container {
   text-align: center;
-  padding: 2rem;
+  padding: 3rem;
 }
 
 .taiji {
@@ -38,10 +38,11 @@ body {
   display: flex;
   gap: 2rem;
   justify-content: center;
+  margin-top: 2vh;
 }
 
 .entries a {
-  font-size: clamp(1.1rem, 3.5vw, 1.35rem);
+  font-size: clamp(1.4rem, 5vw, 1.8rem);
   color: #8b2500;
   text-decoration: none;
   letter-spacing: 0.2em;
