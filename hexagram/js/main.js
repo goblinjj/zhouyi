@@ -889,7 +889,7 @@ function simpleMarkdown(text) {
 async function startAiInterpret(question) {
     aiInputArea.style.display = 'none';
     aiResultArea.style.display = 'block';
-    aiContent.innerHTML = '<span class="ai-cursor"></span>';
+    aiContent.innerHTML = '<div class="ai-loading"><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span class="ai-loading-text">正在解卦中，请稍候...</span></div>';
     aiError.style.display = 'none';
     aiRetryBtn.style.display = 'none';
 
