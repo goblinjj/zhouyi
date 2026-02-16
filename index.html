@@ -3,52 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>周易 - 古法术数</title>
-  <link rel="stylesheet" href="style.css">
+  <title>周易 - 紫微斗数与六爻占卜在线工具</title>
+  <meta name="description" content="周易在线术数工具，提供紫微斗数命盘排列、星耀推演，以及六爻占卜摇卦、高岛易断解卦等功能。">
+  <meta name="keywords" content="周易,紫微斗数,六爻占卜,排盘,命盘,星耀,摇卦,高岛易断,六十四卦,易经">
+  <link rel="canonical" href="https://zhouyi-dbn.pages.dev/">
+  <meta property="og:title" content="周易 - 紫微斗数与六爻占卜在线工具">
+  <meta property="og:description" content="周易在线术数工具，提供紫微斗数命盘排列与六爻占卜摇卦功能。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zhouyi-dbn.pages.dev/">
+  <meta property="og:locale" content="zh_CN">
+  <link rel="stylesheet" href="style.css?v=4">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "周易",
+    "url": "https://zhouyi-dbn.pages.dev/",
+    "description": "周易在线术数工具，提供紫微斗数命盘排列与六爻占卜摇卦功能。",
+    "inLanguage": "zh-CN"
+  }
+  </script>
 </head>
 <body>
   <div class="container">
-    <div class="taiji-wrapper">
-      <svg class="taiji" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <clipPath id="circle">
-            <circle cx="100" cy="100" r="100"/>
-          </clipPath>
-        </defs>
-        <g clip-path="url(#circle)">
-          <!-- White background -->
-          <circle cx="100" cy="100" r="100" fill="#f5f0e8"/>
-          <!-- Black half (right) -->
-          <rect x="100" y="0" width="100" height="200" fill="#1a1a1a"/>
-          <!-- Black bulge top -->
-          <circle cx="100" cy="50" r="50" fill="#1a1a1a"/>
-          <!-- White bulge bottom -->
-          <circle cx="100" cy="150" r="50" fill="#f5f0e8"/>
-          <!-- White dot in black -->
-          <circle cx="100" cy="50" r="12" fill="#f5f0e8"/>
-          <!-- Black dot in white -->
-          <circle cx="100" cy="150" r="12" fill="#1a1a1a"/>
-        </g>
-        <!-- Outer ring -->
-        <circle cx="100" cy="100" r="99" fill="none" stroke="#8b7355" stroke-width="2"/>
-      </svg>
-    </div>
+    <svg class="taiji" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="太极图">
+      <defs>
+        <clipPath id="c"><circle cx="100" cy="100" r="100"/></clipPath>
+      </defs>
+      <g clip-path="url(#c)">
+        <circle cx="100" cy="100" r="100" fill="#faf6ef"/>
+        <rect x="100" y="0" width="100" height="200" fill="#3a2e2a"/>
+        <circle cx="100" cy="50" r="50" fill="#3a2e2a"/>
+        <circle cx="100" cy="150" r="50" fill="#faf6ef"/>
+        <circle cx="100" cy="50" r="12" fill="#faf6ef"/>
+        <circle cx="100" cy="150" r="12" fill="#3a2e2a"/>
+      </g>
+      <circle cx="100" cy="100" r="99" fill="none" stroke="#c4a97d" stroke-width="1.5"/>
+    </svg>
 
-    <h1 class="title">周易</h1>
-    <p class="subtitle">古法术数 &middot; 天人合一</p>
-
-    <nav class="entries">
-      <a href="/astrology/" class="entry-card">
-        <span class="entry-icon">&#9734;</span>
-        <span class="entry-name">紫微斗数</span>
-        <span class="entry-desc">命盘排列 &middot; 星曜推演</span>
-      </a>
-      <a href="/hexagram/" class="entry-card">
-        <span class="entry-icon">&#9776;</span>
-        <span class="entry-name">六爻占卜</span>
-        <span class="entry-desc">摇卦问事 &middot; 周易六爻</span>
-      </a>
+    <nav class="entries" aria-label="功能导航">
+      <a href="/astrology/">紫微斗数</a>
+      <a href="/hexagram/">六爻占卜</a>
     </nav>
+
   </div>
+  <footer class="footer">
+    <a href="mailto:goblinjj@aliyun.com" style="color:#c4a97d;text-decoration:none;font-size:0.8rem;letter-spacing:0.25em;">─ 探讨交流 ─</a>
+  </footer>
 </body>
 </html>

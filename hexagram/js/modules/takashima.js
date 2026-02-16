@@ -1,4 +1,6 @@
 
+const BASE = import.meta.env.BASE_URL || '/';
+
 export class Takashima {
     constructor() {
         this.indexMap = null; // "111111" -> "1"
@@ -8,7 +10,7 @@ export class Takashima {
     async init() {
         try {
             // Load only the lightweight index map
-            const response = await fetch('/data/takashima_index.json');
+            const response = await fetch(`${BASE}data/takashima_index.json`);
             if (!response.ok) throw new Error("Failed to load Takashima index");
             this.indexMap = await response.json();
             console.log("Takashima index loaded.");
@@ -34,7 +36,7 @@ export class Takashima {
         let hex = this.cache[hexId];
         if (!hex) {
             try {
-                const res = await fetch(`/data/takashima/${hexId}.json`);
+                const res = await fetch(`${BASE}data/takashima/${hexId}.json`);
                 if (!res.ok) throw new Error(`Failed to load Hexagram ${hexId}`);
                 hex = await res.json();
                 this.cache[hexId] = hex;

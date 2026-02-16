@@ -5,9 +5,11 @@ set -e
 rm -rf dist
 mkdir -p dist
 
-# Copy homepage
+# Copy homepage and SEO files
 cp index.html dist/
 cp style.css dist/
+cp robots.txt dist/
+cp sitemap.xml dist/
 
 # Build Astrology
 cd Astrology

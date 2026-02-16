@@ -17,9 +17,11 @@ let idToCode = {};   // "1" -> "111111"
 let indexMap = {};    // "111111" -> "1"
 const hexCache = {}; // id -> hex data
 
+const BASE = import.meta.env.BASE_URL || '/';
+
 async function init() {
     try {
-        const res = await fetch('/data/takashima_index.json');
+        const res = await fetch(`${BASE}data/takashima_index.json`);
         if (!res.ok) throw new Error('Failed to load index');
         indexMap = await res.json();
         // Reverse: code→id  =>  id→code
@@ -90,7 +92,7 @@ function renderGrid() {
 async function fetchHex(id) {
     if (hexCache[id]) return hexCache[id];
     try {
-        const res = await fetch(`/data/takashima/${id}.json`);
+        const res = await fetch(`${BASE}data/takashima/${id}.json`);
         if (!res.ok) throw new Error(`Failed to load hexagram ${id}`);
         const data = await res.json();
         hexCache[id] = data;
