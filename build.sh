@@ -40,5 +40,5 @@ if [ "$1" = "--deploy" ] || [ "$1" = "-d" ]; then
   echo "Deploying to Cloudflare Pages..."
   npx wrangler pages deploy dist --project-name=zhouyi --branch=main --commit-dirty=true
 
-  echo "Done! Site live at https://zhouyi-dbn.pages.dev"
+  echo "Done! Site live at https://zhouyi.goblin.top"
 fi
