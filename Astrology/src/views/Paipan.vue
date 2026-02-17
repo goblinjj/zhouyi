@@ -332,7 +332,7 @@ function handleStarClick(name) {
            {{ showSettings ? '收起设置 ▲' : '展开设置 ▼' }}
          </button>
          <button class="btn-toggle-settings" style="flex: 1" @click="showHistory = !showHistory">
-           历史记录 (临时) {{ showHistory ? '▲' : '▼' }}
+           临时记录 {{ showHistory ? '▲' : '▼' }}
          </button>
          <button class="btn-ai-interpret" @click="openAiModal">AI 解盘</button>
        </div>
