@@ -131,44 +131,47 @@ ${hexagramInfo}
       },
     });
 
-    let geminiResponse = null;
-    for (const model of models) {
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
-      geminiResponse = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: requestBody,
-      });
-
-      if (geminiResponse.ok || (geminiResponse.status !== 429 && geminiResponse.status !== 403)) {
-        break; // success or non-rate-limit error, stop trying
-      }
-    }
-
-    if (!geminiResponse.ok) {
-      const status = geminiResponse.status;
-      let errorMsg = 'AI 服务暂时不可用，请稍后重试';
-      if (status === 429) errorMsg = '请求太频繁，请稍后再试';
-      else if (status === 403) errorMsg = 'AI 服务今日额度已用完，请明天再试';
-
-      return new Response(JSON.stringify({ error: errorMsg }), {
-        status,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      });
-    }
-
-    // Stream the response through
+    // Start streaming response immediately to prevent Cloudflare 524 timeout.
+    // Send heartbeat comments while waiting for Gemini API.
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
 
-    const streamBody = geminiResponse.body;
-    const reader = streamBody.getReader();
-    const decoder = new TextDecoder();
+    const heartbeat = setInterval(async () => {
+      try { await writer.write(encoder.encode(': heartbeat\n\n')); } catch {}
+    }, 8000);
 
     (async () => {
-      let buffer = '';
       try {
+        await writer.write(encoder.encode(': connected\n\n'));
+
+        let geminiResponse = null;
+        for (const model of models) {
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+          geminiResponse = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: requestBody,
+          });
+
+          if (geminiResponse.ok || (geminiResponse.status !== 429 && geminiResponse.status !== 403)) {
+            break;
+          }
+        }
+
+        if (!geminiResponse.ok) {
+          const status = geminiResponse.status;
+          let errorMsg = 'AI 服务暂时不可用，请稍后重试';
+          if (status === 429) errorMsg = '请求太频繁，请稍后再试';
+          else if (status === 403) errorMsg = 'AI 服务今日额度已用完，请明天再试';
+          await writer.write(encoder.encode(`data: ${JSON.stringify({ error: errorMsg })}\n\n`));
+          return;
+        }
+
+        const reader = geminiResponse.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -212,6 +215,7 @@ ${hexagramInfo}
       } catch (err) {
         await writer.write(encoder.encode(`data: ${JSON.stringify({ error: '传输中断' })}\n\n`));
       } finally {
+        clearInterval(heartbeat);
         await writer.close();
       }
     })();

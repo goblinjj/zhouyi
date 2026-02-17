@@ -436,6 +436,7 @@ function handleStarClick(name) {
     <AiInterpretModal
       :visible="showAiModal"
       :chartInfo="aiChartInfo"
+      :hasSelectedScope="!!(selDecadal || selYear)"
       @close="showAiModal = false"
     />
   </div>

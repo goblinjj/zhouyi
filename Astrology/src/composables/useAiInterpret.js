@@ -97,30 +97,71 @@ export function useAiInterpret() {
       lines.push(`【身宫】位于${bodyPalace.name}`)
     }
 
+    // If user hasn't selected decadal/year, auto-calculate for current year
+    let useHoroscope = horoscopeData
+    let useDecadal = selDecadal
+    let useYear = selYear
+    let autoCalculated = false
+
+    if (!selDecadal && !selYear) {
+      try {
+        const now = new Date()
+        const currentYear = now.getFullYear()
+        const dateStr = `${currentYear}-${now.getMonth() + 1}-${now.getDate()}`
+        const autoData = astrolabe.horoscope(dateStr, 0)
+        if (autoData) {
+          useHoroscope = {
+            decadal: autoData.decadal,
+            yearly: autoData.yearly,
+            age: autoData.age,
+          }
+          // Find matching decadal from palaces
+          if (autoData.decadal) {
+            const dp = astrolabe.palaces.find(p =>
+              p.decadal && p.decadal.range[0] <= (autoData.age?.nominalAge || 0) &&
+              p.decadal.range[1] >= (autoData.age?.nominalAge || 0)
+            )
+            if (dp) {
+              useDecadal = {
+                stem: dp.decadal.heavenlyStem,
+                branch: dp.decadal.earthlyBranch,
+                range: dp.decadal.range,
+                name: dp.name,
+              }
+            }
+          }
+          useYear = currentYear
+          autoCalculated = true
+        }
+      } catch (e) {
+        // fallback: no decadal/year info
+      }
+    }
+
     // Decadal info
-    if (selDecadal && horoscopeData?.decadal) {
+    if (useDecadal && useHoroscope?.decadal) {
       lines.push('')
-      lines.push(`【大限信息】`)
-      lines.push(`大限：${selDecadal.stem}${selDecadal.branch}（${selDecadal.range[0]}-${selDecadal.range[1]}岁）`)
-      lines.push(`大限宫位：${selDecadal.name}`)
-      if (horoscopeData.decadal.mutagen) {
-        const mutagenStrs = horoscopeData.decadal.mutagen.map((star, i) =>
+      lines.push(`【大限信息】${autoCalculated ? '（自动按当前年份计算）' : ''}`)
+      lines.push(`大限：${useDecadal.stem}${useDecadal.branch}（${useDecadal.range[0]}-${useDecadal.range[1]}岁）`)
+      lines.push(`大限宫位：${useDecadal.name}`)
+      if (useHoroscope.decadal.mutagen) {
+        const mutagenStrs = useHoroscope.decadal.mutagen.map((star, i) =>
           `${star} 化${MUTAGEN_LABELS[i]}`
         )
         lines.push(`大限四化：${mutagenStrs.join('、')}`)
       }
     }
 
-    // Year info
-    if (selYear && horoscopeData?.yearly) {
+    // Year info (only when user selected year, or auto-calculated; skip if user only selected decadal)
+    if (useYear && useHoroscope?.yearly && (autoCalculated || selYear)) {
       lines.push('')
-      lines.push(`【流年信息】`)
-      lines.push(`流年：${horoscopeData.yearly.heavenlyStem}${horoscopeData.yearly.earthlyBranch}年`)
-      if (horoscopeData.age?.nominalAge) {
-        lines.push(`虚岁：${horoscopeData.age.nominalAge}`)
+      lines.push(`【流年信息】${autoCalculated ? '（自动按当前年份计算）' : ''}`)
+      lines.push(`流年：${useHoroscope.yearly.heavenlyStem}${useHoroscope.yearly.earthlyBranch}年`)
+      if (useHoroscope.age?.nominalAge) {
+        lines.push(`虚岁：${useHoroscope.age.nominalAge}`)
       }
-      if (horoscopeData.yearly.mutagen) {
-        const mutagenStrs = horoscopeData.yearly.mutagen.map((star, i) =>
+      if (useHoroscope.yearly.mutagen) {
+        const mutagenStrs = useHoroscope.yearly.mutagen.map((star, i) =>
           `${star} 化${MUTAGEN_LABELS[i]}`
         )
         lines.push(`流年四化：${mutagenStrs.join('、')}`)
