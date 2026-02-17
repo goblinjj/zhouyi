@@ -314,7 +314,20 @@ function handleStarClick(name) {
 
     <!-- Compact Form -->
     <div v-if="astrolabe" class="compact-bar">
-       <div style="display: flex; gap: 8px;">
+       <div style="display: flex; gap: 8px; align-items: center;">
+         <a href="/" class="btn-home" title="回到首页">
+           <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+             <defs><clipPath id="tj"><circle cx="100" cy="100" r="100"/></clipPath></defs>
+             <g clip-path="url(#tj)">
+               <circle cx="100" cy="100" r="100" fill="#faf6ef"/>
+               <rect x="100" y="0" width="100" height="200" fill="#3a2e2a"/>
+               <circle cx="100" cy="50" r="50" fill="#3a2e2a"/>
+               <circle cx="100" cy="150" r="50" fill="#faf6ef"/>
+               <circle cx="100" cy="50" r="12" fill="#faf6ef"/>
+               <circle cx="100" cy="150" r="12" fill="#3a2e2a"/>
+             </g>
+           </svg>
+         </a>
          <button class="btn-toggle-settings" style="flex: 1" @click="showSettings = !showSettings">
            {{ showSettings ? '收起设置 ▲' : '展开设置 ▼' }}
          </button>
@@ -506,6 +519,13 @@ function handleStarClick(name) {
 
 /* Toggle Bar */
 .compact-bar { margin-bottom: 0.5em; display: flex; flex-direction: column; align-items: stretch; }
+.btn-home {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; flex-shrink: 0;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.btn-home:hover { background: rgba(139, 37, 0, 0.08); }
 .btn-toggle-settings {
   background: #faf6ef; border: 1px dashed #d4c5a9;
   color: #8b2500; cursor: pointer;
