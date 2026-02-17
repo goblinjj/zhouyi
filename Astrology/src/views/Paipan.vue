@@ -210,15 +210,18 @@ const currentStar = ref({})
 const showAiModal = ref(false)
 const { collectChartInfo } = useAiInterpret()
 const aiChartInfo = ref('')
+const aiScopeDesc = ref('')
 
 function openAiModal() {
-  aiChartInfo.value = collectChartInfo(
+  const result = collectChartInfo(
     astrolabe.value,
     horoscopeData.value,
     selDecadal.value,
     selYear.value,
     gender.value
   )
+  aiChartInfo.value = result.chartInfo
+  aiScopeDesc.value = result.scopeDesc
   showAiModal.value = true
 }
 
@@ -436,7 +439,7 @@ function handleStarClick(name) {
     <AiInterpretModal
       :visible="showAiModal"
       :chartInfo="aiChartInfo"
-      :hasSelectedScope="!!(selDecadal || selYear)"
+      :scopeDesc="aiScopeDesc"
       @close="showAiModal = false"
     />
   </div>

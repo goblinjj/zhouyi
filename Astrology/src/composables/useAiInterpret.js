@@ -168,7 +168,28 @@ export function useAiInterpret() {
       }
     }
 
-    return lines.join('\n')
+    // Build scope description for UI display
+    const scopeParts = []
+    if (useDecadal) {
+      const label = autoCalculated ? '自动' : '已选'
+      scopeParts.push(`大限：${useDecadal.stem}${useDecadal.branch}（${useDecadal.range[0]}-${useDecadal.range[1]}岁）[${label}]`)
+    }
+    if (useYear && (autoCalculated || selYear)) {
+      const label = autoCalculated ? '自动' : '已选'
+      const yearLabel = useHoroscope?.yearly
+        ? `${useHoroscope.yearly.heavenlyStem}${useHoroscope.yearly.earthlyBranch}年`
+        : `${useYear}年`
+      scopeParts.push(`流年：${yearLabel} [${label}]`)
+    }
+    if (scopeParts.length === 0) {
+      scopeParts.push('仅分析本命盘')
+    }
+
+    return {
+      chartInfo: lines.join('\n'),
+      scopeDesc: scopeParts.join('，'),
+      autoCalculated,
+    }
   }
 
   async function startAiInterpret(chartInfo, question) {

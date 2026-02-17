@@ -5,7 +5,7 @@ import { useAiInterpret } from '../composables/useAiInterpret'
 const props = defineProps({
   visible: { type: Boolean, default: false },
   chartInfo: { type: String, default: '' },
-  hasSelectedScope: { type: Boolean, default: false },
+  scopeDesc: { type: String, default: '' },
 })
 
 const emit = defineEmits(['close'])
@@ -63,8 +63,7 @@ function close() {
               maxlength="200"
               placeholder="例如：事业发展、感情婚姻、财运走向、健康状况..."
             ></textarea>
-            <p class="ai-scope-hint" v-if="!hasSelectedScope">提示：未选择大限流年，将自动按当前年份分析。如需指定，请先在命盘下方选择大限和流年。</p>
-            <p class="ai-scope-hint selected" v-else>已选择大限/流年，将按所选运限进行分析。</p>
+            <p class="ai-scope-hint" v-if="scopeDesc">本次解盘范围：{{ scopeDesc }}</p>
             <p class="ai-hint">初筮告，再三渎，渎则不告。心诚则灵，每日解盘次数有限，望珍惜每次问盘机缘。</p>
             <button class="ai-submit-btn" @click="submit" :disabled="aiLoading">开始解盘</button>
           </div>
@@ -198,12 +197,6 @@ function close() {
   line-height: 1.6;
   text-align: center;
 }
-.ai-scope-hint.selected {
-  color: #2c6e49;
-  background: rgba(44, 110, 73, 0.08);
-  border-color: rgba(44, 110, 73, 0.3);
-}
-
 .ai-hint {
   font-size: 12px;
   color: #999;
