@@ -14,7 +14,9 @@ import PalaceCell from '../components/PalaceCell.vue'
 import CenterInfo from '../components/CenterInfo.vue'
 import HoroscopePanel from '../components/HoroscopePanel.vue'
 import Popup from '../views/Popup.vue'
+import AiInterpretModal from '../components/AiInterpretModal.vue'
 import starData from '@/data/index'
+import { useAiInterpret } from '../composables/useAiInterpret'
 
 const route = useRoute()
 const router = useRouter()
@@ -204,6 +206,22 @@ function getPalaceScopes(p) {
 
 const currentStar = ref({})
 
+// ===== AI Interpret =====
+const showAiModal = ref(false)
+const { collectChartInfo } = useAiInterpret()
+const aiChartInfo = ref('')
+
+function openAiModal() {
+  aiChartInfo.value = collectChartInfo(
+    astrolabe.value,
+    horoscopeData.value,
+    selDecadal.value,
+    selYear.value,
+    gender.value
+  )
+  showAiModal.value = true
+}
+
 // Mapping for paired stars that are stored together in data
 const STAR_MAPPING = {
   '左辅': '辅弼',
@@ -300,6 +318,7 @@ function handleStarClick(name) {
          <button class="btn-toggle-settings" style="flex: 1" @click="showHistory = !showHistory">
            历史记录 (临时) {{ showHistory ? '▲' : '▼' }}
          </button>
+         <button class="btn-ai-interpret" @click="openAiModal">AI 解盘</button>
        </div>
        
        <!-- Settings Panel -->
@@ -412,6 +431,13 @@ function handleStarClick(name) {
 
     <!-- Star Details Popup -->
     <Popup v-model="currentStar" />
+
+    <!-- AI Interpret Modal -->
+    <AiInterpretModal
+      :visible="showAiModal"
+      :chartInfo="aiChartInfo"
+      @close="showAiModal = false"
+    />
   </div>
 </template>
 
@@ -484,6 +510,16 @@ function handleStarClick(name) {
   transition: all 0.2s;
 }
 .btn-toggle-settings:hover { background: #fdfbf7; border-color: #8b2500; }
+
+.btn-ai-interpret {
+  background: linear-gradient(135deg, #2c6e49 0%, #1a4731 100%);
+  border: none; color: #fff; cursor: pointer;
+  padding: 0.3em 0.8em; border-radius: 6px;
+  font-size: 0.85em; font-family: inherit;
+  letter-spacing: 0.08em; white-space: nowrap;
+  transition: all 0.2s;
+}
+.btn-ai-interpret:hover { background: linear-gradient(135deg, #3a8f5f 0%, #2c6e49 100%); }
 
 .history-panel {
   background: var(--color-background-soft);
