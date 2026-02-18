@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, inject } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useWindowSize } from '@vueuse/core'
 import { astro } from 'iztro'
 
 const setNavVisible = inject('setNavVisible')
@@ -225,6 +226,15 @@ function openAiModal() {
   showAiModal.value = true
 }
 
+// Smooth zoom for wide screens
+const { width: winWidth } = useWindowSize()
+const chartZoom = computed(() => {
+  const w = winWidth.value
+  if (w <= 1080) return 1
+  // Linear from 1.0 at 1080px to 1.7 at 1920px
+  return Math.min(1 + (w - 1080) * 0.7 / 840, 2.0)
+})
+
 // Mapping for paired stars that are stored together in data
 const STAR_MAPPING = {
   '左辅': '辅弼',
@@ -402,7 +412,7 @@ function handleStarClick(name) {
     </div>
 
     <!-- Chart -->
-    <div v-if="astrolabe" class="chart-section">
+    <div v-if="astrolabe" class="chart-section" :style="{ zoom: chartZoom }">
       <div class="chart-grid">
         <!-- 12 Palaces -->
         <PalaceCell
@@ -613,17 +623,8 @@ function handleStarClick(name) {
   background: #faf6ef;
 }
 
-/* PC wide screen: scale up chart */
+/* PC wide screen: widen container to accommodate zoomed chart */
 @media (min-width: 1200px) {
-  .paipan-page { max-width: 1400px; }
-  .chart-section { zoom: 1.25; }
-}
-@media (min-width: 1600px) {
-  .paipan-page { max-width: 1600px; }
-  .chart-section { zoom: 1.5; }
-}
-@media (min-width: 1920px) {
-  .paipan-page { max-width: 1800px; }
-  .chart-section { zoom: 1.7; }
+  .paipan-page { max-width: 90vw; }
 }
 </style>
