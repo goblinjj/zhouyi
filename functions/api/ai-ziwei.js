@@ -132,7 +132,7 @@ export async function onRequestPost(context) {
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 16384,
       },
     });
 
