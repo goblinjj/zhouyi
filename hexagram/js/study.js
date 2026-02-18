@@ -83,7 +83,8 @@ function renderGrid() {
         cell.innerHTML =
             `<span class="hex-cell-num">${id}</span>` +
             linesHtml +
-            `<span class="hex-cell-name">${name}</span>`;
+            `<span class="hex-cell-name">${name}</span>` +
+            `<a href="/hexagram/gua/${id}.html" class="hex-cell-seo-link" title="查看${name}详解" onclick="event.stopPropagation()">详解</a>`;
         cell.addEventListener('click', () => showHexDetail(id));
         grid.appendChild(cell);
     }

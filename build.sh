@@ -33,6 +33,9 @@ cd ..
 cp -r hexagram/dist dist/hexagram
 sed -i '' "s/__BUILD_VER__/$BUILD_VER/g" dist/hexagram/index.html dist/hexagram/study.html
 
+# Generate SEO static pages (hexagram, stars, classics) + update sitemap
+node scripts/generate-seo-pages.js
+
 # Copy Cloudflare Pages Functions
 if [ -d "functions" ]; then
   cp -r functions dist/functions
