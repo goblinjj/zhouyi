@@ -1,4 +1,7 @@
 startCommand:
   type: sse
   url: https://zhouyi-mcp.goblin.top/sse
-configSchema: {}
+  configSchema:
+    type: object
+    properties: {}
+    additionalProperties: false

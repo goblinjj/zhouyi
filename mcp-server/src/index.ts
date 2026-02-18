@@ -2,6 +2,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createMcpHandler } from "agents/mcp";
 import { z } from "zod";
 
+// Smithery config schema — no config required (public data, no API keys)
+export const configSchema = z.object({});
+
 const API_BASE = "https://zhouyi.goblin.top/api";
 
 async function fetchJson(path: string): Promise<any> {
