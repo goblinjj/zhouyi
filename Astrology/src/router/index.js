@@ -18,6 +18,11 @@ const router = createRouter({
       path: '/dianji',
       name: '典籍',
       component: () => import('../views/Classics.vue')
+    },
+    {
+      path: '/true-solar-time',
+      name: '真太阳时',
+      component: () => import('../views/TrueSolarTime.vue')
     }
   ]
 })

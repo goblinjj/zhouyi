@@ -343,6 +343,7 @@ function handleStarClick(name) {
         <RouterLink class="compact-navlink" to="/">排盘</RouterLink>
         <RouterLink class="compact-navlink" to="/stars">星耀</RouterLink>
         <RouterLink class="compact-navlink" to="/dianji">典籍</RouterLink>
+        <RouterLink class="compact-navlink" to="/true-solar-time">真太阳时</RouterLink>
       </nav>
       <div class="fc-row" style="flex-wrap: wrap; gap: 6px;">
         <input type="date" v-model="date" class="form-input-sm" />

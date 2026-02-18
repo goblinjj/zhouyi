@@ -25,6 +25,7 @@ provide('setNavVisible', (val) => { isNavVisible.value = val })
       <RouterLink class="routelink" to="/">排盘</RouterLink>
       <RouterLink class="routelink" to="/stars">星耀</RouterLink>
       <RouterLink class="routelink" to="/dianji">典籍</RouterLink>
+      <RouterLink class="routelink" to="/true-solar-time">真太阳时</RouterLink>
     </nav>
     <div class="divider"></div>
   </div>
