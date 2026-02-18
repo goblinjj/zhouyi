@@ -127,7 +127,8 @@ ${hexagramInfo}
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 16384,
+        maxOutputTokens: 65536,
+        thinkingConfig: { thinkingBudget: 2048 },
       },
     });
 
