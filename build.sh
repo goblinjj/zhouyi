@@ -12,7 +12,6 @@ sed "s/__BUILD_VER__/$BUILD_VER/g" index.html > dist/index.html
 cp style.css dist/
 cp robots.txt dist/
 cp sitemap.xml dist/
-cp _redirects dist/
 cp favicon.svg dist/
 
 # Build Astrology
@@ -21,6 +20,10 @@ npm install
 npm run build
 cd ..
 cp -r Astrology/dist dist/astrology
+# SPA fallback: copy index.html to sub-routes for direct navigation
+mkdir -p dist/astrology/dianji dist/astrology/stars
+cp Astrology/dist/index.html dist/astrology/dianji/index.html
+cp Astrology/dist/index.html dist/astrology/stars/index.html
 
 # Build hexagram (Vite handles JS/CSS hashing, but HTML refs need version)
 cd hexagram
