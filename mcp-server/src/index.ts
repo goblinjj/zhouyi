@@ -157,23 +157,11 @@ const serverCard = {
   ],
 };
 
-const mcpHandler = createMcpHandler(buildServer(), {
-  route: "/mcp",
-  corsOptions: {
-    origin: "*",
-    methods: "GET, POST, DELETE, OPTIONS",
-    headers: "Content-Type, mcp-session-id, mcp-protocol-version",
-  },
-});
-
-const mcpHandlerSSE = createMcpHandler(buildServer(), {
-  route: "/sse",
-  corsOptions: {
-    origin: "*",
-    methods: "GET, POST, DELETE, OPTIONS",
-    headers: "Content-Type, mcp-session-id, mcp-protocol-version",
-  },
-});
+const corsOpts = {
+  origin: "*",
+  methods: "GET, POST, DELETE, OPTIONS",
+  headers: "Content-Type, mcp-session-id, mcp-protocol-version",
+};
 
 export default {
   async fetch(request: Request, env: unknown, ctx: ExecutionContext) {
@@ -197,11 +185,13 @@ export default {
     }
 
     if (url.pathname === "/mcp") {
-      return mcpHandler(request, env, ctx);
+      const handler = createMcpHandler(buildServer(), { route: "/mcp", corsOptions: corsOpts });
+      return handler(request, env, ctx);
     }
 
     if (url.pathname === "/sse") {
-      return mcpHandlerSSE(request, env, ctx);
+      const handler = createMcpHandler(buildServer(), { route: "/sse", corsOptions: corsOpts });
+      return handler(request, env, ctx);
     }
 
     return new Response("Not Found", { status: 404 });
