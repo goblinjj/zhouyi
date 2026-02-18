@@ -835,14 +835,14 @@ function addAiButton(container) {
     btn.onclick = () => {
         currentHexagramInfo = collectHexagramInfo();
         aiModal.style.display = 'block';
-        aiInputArea.style.display = 'block';
-        aiResultArea.style.display = 'none';
-        aiContent.innerHTML = '';
-        aiError.style.display = 'none';
-        aiRetryBtn.style.display = 'none';
-        aiQuestion.value = '';
-        aiSubmitBtn.disabled = false;
-        aiSubmitBtn.innerText = '开始解卦';
+        // Preserve previous result if exists
+        if (!aiContent.innerHTML.trim()) {
+            aiInputArea.style.display = 'block';
+            aiResultArea.style.display = 'none';
+            aiQuestion.value = '';
+            aiSubmitBtn.disabled = false;
+            aiSubmitBtn.innerText = '开始解卦';
+        }
     };
 }
 
