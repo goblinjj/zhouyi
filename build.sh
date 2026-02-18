@@ -22,9 +22,10 @@ npm run build
 cd ..
 cp -r Astrology/dist dist/astrology
 # SPA fallback: copy index.html to sub-routes for direct navigation
-mkdir -p dist/astrology/dianji dist/astrology/stars
+mkdir -p dist/astrology/dianji dist/astrology/stars dist/astrology/true-solar-time
 cp Astrology/dist/index.html dist/astrology/dianji/index.html
 cp Astrology/dist/index.html dist/astrology/stars/index.html
+cp Astrology/dist/index.html dist/astrology/true-solar-time/index.html
 
 # Build hexagram (Vite handles JS/CSS hashing, but HTML refs need version)
 cd hexagram
