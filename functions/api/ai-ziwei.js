@@ -51,7 +51,7 @@ export async function onRequestPost(context) {
     const kv = context.env.RATE_LIMIT_KV;
     const allowed = await checkRateLimit(ip, kv);
     if (!allowed) {
-      return new Response(JSON.stringify({ error: '请求太频繁，请稍后再试（每小时最多10次）' }), {
+      return new Response(JSON.stringify({ error: '请求太频繁，请稍后再试（每小时最多3次）' }), {
         status: 429,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
