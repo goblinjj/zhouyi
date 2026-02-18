@@ -15,8 +15,9 @@ const { aiLoading, aiContent, aiError, aiDone, startAiInterpret, simpleMarkdown,
 const question = ref('')
 const showResult = ref(false)
 
+// Only reset state when opening fresh (no previous result)
 watch(() => props.visible, (val) => {
-  if (val) {
+  if (val && !aiContent.value) {
     question.value = ''
     showResult.value = false
     reset()
