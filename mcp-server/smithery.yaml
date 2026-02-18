@@ -1,0 +1,3 @@
+startCommand:
+  type: sse
+  url: https://zhouyi-mcp.goblin.top/sse

@@ -1,0 +1,60 @@
+# 周易占卜 (ZhouYi Divination)
+
+> Chinese traditional divination and Zi Wei Dou Shu (Purple Star Astrology) encyclopedia.
+
+Website: https://zhouyi.goblin.top
+
+## Capabilities
+
+This site provides structured data on three domains of Chinese metaphysics:
+
+1. **I Ching Hexagrams (易经六十四卦)** — All 64 hexagrams with classical text, modern interpretation, and Takashima divination commentary for each hexagram and its six lines.
+2. **Zi Wei Dou Shu Stars (紫微斗数星耀)** — 53 stars/star-combinations with classical references, general descriptions, and interpretations across all 12 palaces.
+3. **Zi Wei Dou Shu Classics (紫微斗数典籍)** — 23 classical texts including 太微赋, 形性赋, and other foundational treatises.
+
+## JSON API
+
+All data is available as static JSON. No authentication required.
+
+### Hexagrams
+
+- `GET /api/hexagram/index.json` — List of all 64 hexagrams
+  Returns: `[{ "id": 1, "name": "乾为天", "pinyin": "qian_wei_tian", "palace": "乾宫" }, ...]`
+
+- `GET /api/hexagram/{id}.json` — Full hexagram data (id: 1–64)
+  Returns: Complete hexagram object with `name`, `pinyin`, `code`, `palace`, `guaci`, `modern_guaci`, `general_text`, `modern_general_text`, `takashima_general`, `modern_takashima_general`, and `lines` (each line has `text`, `modern_text`, `takashima_explanation`, `modern_takashima_explanation`).
+
+### Stars
+
+- `GET /api/star/index.json` — List of all 53 stars
+  Returns: `[{ "name": "紫微", "filename": "ZiWei", "category": "十四主星" }, ...]`
+
+- `GET /api/star/{filename}.json` — Full star data (e.g. ZiWei, TianJi, TaiYang)
+  Returns: Star object with `title`, `category`, `经典` (classical text), `all` (overview), and 12 palace interpretations (`命宫`, `兄弟宫`, `夫妻宫`, `子女宫`, `财帛宫`, `疾厄宫`, `迁移宫`, `交友宫`, `官禄宫`, `田宅宫`, `福禄宫`, `父母宫`).
+
+### Classics
+
+- `GET /api/classic/index.json` — List of all 23 classics
+  Returns: `[{ "id": 0, "title": "太微赋" }, ...]`
+
+- `GET /api/classic/{id}.json` — Full classic text (id: 0–22)
+  Returns: Classic object with `title`, `content`, and optionally `sections` (array of `{ title, content }`).
+
+## MCP Server
+
+A Model Context Protocol server is available for AI agents:
+
+URL: `https://zhouyi-mcp.goblin.top/sse`
+
+Tools provided:
+- `lookup_hexagram` — Query hexagram data (pass `id` for details, omit for list)
+- `lookup_star` — Query star data (pass `name` like "ZiWei" for details, omit for list)
+- `lookup_classic` — Query classic text data (pass `id` for details, omit for list)
+
+## Links
+
+- Homepage: https://zhouyi.goblin.top
+- I Ching Study: https://zhouyi.goblin.top/hexagram/study.html
+- Astrology: https://zhouyi.goblin.top/astrology/
+- Stars Index: https://zhouyi.goblin.top/astrology/stars
+- Classics Index: https://zhouyi.goblin.top/astrology/dianji

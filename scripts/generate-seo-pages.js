@@ -612,6 +612,75 @@ function generateSitemap(newUrls) {
   console.log(`  Sitemap updated with ${existingUrls.length + newUrls.length} URLs`);
 }
 
+// ─── Static JSON API ───
+
+function generateApiJson() {
+  console.log('Generating static JSON API...');
+
+  // --- Hexagram API ---
+  const hexApiDir = path.join(DIST, 'api', 'hexagram');
+  mkdir(hexApiDir);
+
+  const hexDataDir = path.resolve(__dirname, '..', 'hexagram', 'public', 'data', 'takashima');
+  const hexIndex = [];
+
+  for (let id = 1; id <= 64; id++) {
+    const jsonPath = path.join(hexDataDir, `${id}.json`);
+    if (!fs.existsSync(jsonPath)) continue;
+    const hex = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+    hexIndex.push({ id, name: hex.name, pinyin: hex.pinyin, palace: hex.palace });
+    fs.writeFileSync(path.join(hexApiDir, `${id}.json`), JSON.stringify(hex), 'utf8');
+  }
+
+  fs.writeFileSync(path.join(hexApiDir, 'index.json'), JSON.stringify(hexIndex), 'utf8');
+  console.log(`  API: ${hexIndex.length} hexagrams`);
+
+  // --- Star API ---
+  const starApiDir = path.join(DIST, 'api', 'star');
+  mkdir(starApiDir);
+
+  const starsDir = path.resolve(__dirname, '..', 'Astrology', 'src', 'data', 'stars');
+  const starFiles = fs.readdirSync(starsDir).filter(f => f.endsWith('.js') && f !== '模板.js');
+  const starIndex = [];
+
+  for (const file of starFiles) {
+    let star;
+    try {
+      star = parseJsExport(path.join(starsDir, file));
+    } catch (e) {
+      continue;
+    }
+    const filename = path.basename(file, '.js');
+    starIndex.push({ name: star.title, filename, category: star.category ? star.category.title : '' });
+    fs.writeFileSync(path.join(starApiDir, `${filename}.json`), JSON.stringify(star), 'utf8');
+  }
+
+  fs.writeFileSync(path.join(starApiDir, 'index.json'), JSON.stringify(starIndex), 'utf8');
+  console.log(`  API: ${starIndex.length} stars`);
+
+  // --- Classic API ---
+  const classicApiDir = path.join(DIST, 'api', 'classic');
+  mkdir(classicApiDir);
+
+  const classicsPath = path.resolve(__dirname, '..', 'Astrology', 'src', 'data', 'classics.js');
+  let classics;
+  try {
+    classics = parseJsExport(classicsPath);
+  } catch (e) {
+    console.error(`  Error parsing classics.js: ${e.message}`);
+    return;
+  }
+
+  const classicIndex = [];
+  for (let i = 0; i < classics.length; i++) {
+    classicIndex.push({ id: i, title: classics[i].title });
+    fs.writeFileSync(path.join(classicApiDir, `${i}.json`), JSON.stringify(classics[i]), 'utf8');
+  }
+
+  fs.writeFileSync(path.join(classicApiDir, 'index.json'), JSON.stringify(classicIndex), 'utf8');
+  console.log(`  API: ${classicIndex.length} classics`);
+}
+
 // ─── Main ───
 
 function main() {
@@ -623,6 +692,7 @@ function main() {
   allUrls.push(...generateClassicsPages());
 
   generateSitemap(allUrls);
+  generateApiJson();
 
   console.log(`Done! Generated ${allUrls.length} static pages total.`);
 }

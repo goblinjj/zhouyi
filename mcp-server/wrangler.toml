@@ -1,0 +1,17 @@
+name = "zhouyi-mcp"
+main = "src/index.ts"
+compatibility_date = "2025-01-13"
+compatibility_flags = ["nodejs_compat"]
+
+routes = [
+  { pattern = "zhouyi-mcp.goblin.top", custom_domain = true }
+]
+
+[durable_objects]
+bindings = [
+  { name = "MCP_OBJECT", class_name = "ZhouYiMCP" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ZhouYiMCP"]
