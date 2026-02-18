@@ -612,4 +612,18 @@ function handleStarClick(name) {
   border: 2px solid #8b2500;
   background: #faf6ef;
 }
+
+/* PC wide screen: scale up chart */
+@media (min-width: 1200px) {
+  .paipan-page { max-width: 1400px; }
+  .chart-section { zoom: 1.25; }
+}
+@media (min-width: 1600px) {
+  .paipan-page { max-width: 1600px; }
+  .chart-section { zoom: 1.5; }
+}
+@media (min-width: 1920px) {
+  .paipan-page { max-width: 1800px; }
+  .chart-section { zoom: 1.7; }
+}
 </style>
