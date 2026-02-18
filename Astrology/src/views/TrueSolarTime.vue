@@ -58,35 +58,6 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-// Geolocation
-const geoLoading = ref(false)
-const geoError = ref('')
-
-function readLocation() {
-  if (!navigator.geolocation) {
-    geoError.value = '浏览器不支持定位'
-    return
-  }
-  geoLoading.value = true
-  geoError.value = ''
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      longitude.value = Math.round(pos.coords.longitude * 100) / 100
-      latitude.value = Math.round(pos.coords.latitude * 100) / 100
-      // Detect timezone from browser
-      const browserTz = -(new Date().getTimezoneOffset()) / 60
-      timezone.value = browserTz
-      selectedCityName.value = ''
-      geoLoading.value = false
-    },
-    (err) => {
-      geoError.value = '定位失败: ' + err.message
-      geoLoading.value = false
-    },
-    { timeout: 10000 }
-  )
-}
-
 // Timezone options
 const timezoneOptions = []
 for (let tz = -12; tz <= 14; tz += 0.5) {
@@ -161,12 +132,6 @@ function formatDiff(val) {
         </select>
       </div>
 
-      <div class="form-row btn-row">
-        <button class="btn-secondary" @click="readLocation" :disabled="geoLoading">
-          {{ geoLoading ? '定位中...' : '读取网络位置' }}
-        </button>
-      </div>
-      <div v-if="geoError" class="geo-error">{{ geoError }}</div>
     </div>
 
     <!-- Result Section -->
@@ -296,39 +261,6 @@ function formatDiff(val) {
 
 .coord-input {
   max-width: 120px;
-}
-
-.btn-row {
-  justify-content: center;
-  margin-top: 1em;
-  gap: 1em;
-}
-
-.btn-secondary {
-  background: #faf6ef;
-  color: #8b2500;
-  border: 1px solid #8b2500;
-  padding: 0.5em 1.5em;
-  border-radius: 15px;
-  font-size: 1em;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.btn-secondary:hover {
-  background: #f5ede0;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.geo-error {
-  color: #c44;
-  font-size: 0.9em;
-  text-align: center;
-  margin-top: 0.3em;
 }
 
 /* City search */
