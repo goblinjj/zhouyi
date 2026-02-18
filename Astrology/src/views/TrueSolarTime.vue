@@ -70,6 +70,22 @@ function formatDiff(val) {
   const sign = val >= 0 ? '+' : ''
   return `${sign}${val.toFixed(1)}分钟`
 }
+
+// Map shichen branch to paipan timeIndex
+const BRANCH_TO_TIME_INDEX = { '丑': 1, '寅': 2, '卯': 3, '辰': 4, '巳': 5, '午': 6, '未': 7, '申': 8, '酉': 9, '戌': 10, '亥': 11 }
+
+function getPaipanLink() {
+  if (!result.value || !result.value.currentShichen) return null
+  const branch = result.value.currentShichen.branch
+  let timeIndex
+  if (branch === '子') {
+    // 早子时(23:00-00:00)=0, 晚子时(00:00-01:00)=12
+    timeIndex = result.value.trueSolarTime.hours >= 12 ? 0 : 12
+  } else {
+    timeIndex = BRANCH_TO_TIME_INDEX[branch]
+  }
+  return `/?date=${dateStr.value}&time=${timeIndex}`
+}
 </script>
 
 <template>
@@ -146,6 +162,7 @@ function formatDiff(val) {
         <div class="shichen-name" v-if="result.currentShichen">{{ result.currentShichen.name }}</div>
         <div class="tst-label">真太阳时</div>
         <div class="tst-time">{{ formatTime(result.trueSolarTime.hours, result.trueSolarTime.minutes) }}</div>
+        <RouterLink v-if="getPaipanLink()" :to="getPaipanLink()" class="btn-paipan">用此时辰排盘</RouterLink>
       </div>
 
       <!-- Detail cards -->
@@ -373,6 +390,24 @@ function formatDiff(val) {
   color: #3c2415;
   font-weight: 700;
   letter-spacing: 0.05em;
+}
+
+.btn-paipan {
+  display: inline-block;
+  margin-top: 0.8em;
+  background: #8b2500;
+  color: #fff;
+  border: none;
+  padding: 0.5em 1.5em;
+  border-radius: 15px;
+  font-size: 1em;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-paipan:hover {
+  background: #a03000;
 }
 
 /* Detail cards */
