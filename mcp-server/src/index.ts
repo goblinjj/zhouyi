@@ -16,19 +16,13 @@ function buildServer() {
     version: "1.0.0",
   });
 
-  // --- Tools with annotations ---
+  // --- Tools (name, description, paramsSchema, annotations, callback) ---
 
   server.tool(
     "lookup_hexagram",
-    {
-      description: "Query I Ching (易经) hexagram data. Omit id to get a list of all 64 hexagrams with name, pinyin, and palace. Pass id (1-64) to get full hexagram details including guaci (卦辞), general commentary, Takashima divination, and all six lines with classical and modern interpretations.",
-      annotations: {
-        title: "Lookup I Ching Hexagram",
-        readOnlyHint: true,
-        openWorldHint: false,
-      },
-    },
+    "Query I Ching hexagram data. Omit id to get a list of all 64 hexagrams with name, pinyin, and palace. Pass id (1-64) to get full hexagram details including guaci, general commentary, Takashima divination, and all six lines with classical and modern interpretations.",
     { id: z.number().int().min(1).max(64).optional().describe("Hexagram number (1-64). Omit to get a list of all 64 hexagrams.") },
+    { title: "Lookup I Ching Hexagram", readOnlyHint: true, openWorldHint: false },
     async ({ id }) => {
       const data = id
         ? await fetchJson(`/hexagram/${id}.json`)
@@ -39,15 +33,9 @@ function buildServer() {
 
   server.tool(
     "lookup_star",
-    {
-      description: "Query Zi Wei Dou Shu (紫微斗数) star data. Omit name to get a list of all 53 stars with name, filename, and category. Pass filename (e.g. 'ZiWei', 'TianJi', 'TaiYang') to get full star details including classical references (经典), overview (总述), and interpretations across all 12 palaces (命宫 through 父母宫).",
-      annotations: {
-        title: "Lookup Zi Wei Dou Shu Star",
-        readOnlyHint: true,
-        openWorldHint: false,
-      },
-    },
+    "Query Zi Wei Dou Shu (Purple Star Astrology) star data. Omit name to get a list of all 53 stars with name, filename, and category. Pass filename (e.g. ZiWei, TianJi, TaiYang) to get full star details including classical references, overview, and interpretations across all 12 palaces.",
     { name: z.string().optional().describe("Star filename in PinYin, e.g. ZiWei, TianJi, TaiYang, TianTong. Omit to get a list of all 53 stars.") },
+    { title: "Lookup Zi Wei Dou Shu Star", readOnlyHint: true, openWorldHint: false },
     async ({ name }) => {
       const data = name
         ? await fetchJson(`/star/${name}.json`)
@@ -58,15 +46,9 @@ function buildServer() {
 
   server.tool(
     "lookup_classic",
-    {
-      description: "Query Zi Wei Dou Shu (紫微斗数) classical texts. Omit id to get a list of all 23 classics with title. Pass id (0-22) to get the full text of a specific classic, including sections if available. Classics include 太微赋, 形性赋, and other foundational treatises.",
-      annotations: {
-        title: "Lookup Zi Wei Dou Shu Classic Text",
-        readOnlyHint: true,
-        openWorldHint: false,
-      },
-    },
+    "Query Zi Wei Dou Shu classical texts. Omit id to get a list of all 23 classics with title. Pass id (0-22) to get the full text of a specific classic including sections. Classics include Tai Wei Fu, Xing Xing Fu, and other foundational treatises.",
     { id: z.number().int().min(0).max(22).optional().describe("Classic index (0-22). Omit to get a list of all 23 classics.") },
+    { title: "Lookup Zi Wei Dou Shu Classic", readOnlyHint: true, openWorldHint: false },
     async ({ id }) => {
       const data = id !== undefined
         ? await fetchJson(`/classic/${id}.json`)
@@ -163,19 +145,28 @@ const corsOpts = {
   headers: "Content-Type, mcp-session-id, mcp-protocol-version",
 };
 
+async function handleMcp(request: Request, env: unknown, ctx: ExecutionContext) {
+  // Rewrite path to /mcp so createMcpHandler matches
+  const url = new URL(request.url);
+  url.pathname = "/mcp";
+  const rewritten = new Request(url.toString(), request);
+  const handler = createMcpHandler(buildServer(), { route: "/mcp", corsOptions: corsOpts });
+  return handler(rewritten, env, ctx);
+}
+
+const corsHeaders = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+  "access-control-allow-headers": "Content-Type, mcp-session-id, mcp-protocol-version",
+  "access-control-max-age": "86400",
+};
+
 export default {
   async fetch(request: Request, env: unknown, ctx: ExecutionContext) {
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "access-control-allow-origin": "*",
-          "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
-          "access-control-allow-headers": "Content-Type, mcp-session-id, mcp-protocol-version",
-          "access-control-max-age": "86400",
-        },
-      });
+      return new Response(null, { headers: corsHeaders });
     }
 
     if (url.pathname === "/.well-known/mcp/server-card.json" || url.pathname === "/") {
@@ -184,14 +175,8 @@ export default {
       });
     }
 
-    if (url.pathname === "/mcp") {
-      const handler = createMcpHandler(buildServer(), { route: "/mcp", corsOptions: corsOpts });
-      return handler(request, env, ctx);
-    }
-
-    if (url.pathname === "/sse") {
-      const handler = createMcpHandler(buildServer(), { route: "/sse", corsOptions: corsOpts });
-      return handler(request, env, ctx);
+    if (url.pathname === "/mcp" || url.pathname === "/sse") {
+      return handleMcp(request, env, ctx);
     }
 
     return new Response("Not Found", { status: 404 });
