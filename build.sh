@@ -54,5 +54,9 @@ if [ "$1" = "--deploy" ] || [ "$1" = "-d" ]; then
   echo "Deploying to Cloudflare Pages..."
   npx wrangler pages deploy dist --project-name=zhouyi --branch=main --commit-dirty=true
 
+  echo "Deploying MCP server..."
+  cd mcp-server && npx wrangler deploy && cd ..
+
   echo "Done! Site live at https://zhouyi.goblin.top"
+  echo "MCP server at https://zhouyi-mcp.goblin.top/mcp"
 fi
