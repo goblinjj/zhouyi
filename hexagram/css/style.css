@@ -934,11 +934,29 @@ button:disabled {
     opacity: 0.8;
 }
 
-.ai-submit-btn {
-    display: block;
+.ai-btn-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
     margin: 12px auto 0;
+}
+
+.ai-submit-btn {
     background: linear-gradient(135deg, var(--accent-gold) 0%, #8b6914 100%);
     border-color: rgba(184, 134, 11, 0.3);
+}
+
+.ai-copy-btn {
+    background: transparent;
+    color: var(--accent-gold);
+    border: 1px solid var(--accent-gold);
+    box-shadow: none;
+    padding: 6px 16px;
+    font-size: 13px;
+}
+.ai-copy-btn:hover {
+    background: var(--accent-gold);
+    color: var(--bg-paper);
 }
 
 .ai-submit-btn:hover {

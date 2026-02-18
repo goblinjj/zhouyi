@@ -44,6 +44,27 @@ function backToInput() {
 function close() {
   emit('close')
 }
+
+const copyText = ref('复制提问')
+
+function buildPrompt() {
+  let prompt = `你是一位精通紫微斗数的命理大师，请根据以下命盘信息进行专业解读。\n\n${props.chartInfo}`
+  if (question.value.trim()) {
+    prompt += `\n\n我特别想了解：${question.value.trim()}`
+  }
+  return prompt
+}
+
+async function copyPrompt() {
+  try {
+    await navigator.clipboard.writeText(buildPrompt())
+    copyText.value = '已复制'
+    setTimeout(() => { copyText.value = '复制提问' }, 2000)
+  } catch {
+    copyText.value = '复制失败'
+    setTimeout(() => { copyText.value = '复制提问' }, 2000)
+  }
+}
 </script>
 
 <template>
@@ -66,7 +87,10 @@ function close() {
             ></textarea>
             <p class="ai-scope-hint" v-if="scopeDesc">本次解盘范围：{{ scopeDesc }}</p>
             <p class="ai-hint">初筮告，再三渎，渎则不告。心诚则灵，每日解盘次数有限，望珍惜每次问盘机缘。</p>
-            <button class="ai-submit-btn" @click="submit" :disabled="aiLoading">开始解盘</button>
+            <div class="ai-btn-row">
+              <button class="ai-submit-btn" @click="submit" :disabled="aiLoading">开始解盘</button>
+              <button class="ai-copy-btn" @click="copyPrompt">{{ copyText }}</button>
+            </div>
           </div>
 
           <!-- Result Area -->
@@ -207,9 +231,14 @@ function close() {
   letter-spacing: 0.05em;
 }
 
+.ai-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
 .ai-submit-btn {
-  display: block;
-  margin: 14px auto 0;
   background: linear-gradient(135deg, #b8860b 0%, #8b6914 100%);
   color: #fff;
   border: none;
@@ -222,6 +251,19 @@ function close() {
 }
 .ai-submit-btn:hover { background: linear-gradient(135deg, #c99b1e 0%, #b8860b 100%); }
 .ai-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.ai-copy-btn {
+  background: transparent;
+  color: #b8860b;
+  border: 1px solid #b8860b;
+  padding: 8px 20px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+.ai-copy-btn:hover { background: #b8860b; color: #fff; }
 
 /* Result area */
 .ai-content {

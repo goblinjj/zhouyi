@@ -969,6 +969,21 @@ aiSubmitBtn.addEventListener('click', () => {
     startAiInterpret(q);
 });
 
+const aiCopyBtn = document.getElementById('ai-copy-btn');
+aiCopyBtn.addEventListener('click', async () => {
+    const q = aiQuestion.value.trim();
+    let prompt = `你是一位精通六爻占卜的易学大师，请根据以下卦象信息进行专业解读。\n\n卦象信息：\n${currentHexagramInfo}`;
+    if (q) prompt += `\n\n占卜事件：${q}`;
+    try {
+        await navigator.clipboard.writeText(prompt);
+        aiCopyBtn.innerText = '已复制';
+        setTimeout(() => { aiCopyBtn.innerText = '复制提问'; }, 2000);
+    } catch {
+        aiCopyBtn.innerText = '复制失败';
+        setTimeout(() => { aiCopyBtn.innerText = '复制提问'; }, 2000);
+    }
+});
+
 aiRetryBtn.addEventListener('click', () => {
     const q = aiQuestion.value.trim();
     if (!q) {
