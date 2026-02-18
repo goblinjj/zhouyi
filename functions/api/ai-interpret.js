@@ -1,5 +1,5 @@
 // Rate limiting: max requests per IP per time window
-const RATE_LIMIT_MAX = 10;       // max 10 requests
+const RATE_LIMIT_MAX = 3;        // max 3 requests
 const RATE_LIMIT_WINDOW = 3600;  // per hour (seconds)
 const MAX_QUESTION_LENGTH = 200;
 const MAX_HEXAGRAM_LENGTH = 2000;
