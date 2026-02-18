@@ -163,7 +163,7 @@ function formatDiff(val) {
 
       <div class="form-row btn-row">
         <button class="btn-secondary" @click="readLocation" :disabled="geoLoading">
-          {{ geoLoading ? '定位中...' : '读取位置' }}
+          {{ geoLoading ? '定位中...' : '读取网络位置' }}
         </button>
       </div>
       <div v-if="geoError" class="geo-error">{{ geoError }}</div>
