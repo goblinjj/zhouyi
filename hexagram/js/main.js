@@ -1113,6 +1113,12 @@ function restoreFromHistory(record) {
     if (record.monthBranch) currentMonthBranch = record.monthBranch;
     if (record.xunKong) currentXunKong = record.xunKong;
 
+    // Update date display to history record time
+    if (record.date && record.ganZhiDate) {
+        const xkText = record.xunKong || '';
+        dateInfo.innerHTML = `${record.date}<br>${record.ganZhiDate}<br><span class="xunkong-info">空亡: ${xkText}</span>`;
+    }
+
     divination.castResult = record.raw;
     castingStep = 6;
     primaryHexContainer.style.display = 'block';
