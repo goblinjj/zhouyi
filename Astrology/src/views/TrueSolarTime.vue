@@ -1,10 +1,25 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useTrueSolarTime, formatTime } from '../composables/useTrueSolarTime'
 import { CITIES } from '../data/cities'
 
 const router = useRouter()
+
+// SEO: set page title and meta tags
+function setMeta(name, content, attr = 'name') {
+  let el = document.querySelector(`meta[${attr}="${name}"]`)
+  if (!el) {
+    el = document.createElement('meta')
+    el.setAttribute(attr, name)
+    document.head.appendChild(el)
+  }
+  el.setAttribute('content', content)
+}
+
+const SEO_TITLE = '真太阳时计算 - 紫微斗数在线排盘'
+const SEO_DESC = '在线真太阳时计算工具，根据出生地经纬度和日期时间精确计算真太阳时与时辰，支持不等分时辰、日出日落时间查询，可直接用于紫微斗数排盘。'
 
 const { dateStr, timeStr, longitude, latitude, timezone, result } = useTrueSolarTime()
 
@@ -47,7 +62,18 @@ function handleClickOutside(e) {
   }
 }
 
+onBeforeRouteLeave(() => {
+  document.title = '紫微斗数 - 在线排盘与星耀查询'
+})
+
 onMounted(() => {
+  document.title = SEO_TITLE
+  setMeta('description', SEO_DESC)
+  setMeta('keywords', '真太阳时,真太阳时计算,时辰计算,紫微斗数,排盘,不等分时辰,日出日落,均时差')
+  setMeta('og:title', SEO_DESC.split('，')[0], 'property')
+  setMeta('og:description', SEO_DESC, 'property')
+  setMeta('og:url', 'https://zhouyi.goblin.top/astrology/true-solar-time', 'property')
+
   document.addEventListener('click', handleClickOutside)
   // Initialize date to today
   const now = new Date()
