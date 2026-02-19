@@ -71,18 +71,19 @@ function formatDiff(val) {
   return `${sign}${val.toFixed(1)}分钟`
 }
 
-// Map shichen branch to paipan timeIndex
+// Map shichen to paipan timeIndex
 const BRANCH_TO_TIME_INDEX = { '丑': 1, '寅': 2, '卯': 3, '辰': 4, '巳': 5, '午': 6, '未': 7, '申': 8, '酉': 9, '戌': 10, '亥': 11 }
 
 function getPaipanLink() {
   if (!result.value || !result.value.currentShichen) return null
-  const branch = result.value.currentShichen.branch
+  const sc = result.value.currentShichen
   let timeIndex
-  if (branch === '子') {
-    // 早子时(23:00-00:00)=0, 晚子时(00:00-01:00)=12
-    timeIndex = result.value.trueSolarTime.hours >= 12 ? 0 : 12
+  if (sc.subBranch === '早子') {
+    timeIndex = 0
+  } else if (sc.subBranch === '晚子') {
+    timeIndex = 12
   } else {
-    timeIndex = BRANCH_TO_TIME_INDEX[branch]
+    timeIndex = BRANCH_TO_TIME_INDEX[sc.branch]
   }
   return `/?date=${dateStr.value}&time=${timeIndex}`
 }
@@ -183,19 +184,19 @@ function getPaipanLink() {
           <div class="detail-label">均时差</div>
           <div class="detail-value">{{ formatDiff(result.eot) }}</div>
         </div>
-        <div class="detail-card" v-if="result.dayShichenMin != null">
-          <div class="detail-label">白天时辰</div>
-          <div class="detail-value">约{{ result.dayShichenMin }}分钟</div>
+        <div class="detail-card" v-if="result.longestShichenMin != null">
+          <div class="detail-label">最长时辰</div>
+          <div class="detail-value">约{{ result.longestShichenMin }}分钟</div>
         </div>
-        <div class="detail-card" v-if="result.nightShichenMin != null">
-          <div class="detail-label">夜晚时辰</div>
-          <div class="detail-value">约{{ result.nightShichenMin }}分钟</div>
+        <div class="detail-card" v-if="result.shortestShichenMin != null">
+          <div class="detail-label">最短时辰</div>
+          <div class="detail-value">约{{ result.shortestShichenMin }}分钟</div>
         </div>
       </div>
 
       <!-- Shichen table -->
       <div v-if="result.shichenTable" class="shichen-table-wrapper">
-        <h3 class="section-title sub-title">十二时辰对照表</h3>
+        <h3 class="section-title sub-title">十三时辰对照表</h3>
         <table class="shichen-table">
           <thead>
             <tr>
@@ -208,8 +209,8 @@ function getPaipanLink() {
           <tbody>
             <tr
               v-for="sc in result.shichenTable"
-              :key="sc.branch"
-              :class="{ 'current-row': result.currentShichen && sc.branch === result.currentShichen.branch }"
+              :key="sc.name"
+              :class="{ 'current-row': result.currentShichen && sc.name === result.currentShichen.name }"
             >
               <td class="sc-name">{{ sc.name }}</td>
               <td>{{ formatTime(sc.start.h, sc.start.m) }}</td>
