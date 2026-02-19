@@ -52,7 +52,13 @@ function generate() {
     dateStr: date.value,
     timeIndex: timeIndex.value,
     gender: gender.value,
-    config: { yearDivide: config.value.yearDivide, horoscopeDivide: config.value.yearDivide },
+    config: {
+      yearDivide: config.value.yearDivide,
+      horoscopeDivide: config.value.yearDivide,
+      brightness: {
+        '太阴': ['旺', '陷', '陷', '陷', '不', '不', '利', '旺', '旺', '庙', '庙', '庙'],
+      },
+    },
     fixLeap: config.value.fixLeap,
   })
   resetSelections()
