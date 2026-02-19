@@ -1,11 +1,15 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useTrueSolarTime, formatTime } from '../composables/useTrueSolarTime'
 import { CITIES } from '../data/cities'
+
+const router = useRouter()
 
 const { dateStr, timeStr, longitude, latitude, timezone, result } = useTrueSolarTime()
 
 const gender = ref('男')
+const showGenderPicker = ref(false)
 
 // City search
 const cityQuery = ref('')
@@ -87,7 +91,13 @@ function getPaipanLink() {
   } else {
     timeIndex = BRANCH_TO_TIME_INDEX[sc.branch]
   }
-  return `/?date=${dateStr.value}&time=${timeIndex}&gender=${gender.value === '男' ? '1' : '0'}`
+  return `/?date=${dateStr.value}&time=${timeIndex}`
+}
+
+function selectGender(g) {
+  const link = getPaipanLink()
+  if (!link) return
+  router.push(link + `&gender=${g === '男' ? '1' : '0'}`)
 }
 </script>
 
@@ -166,15 +176,11 @@ function getPaipanLink() {
         <div class="tst-label">真太阳时</div>
         <div class="tst-time">{{ formatTime(result.trueSolarTime.hours, result.trueSolarTime.minutes) }}</div>
         <div v-if="getPaipanLink()" class="paipan-action">
-          <div class="gender-row">
-            <label class="gender-toggle" :class="{ active: gender === '男' }">
-              <input type="radio" v-model="gender" value="男" />♂ 男
-            </label>
-            <label class="gender-toggle" :class="{ active: gender === '女' }">
-              <input type="radio" v-model="gender" value="女" />♀ 女
-            </label>
+          <button v-if="!showGenderPicker" class="btn-paipan" @click="showGenderPicker = true">用此时辰排盘</button>
+          <div v-else class="gender-row">
+            <button class="gender-btn" @click="selectGender('男')">♂ 男</button>
+            <button class="gender-btn" @click="selectGender('女')">♀ 女</button>
           </div>
-          <RouterLink :to="getPaipanLink()" class="btn-paipan">用此时辰排盘</RouterLink>
         </div>
       </div>
 
@@ -411,24 +417,23 @@ function getPaipanLink() {
 
 .gender-row {
   display: inline-flex;
-  gap: 0.5em;
-  margin-bottom: 0.6em;
+  gap: 0.6em;
 }
 
-.gender-toggle {
-  display: inline-block;
-  padding: 0.3em 1em;
-  border: 1px solid #d4c5a9;
+.gender-btn {
+  background: #8b2500;
+  color: #fff;
+  border: none;
+  padding: 0.5em 1.8em;
   border-radius: 15px;
+  font-size: 1em;
+  font-family: inherit;
   cursor: pointer;
-  font-size: 0.95em;
-  color: #3c2415;
-  transition: all 0.2s;
 }
 
-.gender-toggle input { display: none; }
-.gender-toggle:hover { border-color: #8b2500; }
-.gender-toggle.active { background: #8b2500; color: #fff; border-color: #8b2500; }
+.gender-btn:hover {
+  background: #a03000;
+}
 
 .btn-paipan {
   display: inline-block;
