@@ -139,8 +139,8 @@ function minutesToHM(totalMin) {
  *   - In winter: 子时 longest, 午时 shortest
  *   - At equinox: all equal (120 min each)
  *
- * 子时 is split at midnight into 早子时 (before midnight) and 晚子时 (after midnight).
- * Returns 13 entries ordered: 早子时, 丑, 寅, 卯, ..., 亥, 晚子时
+ * 子时 is split at midnight into 晚子时 (before midnight) and 早子时 (after midnight).
+ * Returns 13 entries ordered: 晚子时, 丑, 寅, 卯, ..., 亥, 早子时
  *
  * @param {{ h: number, m: number }} sunrise
  * @param {{ h: number, m: number }} sunset
@@ -187,24 +187,24 @@ export function calcUnequalShichen(sunrise, sunset) {
   const lateZiDuration = Math.round(durations[0] - ziHalf) // from midnight to end
 
   const earlyZi = {
-    name: '早子时',
+    name: '晚子时',
     branch: '子',
-    subBranch: '早子',
+    subBranch: '晚子',
     start: minutesToHM(ziStartMin),
     end: { h: 0, m: 0 },
     durationMin: earlyZiDuration,
   }
   const lateZi = {
-    name: '晚子时',
+    name: '早子时',
     branch: '子',
-    subBranch: '晚子',
+    subBranch: '早子',
     start: { h: 0, m: 0 },
     end: zi.end,
     durationMin: lateZiDuration,
   }
 
   // Return 13 entries: 早子时, 丑, 寅, ..., 亥, 晚子时
-  return [earlyZi, ...shichen12.slice(1), lateZi]
+  return [lateZi, ...shichen12.slice(1), earlyZi]
 }
 
 /**

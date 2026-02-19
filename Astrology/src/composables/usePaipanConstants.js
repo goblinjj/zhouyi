@@ -34,7 +34,7 @@ export const SIHUA_TABLE = {
 }
 
 export const TIME_OPTIONS = [
-    { value: 0, label: '早子时 (23:00-00:00)' },
+    { value: 12, label: '早子时 (00:00-01:00)' },
     { value: 1, label: '丑时 (01:00-03:00)' },
     { value: 2, label: '寅时 (03:00-05:00)' },
     { value: 3, label: '卯时 (05:00-07:00)' },
@@ -46,7 +46,7 @@ export const TIME_OPTIONS = [
     { value: 9, label: '酉时 (17:00-19:00)' },
     { value: 10, label: '戌时 (19:00-21:00)' },
     { value: 11, label: '亥时 (21:00-23:00)' },
-    { value: 12, label: '晚子时 (00:00-01:00)' },
+    { value: 0, label: '晚子时 (23:00-00:00)' },
 ]
 
 export const BRANCH_GRID = {
