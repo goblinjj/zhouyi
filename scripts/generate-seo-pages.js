@@ -691,7 +691,7 @@ function generateTrueSolarTimePage() {
   // Write as seo.html so it doesn't overwrite the SPA index.html
   fs.writeFileSync(path.join(outDir, 'seo.html'), html, 'utf8');
   console.log(`  Generated true solar time page`);
-  return [canonical];
+  return [];
 }
 
 // ─── Sitemap ───
@@ -705,6 +705,7 @@ function generateSitemap(newUrls) {
     { loc: `${SITE}/astrology/stars`, priority: '0.8' },
     { loc: `${SITE}/astrology/dianji`, priority: '0.8' },
     { loc: `${SITE}/astrology/true-solar-time`, priority: '0.8' },
+    { loc: `${SITE}/astrology/true-solar-time/seo.html`, priority: '0.7' },
     { loc: `${SITE}/hexagram/study.html`, priority: '0.8' },
   ];
 
