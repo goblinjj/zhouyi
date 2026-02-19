@@ -583,6 +583,117 @@ function generateClassicsPages() {
   return urls;
 }
 
+// ─── True Solar Time Page ───
+
+function generateTrueSolarTimePage() {
+  const outDir = path.join(DIST, 'astrology', 'true-solar-time');
+  mkdir(outDir);
+
+  const title = '真太阳时计算工具';
+  const description = '在线真太阳时计算工具，根据出生地经纬度和日期时间精确计算真太阳时与时辰，支持不等分时辰、日出日落时间查询，可直接用于紫微斗数排盘。';
+  const canonical = `${SITE}/astrology/true-solar-time`;
+
+  let bodyHtml = `<h1>${escapeHtml(title)}</h1>`;
+  bodyHtml += `<div class="subtitle">精确计算真太阳时与时辰，辅助紫微斗数排盘</div>`;
+
+  // 工具入口
+  bodyHtml += `<div class="section" style="text-align:center; padding: 20px 0;">
+    <a href="/astrology/true-solar-time" style="display:inline-block; background:var(--accent-color); color:#fff; padding:12px 32px; border-radius:6px; text-decoration:none; font-size:1.1em;">进入真太阳时计算工具</a>
+  </div>`;
+
+  // 什么是真太阳时
+  bodyHtml += `<div class="section">
+    <div class="section-title">什么是真太阳时</div>
+    <div class="section-content">
+      真太阳时（Apparent Solar Time）是以太阳实际位置为基准的时间。我们日常使用的时钟时间是基于平均太阳日划分的"平太阳时"，而真太阳时则反映了太阳在天球上的真实位置。<br><br>
+      由于地球公转轨道为椭圆形且自转轴倾斜，真太阳时和平太阳时之间存在差异，这个差异就是<strong>均时差（Equation of Time）</strong>。均时差全年在 -14 分钟到 +16 分钟之间波动。<br><br>
+      在命理学中，特别是紫微斗数排盘时，确定出生时辰是最关键的一步。使用真太阳时而非钟表时间，能更准确地判定时辰归属，避免因时区和地理经度偏差导致的时辰错判。
+    </div>
+  </div>`;
+
+  // 计算原理
+  bodyHtml += `<div class="section">
+    <div class="section-title">计算原理</div>
+    <div class="section-content">
+      真太阳时的计算涉及两个主要修正：<br><br>
+      <strong>1. 地理时差修正</strong><br>
+      我国统一使用东八区时间（UTC+8），以东经120°为标准。但各地实际经度不同，每偏离标准经度1°，时间相差4分钟。例如成都（东经104°）比北京时间慢约64分钟，乌鲁木齐（东经87°）慢约132分钟。<br><br>
+      <strong>2. 均时差修正</strong><br>
+      均时差是由地球椭圆轨道和自转轴倾角共同造成的。它使得每天真太阳日的长度略有不同。均时差在2月中旬约为 -14 分钟，11月初约为 +16 分钟。<br><br>
+      <strong>真太阳时 = 钟表时间 + 地理时差 + 均时差</strong>
+    </div>
+  </div>`;
+
+  // 不等分时辰
+  bodyHtml += `<div class="section">
+    <div class="section-title">不等分时辰</div>
+    <div class="section-content">
+      传统的十二时辰是等分的，每个时辰固定2小时。但在古代，人们实际上是根据太阳的位置来判断时辰的——日出为卯时，日中为午时，日落为酉时。这意味着白天和夜晚的时辰长度会随季节变化。<br><br>
+      本工具支持<strong>不等分时辰</strong>计算：以日出、日落为锚点，白天六个时辰（卯到申）按日照时长等分，夜间六个时辰（酉到寅）按夜晚时长等分，子时以子夜为中点。这更符合古人"日出而作、日落而息"的时间观念。<br><br>
+      夏季白天长，午时可长达150分钟以上，子时则可能不到90分钟；冬季则相反。在高纬度地区，这种差异更为显著。
+    </div>
+  </div>`;
+
+  // 早子时与晚子时
+  bodyHtml += `<div class="section">
+    <div class="section-title">早子时与晚子时</div>
+    <div class="section-content">
+      子时横跨两天，以子夜（0:00）为分界：<br><br>
+      <strong>早子时</strong>：0:00 至子时结束（约1:00），属于当日。<br>
+      <strong>晚子时</strong>：子时开始（约23:00）至 0:00，属于前一日。<br><br>
+      在紫微斗数排盘中，早子时和晚子时的日柱归属不同，直接影响命盘结果。本工具会自动区分早晚子时，并可直接跳转到对应的排盘。
+    </div>
+  </div>`;
+
+  // 使用方法
+  bodyHtml += `<div class="section">
+    <div class="section-title">使用方法</div>
+    <div class="section-content">
+      1. 输入出生日期和钟表时间<br>
+      2. 搜索并选择出生城市（自动填入经纬度和时区），或手动输入经纬度<br>
+      3. 工具自动计算真太阳时，显示所属时辰<br>
+      4. 查看十三时辰对照表，了解当日各时辰的起止时间和时长<br>
+      5. 点击"用此时辰排盘"，选择性别后直接跳转到紫微斗数排盘
+    </div>
+  </div>`;
+
+  // Navigation
+  bodyHtml += `<div class="nav-links">
+    <a href="/astrology/">← 返回紫微斗数</a>
+    <a href="/">首页</a>
+  </div>`;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: '真太阳时计算工具',
+    description,
+    url: canonical,
+    applicationCategory: 'LifestyleApplication',
+    inLanguage: 'zh-CN',
+    isPartOf: { '@type': 'WebSite', name: '周易占卜', url: SITE },
+  };
+
+  const html = htmlPage({
+    title,
+    description,
+    canonical,
+    bodyHtml,
+    jsonLd,
+    ogType: 'website',
+    breadcrumbs: [
+      { name: '首页', url: '/' },
+      { name: '紫微斗数', url: '/astrology/' },
+      { name: '真太阳时计算' },
+    ],
+  });
+
+  // Write as seo.html so it doesn't overwrite the SPA index.html
+  fs.writeFileSync(path.join(outDir, 'seo.html'), html, 'utf8');
+  console.log(`  Generated true solar time page`);
+  return [canonical];
+}
+
 // ─── Sitemap ───
 
 function generateSitemap(newUrls) {
@@ -593,6 +704,7 @@ function generateSitemap(newUrls) {
     { loc: `${SITE}/hexagram/`, priority: '0.9' },
     { loc: `${SITE}/astrology/stars`, priority: '0.8' },
     { loc: `${SITE}/astrology/dianji`, priority: '0.8' },
+    { loc: `${SITE}/astrology/true-solar-time`, priority: '0.8' },
     { loc: `${SITE}/hexagram/study.html`, priority: '0.8' },
   ];
 
@@ -690,6 +802,7 @@ function main() {
   allUrls.push(...generateHexagramPages());
   allUrls.push(...generateStarPages());
   allUrls.push(...generateClassicsPages());
+  allUrls.push(...generateTrueSolarTimePage());
 
   generateSitemap(allUrls);
   generateApiJson();
