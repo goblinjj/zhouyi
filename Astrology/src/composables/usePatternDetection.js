@@ -382,10 +382,6 @@ const PATTERNS = [
     }
   },
   {
-    name: '雄宿朝垣',
-    check: (p) => hasStar(p, '廉贞') && ['申', '寅'].includes(p.earthlyBranch) && !hasSha(p)
-  },
-  {
     name: '寿星入庙',
     check: (p) => hasStar(p, '天梁') && p.earthlyBranch === '午'
   },
