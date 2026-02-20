@@ -513,6 +513,22 @@ const PATTERNS = [
       return hasSha && !hasJiXing
     }
   },
+  {
+    name: '双忌夹命',
+    check(p, ps) {
+      const [a, b] = getFlankPalaces(ps, p)
+      const isJia = hasMutagen(a, '忌') && hasMutagen(b, '忌')
+      return isJia && !hasMutagen(p, '忌')
+    }
+  },
+  {
+    name: '双忌夹忌',
+    check(p, ps) {
+      if (!hasMutagen(p, '忌')) return false
+      const [a, b] = getFlankPalaces(ps, p)
+      return hasMutagen(a, '忌') && hasMutagen(b, '忌')
+    }
+  },
 ]
 
 // ============================================================
