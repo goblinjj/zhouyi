@@ -82,8 +82,19 @@ function loadHistory() {
   }
 }
 
-function saveHistory() {
+const isSaving = ref(false)
+const saveForm = ref({ name: '', note: '' })
+
+function confirmSave() {
+  saveHistory(saveForm.value.name, saveForm.value.note)
+  isSaving.value = false
+  saveForm.value = { name: '', note: '' }
+}
+
+function saveHistory(name = '', note = '') {
   const newItem = {
+    name,
+    note,
     date: date.value,
     timeIndex: timeIndex.value,
     gender: gender.value,
@@ -97,13 +108,14 @@ function saveHistory() {
     if (latest.date === newItem.date && 
         latest.timeIndex === newItem.timeIndex && 
         latest.gender === newItem.gender &&
-        JSON.stringify(latest.config) === JSON.stringify(newItem.config)) {
+        JSON.stringify(latest.config) === JSON.stringify(newItem.config) &&
+        latest.name === newItem.name && latest.note === newItem.note) {
       return
     }
   }
 
   history.value.unshift(newItem)
-  if (history.value.length > 10) {
+  if (history.value.length > 30) {
     history.value.pop()
   }
   
@@ -112,6 +124,56 @@ function saveHistory() {
   } catch (e) {
     console.error('Failed to save history', e)
   }
+}
+
+function exportHistory() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history.value));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     dataStr);
+  downloadAnchorNode.setAttribute("download", "zhouyi_astrology_history.json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
+
+function importHistory(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (Array.isArray(imported)) {
+        history.value = imported;
+        saveHistoryToStorage();
+      } else {
+        alert('文件内容格式不正确！');
+      }
+    } catch (err) {
+      alert('读取失败！格式可能损坏。');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+const editingIndex = ref(-1)
+const editForm = ref({ name: '', note: '' })
+
+function startEdit(idx, item) {
+  editingIndex.value = idx
+  editForm.value = { name: item.name || '', note: item.note || '' }
+}
+
+function saveEdit(idx) {
+  history.value[idx].name = editForm.value.name
+  history.value[idx].note = editForm.value.note
+  editingIndex.value = -1
+  saveHistoryToStorage()
+}
+
+function cancelEdit() {
+  editingIndex.value = -1
 }
 
 function deleteHistoryItem(index) {
@@ -317,14 +379,36 @@ function handleStarClick(name) {
             {{ clearConfirming ? '确定清空?' : '清空' }}
           </button>
         </div>
-        <div v-for="(item, idx) in history" :key="idx" class="history-item" @click="restoreHistory(item); generate()">
-          <div class="h-main">
-            <span class="h-date">{{ item.date }}</span>
-            <span class="h-time">{{ TIME_OPTIONS.find(t => t.value === item.timeIndex)?.label }}</span>
-            <span class="h-gender">{{ item.gender }}</span>
+        <TransitionGroup name="list" tag="div" class="history-list-wrapper">
+          <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" @click="editingIndex === idx ? null : (restoreHistory(item), generate())">
+            <div class="h-main" v-if="editingIndex !== idx">
+              <div v-if="item.name || item.note" class="h-name-note">
+                <span v-if="item.name" class="h-name">{{ item.name }}</span>
+                <span v-if="item.note" class="h-note">{{ item.note }}</span>
+              </div>
+              <div class="h-time-info">
+                <span class="h-date">{{ item.date }}</span>
+                <span class="h-time">{{ TIME_OPTIONS.find(t => t.value === item.timeIndex)?.label }}</span>
+                <span class="h-gender">{{ item.gender }}</span>
+              </div>
+            </div>
+            <div class="h-edit-mode" v-else @click.stop>
+              <input v-model="editForm.name" placeholder="姓名" class="form-input-sm" />
+              <input v-model="editForm.note" placeholder="备注" class="form-input-sm" />
+            </div>
+            
+            <div class="h-item-actions">
+              <template v-if="editingIndex === idx">
+                <button class="btn-action-sm btn-save-edit" @click.stop="saveEdit(idx)">✓</button>
+                <button class="btn-action-sm btn-cancel-edit" @click.stop="cancelEdit">✗</button>
+              </template>
+              <template v-else>
+                <button class="btn-action-sm btn-edit-item" @click.stop="startEdit(idx, item)" title="编辑">✎</button>
+                <button class="btn-action-sm btn-delete-item-new" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
+              </template>
+            </div>
           </div>
-          <button class="btn-delete-item" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
-        </div>
+        </TransitionGroup>
       </div>
     </div>
 
@@ -400,20 +484,54 @@ function handleStarClick(name) {
       <!-- History Panel -->
       <div v-show="showHistory" class="history-panel">
         <div class="h-actions">
-           <button class="btn-save-history" @click="saveHistory">💾 保存当前</button>
-           <button class="btn-clear-history" :class="{ 'btn-confirm-danger': clearConfirming }" @click.stop="clearHistory">
-             {{ clearConfirming ? '确定清空?' : '🗑️ 清空' }}
-           </button>
+           <div class="save-inputs" v-if="isSaving">
+              <input v-model="saveForm.name" placeholder="姓名(可选)" class="form-input-sm" style="flex:1" />
+              <input v-model="saveForm.note" placeholder="备注(可选)" class="form-input-sm" style="flex:1" />
+              <button class="btn-sm" @click="confirmSave">确定</button>
+              <button class="btn-sm" style="background:#888" @click="isSaving=false">取消</button>
+           </div>
+           <div v-else style="display:flex; gap:6px; width:100%">
+             <button class="btn-save-history" @click="isSaving=true">💾 保存当前</button>
+             <button class="btn-clear-history" :class="{ 'btn-confirm-danger': clearConfirming }" @click.stop="clearHistory">
+               {{ clearConfirming ? '确定清空?' : '🗑️ 清空' }}
+             </button>
+             <button class="btn-clear-history" @click="exportHistory" title="导出" style="flex:0; padding:4px 8px; font-size:1.1em">⬇️</button>
+             <label class="btn-clear-history" title="导入" style="flex:0; padding:4px 8px; cursor:pointer; font-size:1.1em; display:flex; align-items:center;">
+               ⬆️<input type="file" style="display:none" accept=".json" @change="importHistory">
+             </label>
+           </div>
         </div>
         <div v-if="history.length === 0" class="history-empty">暂无历史记录</div>
-        <div v-for="(item, idx) in history" :key="idx" class="history-item" @click="restoreHistory(item)">
-          <div class="h-main">
-            <span class="h-date">{{ item.date }}</span>
-            <span class="h-time">{{ TIME_OPTIONS.find(t => t.value === item.timeIndex)?.label }}</span>
-            <span class="h-gender">{{ item.gender }}</span>
+        <TransitionGroup name="list" tag="div" class="history-list-wrapper">
+          <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" @click="editingIndex === idx ? null : restoreHistory(item)">
+            <div class="h-main" v-if="editingIndex !== idx">
+              <div v-if="item.name || item.note" class="h-name-note">
+                <span v-if="item.name" class="h-name">{{ item.name }}</span>
+                <span v-if="item.note" class="h-note">{{ item.note }}</span>
+              </div>
+              <div class="h-time-info">
+                <span class="h-date">{{ item.date }}</span>
+                <span class="h-time">{{ TIME_OPTIONS.find(t => t.value === item.timeIndex)?.label }}</span>
+                <span class="h-gender">{{ item.gender }}</span>
+              </div>
+            </div>
+            <div class="h-edit-mode" v-else @click.stop>
+              <input v-model="editForm.name" placeholder="姓名" class="form-input-sm" style="max-width: 80px;" />
+              <input v-model="editForm.note" placeholder="备注" class="form-input-sm" style="flex:1" />
+            </div>
+            
+            <div class="h-item-actions">
+              <template v-if="editingIndex === idx">
+                <button class="btn-action-sm btn-save-edit" @click.stop="saveEdit(idx)">✓</button>
+                <button class="btn-action-sm btn-cancel-edit" @click.stop="cancelEdit">✗</button>
+              </template>
+              <template v-else>
+                <button class="btn-action-sm btn-edit-item" @click.stop="startEdit(idx, item)" title="编辑">✎</button>
+                <button class="btn-action-sm btn-delete-item-new" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
+              </template>
+            </div>
           </div>
-          <button class="btn-delete-item" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
-        </div>
+        </TransitionGroup>
       </div>
     </div>
 
@@ -562,6 +680,12 @@ function handleStarClick(name) {
 }
 .btn-ai-interpret:hover { background: linear-gradient(135deg, #3a8f5f 0%, #2c6e49 100%); }
 
+/* Transition Group CSS for History */
+.history-list-wrapper { position: relative; }
+.list-enter-active, .list-leave-active { transition: all 0.4s ease; }
+.list-enter-from, .list-leave-to { opacity: 0; transform: translateX(-30px); }
+.list-leave-active { position: absolute; width: calc(100% - 24px); } /* prevent layout breaking */
+
 .history-panel {
   background: var(--color-background-soft);
   border: 1px solid #d4c5a9;
@@ -579,19 +703,27 @@ function handleStarClick(name) {
   flex-direction: row;
   align-items: center;
   gap: 2px;
+  background: #fffcf5;
 }
-.history-item:hover { background: var(--color-background-mute); }
+.history-item:hover { background: #fdfbf7; }
 .history-item:last-child { border-bottom: none; }
-.h-main { display: flex; gap: 8px; font-weight: bold; color: #3c2415; align-items: center; font-size: 0.95em; }
+
+.h-main { display: flex; flex-direction: column; gap: 4px; font-weight: bold; color: #3c2415; align-items: flex-start; font-size: 0.95em; flex: 1; }
+.h-name-note { display: flex; gap: 8px; font-size: 0.9em; color: #8b2500; align-items: center; }
+.h-name { font-weight: 900; }
+.h-note { font-weight: normal; color: #666; font-size: 0.85em; background: #eee; padding: 0 4px; border-radius: 4px; }
+.h-time-info { display: flex; gap: 8px; font-weight: normal; font-size: 0.85em; color: #555; }
+
 .history-empty { padding: 12px; text-align: center; color: #999; font-size: 0.9em; }
 
 .h-actions { 
   padding: 8px; 
   border-bottom: 1px solid #d4c5a9; 
-  background: var(--color-background-mute);
+  background: #faf6ef;
   display: flex;
   gap: 8px;
 }
+.save-inputs { display: flex; gap: 6px; width: 100%; align-items: center; }
 .btn-save-history, .btn-clear-history {
   flex: 1;
   padding: 6px;
@@ -605,19 +737,37 @@ function handleStarClick(name) {
 .btn-save-history:hover { background: #a03000; }
 .btn-clear-history { background: #888; }
 .btn-clear-history:hover { background: #666; }
-.btn-confirm-danger { background: #c41e3a !important; color: white; }
+.btn-confirm-danger { background: #c41e3a !important; color: white !important; }
 
-.btn-delete-item {
-  background: transparent;
-  border: none;
-  font-size: 1.2em;
-  color: #c0c0c0;
-  cursor: pointer;
-  padding: 0 4px;
-  line-height: 1;
-  margin-left: auto;
-}
 .btn-delete-item:hover { color: #c41e3a; }
+
+.h-edit-mode { display: flex; flex-direction: column; gap: 4px; flex: 1; margin-right: 8px; }
+.h-item-actions { display: flex; gap: 4px; align-items: center; }
+.btn-action-sm {
+  background: transparent;
+  border: 1px solid #d4c5a9;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 1.1em;
+  transition: all 0.2s;
+}
+.btn-action-sm:hover {
+  background: #fdfbf7;
+  border-color: #8b2500;
+  color: #8b2500;
+}
+.btn-save-edit { color: #2c6e49; border-color: #2c6e49; }
+.btn-save-edit:hover { background: #2c6e49; color: #fff; }
+.btn-cancel-edit { color: #c41e3a; border-color: #c41e3a; }
+.btn-cancel-edit:hover { background: #c41e3a; color: #fff; }
+.btn-delete-item-new { color: #c0c0c0; border: none; font-size: 1.4em; }
+.btn-delete-item-new:hover { color: #c41e3a; border-color: transparent; background: transparent; }
 
 
 /* === Chart Grid === */

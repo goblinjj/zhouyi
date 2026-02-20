@@ -117,12 +117,21 @@ function isLucky(name) { return LUCKY_STARS.has(name) }
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: background 0.15s;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
   overflow: hidden;
   padding: 4px 2px 2px 2px;
 }
-.palace-cell-v:hover { background: rgba(184, 134, 11, 0.06); }
-.palace-cell-v.is-selected { outline: 2px solid #009900; outline-offset: -2px; background: rgba(0, 153, 0, 0.05); z-index: 10; }
+.palace-cell-v:hover { 
+  background: rgba(184, 134, 11, 0.06); 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(139, 37, 0, 0.15);
+  z-index: 5;
+}
+.palace-cell-v:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(139, 37, 0, 0.1);
+}
+.palace-cell-v.is-selected { outline: 2px solid #009900; outline-offset: -2px; background: rgba(0, 153, 0, 0.05); z-index: 10; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 153, 0, 0.2); }
 .palace-cell-v.is-sanfang { outline: 2px dashed #b8860b; outline-offset: -2px; background: rgba(184, 134, 11, 0.05); }
 
 /* Content Area */

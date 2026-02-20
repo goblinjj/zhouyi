@@ -907,7 +907,7 @@ async function startAiInterpret(question) {
             try {
                 const errData = await response.json();
                 if (errData.error) errorMsg = errData.error;
-            } catch {}
+            } catch { }
             showAiError(errorMsg);
             return;
         }
@@ -941,7 +941,7 @@ async function startAiInterpret(question) {
                         fullText += parsed.text;
                         aiContent.innerHTML = simpleMarkdown(fullText) + '<span class="ai-cursor"></span>';
                     }
-                } catch {}
+                } catch { }
             }
         }
 
@@ -1079,7 +1079,10 @@ function renderHistoryList() {
         item.querySelector('.history-date').addEventListener('click', () => restoreFromHistory(record));
         item.querySelector('.history-delete').addEventListener('click', (e) => {
             e.stopPropagation();
-            deleteHistoryItem(record.id);
+            item.classList.add('fade-out');
+            setTimeout(() => {
+                deleteHistoryItem(record.id);
+            }, 300);
         });
         list.appendChild(item);
     });
