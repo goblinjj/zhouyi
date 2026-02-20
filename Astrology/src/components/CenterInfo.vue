@@ -39,6 +39,7 @@
       :selectedPalace="selectedPalace"
       :allPalaces="astrolabe.palaces"
       :horoscopeData="horoscopeData"
+      :scopeFlags="scopeFlags"
     />
 
 
@@ -85,6 +86,7 @@ const props = defineProps({
   selYear: { default: null },
   savedRecord: { type: Object, default: null },
   selectedPalace: { type: Object, default: null },
+  scopeFlags: { type: Object, default: () => ({}) },
 })
 
 const emit = defineEmits(['adjust', 'save-chart'])

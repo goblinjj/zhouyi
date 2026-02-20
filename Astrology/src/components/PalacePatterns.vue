@@ -4,8 +4,8 @@
       v-for="item in patterns"
       :key="item.name"
       class="pattern-tag"
-      :class="{ 'pattern-transient': item.isTransient }"
-      @click.stop="openPattern(item.name, item.isTransient)"
+      :class="`scope-${item.scope}`"
+      @click.stop="openPattern(item.name, item.scope)"
     >{{ item.name }}</span>
   </div>
 
@@ -18,7 +18,9 @@
           <button class="pp-close" @click="activePattern = null">×</button>
         </div>
         <div class="pp-body">
-          <p v-if="activePattern.isTransient" class="pp-transient-note">⚡ 此格局由大运/流年/流月星曜共同促成</p>
+          <p v-if="activePattern.scope !== 'natal'" class="pp-transient-note" :class="`scope-note-${activePattern.scope}`">
+            {{ scopeLabel(activePattern.scope) }}
+          </p>
           <p v-if="activePattern.conditions" class="pp-section pp-conditions">{{ activePattern.conditions }}</p>
           <p v-if="activePattern.desc" class="pp-section pp-desc">{{ activePattern.desc }}</p>
           <p v-if="!activePattern.conditions && !activePattern.desc" class="pp-nodesc">暂无典籍记载</p>
@@ -37,12 +39,13 @@ const props = defineProps({
   selectedPalace: { type: Object, default: null },
   allPalaces: { type: Array, default: () => [] },
   horoscopeData: { type: Object, default: null },
+  scopeFlags: { type: Object, default: () => ({}) },
 })
 
 const { detectPatterns } = usePatternDetection()
 
 const patterns = computed(() =>
-  detectPatterns(props.selectedPalace, props.allPalaces, props.horoscopeData)
+  detectPatterns(props.selectedPalace, props.allPalaces, props.horoscopeData, props.scopeFlags)
 )
 
 // 从典籍中查找格局详情
@@ -57,17 +60,28 @@ function findSection(name) {
 
 const activePattern = ref(null)
 
-function openPattern(name, isTransient = false) {
+const SCOPE_LABELS = {
+  natal: null,
+  decadal: '⚡ 此格局由大运星曜共同促成',
+  yearly: '⚡ 此格局由大运/流年星曜共同促成',
+  monthly: '⚡ 此格局由大运/流年/流月星曜共同促成',
+}
+
+function scopeLabel(scope) {
+  return SCOPE_LABELS[scope] || null
+}
+
+function openPattern(name, scope = 'natal') {
   const section = findSection(name)
   if (!section) {
-    activePattern.value = { title: name, conditions: '', desc: '', isTransient }
+    activePattern.value = { title: name, conditions: '', desc: '', scope }
     return
   }
   const content = section.content || ''
   const parts = content.split('\n\n')
   const conditions = parts.find(p => p.startsWith('成格条件：')) || ''
   const desc = parts.find(p => p.startsWith('格局说明：')) || ''
-  activePattern.value = { title: name, conditions, desc, isTransient }
+  activePattern.value = { title: name, conditions, desc, scope }
 }
 </script>
 
@@ -99,15 +113,40 @@ function openPattern(name, isTransient = false) {
   background: rgba(139, 37, 0, 0.14);
   border-color: rgba(139, 37, 0, 0.45);
 }
-/* 流星促成的格局 — 蓝色系 */
-.pattern-tag.pattern-transient {
+/* 本命格局 — 深红（默认同 .pattern-tag，无需额外声明） */
+.pattern-tag.scope-natal { /* inherits base red */ }
+
+/* 大运格局 — 绿色 */
+.pattern-tag.scope-decadal {
+  color: #2e7d32;
+  background: rgba(46, 125, 50, 0.07);
+  border-color: rgba(46, 125, 50, 0.28);
+}
+.pattern-tag.scope-decadal:hover {
+  background: rgba(46, 125, 50, 0.15);
+  border-color: rgba(46, 125, 50, 0.5);
+}
+
+/* 流年格局 — 蓝色 */
+.pattern-tag.scope-yearly {
   color: #1565c0;
   background: rgba(21, 101, 192, 0.07);
   border-color: rgba(21, 101, 192, 0.28);
 }
-.pattern-tag.pattern-transient:hover {
+.pattern-tag.scope-yearly:hover {
   background: rgba(21, 101, 192, 0.15);
   border-color: rgba(21, 101, 192, 0.5);
+}
+
+/* 流月格局 — 紫色 */
+.pattern-tag.scope-monthly {
+  color: #6a1b9a;
+  background: rgba(106, 27, 154, 0.07);
+  border-color: rgba(106, 27, 154, 0.28);
+}
+.pattern-tag.scope-monthly:hover {
+  background: rgba(106, 27, 154, 0.15);
+  border-color: rgba(106, 27, 154, 0.5);
 }
 
 /* Popup */
@@ -188,11 +227,23 @@ function openPattern(name, isTransient = false) {
 }
 .pp-transient-note {
   font-size: 11px;
-  color: #1565c0;
-  background: rgba(21, 101, 192, 0.07);
-  border: 1px solid rgba(21, 101, 192, 0.2);
   border-radius: 4px;
   padding: 4px 8px;
   margin: 0 0 8px;
+}
+.scope-note-decadal {
+  color: #2e7d32;
+  background: rgba(46, 125, 50, 0.07);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+}
+.scope-note-yearly {
+  color: #1565c0;
+  background: rgba(21, 101, 192, 0.07);
+  border: 1px solid rgba(21, 101, 192, 0.2);
+}
+.scope-note-monthly {
+  color: #6a1b9a;
+  background: rgba(106, 27, 154, 0.07);
+  border: 1px solid rgba(106, 27, 154, 0.2);
 }
 </style>

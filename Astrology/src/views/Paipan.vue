@@ -62,6 +62,12 @@ const selectedPalace = computed(() =>
   astrolabe.value?.palaces?.find(p => p.index === selectedPalaceIdx.value) ?? null
 )
 
+const scopeFlags = computed(() => ({
+  decadal: !!selDecadal.value,
+  yearly: !!selYear.value,
+  monthly: !!selMonth.value,
+}))
+
 // ===== Methods =====
 function generate() {
   if (!date.value) return
@@ -640,6 +646,7 @@ function handleStarClick(name) {
           :selYear="selYear"
           :savedRecord="savedRecord"
           :selectedPalace="selectedPalace"
+          :scopeFlags="scopeFlags"
           @adjust="adjustDate"
           @save-chart="(name) => { saveHistory(name, ''); showHistory = true }"
         />
