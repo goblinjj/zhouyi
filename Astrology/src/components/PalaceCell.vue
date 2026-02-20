@@ -55,8 +55,8 @@
     <!-- Palace Bottom Info -->
     <div class="palace-bottom-bar">
        <div class="pbb-left">
-          <span class="cs12">{{ palace.changsheng12 }}</span>
           <span class="decadal-range" v-if="palace.decadal">{{ palace.decadal.range[0] }} - {{ palace.decadal.range[1] }}</span>
+          <span class="cs12">{{ palace.changsheng12 }}</span>
        </div>
        <div class="pbb-right">
           <!-- Right to left: 流月, 流年, 大限, 本命, 身, 干支 -->
@@ -272,8 +272,9 @@ function isLucky(name) { return LUCKY_STARS.has(name) }
   border-top: 1px dotted #e0d5c0;
   padding-top: 2px;
   margin-top: 2px;
+  flex-direction: column;
 }
-.pbb-left { display: flex; flex-direction: column; }
+.pbb-left { display: flex; flex-direction: row; width: 100%;}
 .pbb-right {
   display: flex;
   flex-direction: row;
@@ -291,7 +292,7 @@ function isLucky(name) { return LUCKY_STARS.has(name) }
   font-weight: bold;
 }
 .cs12 { color: #888; font-size: 10px; }
-.decadal-range { color: #c41e3a; font-weight: bold; font-size: 11px; }
+.decadal-range { color: #c41e3a; font-weight: bold; font-size: 10px; flex: 1; text-align: right; padding-right: 3px;}
 .p-name { color: #8b2500; font-weight: bold; font-size: 12px; }
 .body-tag { background: #c41e3a; color: #fff; font-size: 9px; padding: 0 2px; border-radius: 2px; display: inline-block; }
 .p-branch { color: #b8860b; font-size: 11px; font-weight: bold; }
