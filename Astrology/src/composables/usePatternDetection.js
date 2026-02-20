@@ -269,7 +269,7 @@ const PATTERNS = [
   { name: '英星入庙', check: (p) => hasStar(p, '破军') && ['子', '午'].includes(p.earthlyBranch) },
   { name: '众水朝东', check: (p) => hasStar(p, '破军') && hasStar(p, '文曲') && ['寅', '卯'].includes(p.earthlyBranch) },
   {
-    name: '三奇加会',
+    name: '三奇嘉会',
     check(p, ps) {
       const sf = getSanfang(ps, p)
       return sf.some(x => hasMutagen(x, '禄')) && sf.some(x => hasMutagen(x, '权')) && sf.some(x => hasMutagen(x, '科'))
