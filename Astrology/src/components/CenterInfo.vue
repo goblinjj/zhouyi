@@ -50,6 +50,11 @@
       <span v-if="age">　虚岁{{ age }}</span>
     </div>
 
+    <div v-if="savedRecord" class="ci-saved-badge">
+      <span class="ci-saved-icon">✓</span>
+      <span class="ci-saved-text">{{ savedRecord.name ? savedRecord.name : '已保存' }}</span>
+    </div>
+
     <div v-if="saving" class="ci-save-form" @click.stop>
       <input ref="saveInput" v-model="saveName" placeholder="名称(可空)" class="ci-save-input" @keyup.enter="confirmSave" @keyup.esc="saving = false" />
       <button class="ci-save-confirm" @click="confirmSave">保存</button>
@@ -70,6 +75,7 @@ const props = defineProps({
   fourPillars: { type: Object, default: null },
   horoscopeData: { type: Object, default: null },
   selYear: { default: null },
+  savedRecord: { type: Object, default: null },
 })
 
 const emit = defineEmits(['adjust', 'save-chart'])
@@ -201,6 +207,20 @@ function pillarColor(char) {
   font-size: 13px; color: #8b2500; font-weight: bold;
   user-select: none;
 }
+.ci-saved-badge {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 0;
+  border-radius: 5px;
+  background: #f0f7f0;
+  border: 1px solid #b8dab8;
+}
+.ci-saved-icon { color: #2c6e49; font-size: 12px; font-weight: bold; }
+.ci-saved-text { color: #2c6e49; font-size: 12px; font-weight: bold; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .ci-save-btn {
   margin-top: 8px;
   width: 100%;

@@ -33,6 +33,17 @@ const config = ref({
 })
 const astrolabe = ref(null)
 const showSettings = ref(false)
+
+const savedRecord = computed(() => {
+  if (!astrolabe.value) return null
+  return history.value.find(item =>
+    item.date === date.value &&
+    item.timeIndex === timeIndex.value &&
+    item.gender === gender.value &&
+    item.config?.yearDivide === config.value.yearDivide &&
+    item.config?.fixLeap === config.value.fixLeap
+  ) ?? null
+})
 const showAdjStars = ref(localStorage.getItem('showAdjStars') !== 'false')
 watch(showAdjStars, v => localStorage.setItem('showAdjStars', v))
 
@@ -623,6 +634,7 @@ function handleStarClick(name) {
           :fourPillars="fourPillars"
           :horoscopeData="horoscopeData"
           :selYear="selYear"
+          :savedRecord="savedRecord"
           @adjust="adjustDate"
           @save-chart="(name) => { saveHistory(name, ''); showHistory = true }"
         />
