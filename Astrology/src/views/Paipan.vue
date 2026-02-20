@@ -126,35 +126,52 @@ function saveHistory(name = '', note = '') {
   }
 }
 
-function exportHistory() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history.value));
-  const downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href",     dataStr);
-  downloadAnchorNode.setAttribute("download", "zhouyi_astrology_history.json");
-  document.body.appendChild(downloadAnchorNode);
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
+const showJsonModal = ref(false)
+const jsonModalMode = ref('export') // 'export' | 'import'
+const jsonText = ref('')
+const jsonImportError = ref('')
+const jsonCopied = ref(false)
+
+function openExportModal() {
+  jsonText.value = JSON.stringify(history.value, null, 2)
+  jsonModalMode.value = 'export'
+  jsonImportError.value = ''
+  jsonCopied.value = false
+  showJsonModal.value = true
 }
 
-function importHistory(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if (Array.isArray(imported)) {
-        history.value = imported;
-        saveHistoryToStorage();
-      } else {
-        alert('文件内容格式不正确！');
-      }
-    } catch (err) {
-      alert('读取失败！格式可能损坏。');
+function openImportModal() {
+  jsonText.value = ''
+  jsonModalMode.value = 'import'
+  jsonImportError.value = ''
+  showJsonModal.value = true
+}
+
+async function copyJsonToClipboard() {
+  try {
+    await navigator.clipboard.writeText(jsonText.value)
+    jsonCopied.value = true
+    setTimeout(() => { jsonCopied.value = false }, 2000)
+  } catch {
+    // fallback: select text
+    const ta = document.querySelector('.json-textarea')
+    if (ta) { ta.select(); document.execCommand('copy') }
+  }
+}
+
+function confirmImportJson() {
+  try {
+    const imported = JSON.parse(jsonText.value)
+    if (Array.isArray(imported)) {
+      history.value = imported
+      saveHistoryToStorage()
+      showJsonModal.value = false
+    } else {
+      jsonImportError.value = '格式不正确，请粘贴有效的历史记录 JSON 数组'
     }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
+  } catch {
+    jsonImportError.value = '解析失败，JSON 格式有误'
+  }
 }
 
 const editingIndex = ref(-1)
@@ -392,20 +409,16 @@ function handleStarClick(name) {
                 <span class="h-gender">{{ item.gender }}</span>
               </div>
             </div>
-            <div class="h-edit-mode" v-else @click.stop>
-              <input v-model="editForm.name" placeholder="姓名" class="form-input-sm" />
-              <input v-model="editForm.note" placeholder="备注" class="form-input-sm" />
+            <div class="save-inputs h-edit-inline" v-else @click.stop>
+              <input v-model="editForm.name" placeholder="姓名(可选)" class="form-input-sm" style="flex:1; min-width:50px" />
+              <input v-model="editForm.note" placeholder="备注(可选)" class="form-input-sm" style="flex:2" />
+              <button class="btn-sm" @click.stop="saveEdit(idx)">确定</button>
+              <button class="btn-sm" style="background:#888" @click.stop="cancelEdit">取消</button>
             </div>
-            
-            <div class="h-item-actions">
-              <template v-if="editingIndex === idx">
-                <button class="btn-action-sm btn-save-edit" @click.stop="saveEdit(idx)">✓</button>
-                <button class="btn-action-sm btn-cancel-edit" @click.stop="cancelEdit">✗</button>
-              </template>
-              <template v-else>
-                <button class="btn-action-sm btn-edit-item" @click.stop="startEdit(idx, item)" title="编辑">✎</button>
-                <button class="btn-action-sm btn-delete-item-new" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
-              </template>
+
+            <div class="h-item-actions" v-if="editingIndex !== idx">
+              <button class="btn-action-sm btn-edit-item" @click.stop="startEdit(idx, item)" title="编辑">✎</button>
+              <button class="btn-action-sm btn-delete-item-new" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
             </div>
           </div>
         </TransitionGroup>
@@ -495,10 +508,8 @@ function handleStarClick(name) {
              <button class="btn-clear-history" :class="{ 'btn-confirm-danger': clearConfirming }" @click.stop="clearHistory">
                {{ clearConfirming ? '确定清空?' : '🗑️ 清空' }}
              </button>
-             <button class="btn-clear-history" @click="exportHistory" title="导出" style="flex:0; padding:4px 8px; font-size:1.1em">⬇️</button>
-             <label class="btn-clear-history" title="导入" style="flex:0; padding:4px 8px; cursor:pointer; font-size:1.1em; display:flex; align-items:center;">
-               ⬆️<input type="file" style="display:none" accept=".json" @change="importHistory">
-             </label>
+             <button class="btn-json-action" @click="openExportModal" title="导出 JSON">导出</button>
+             <button class="btn-json-action btn-json-import" @click="openImportModal" title="导入 JSON">导入</button>
            </div>
         </div>
         <div v-if="history.length === 0" class="history-empty">暂无历史记录</div>
@@ -515,20 +526,16 @@ function handleStarClick(name) {
                 <span class="h-gender">{{ item.gender }}</span>
               </div>
             </div>
-            <div class="h-edit-mode" v-else @click.stop>
-              <input v-model="editForm.name" placeholder="姓名" class="form-input-sm" style="max-width: 80px;" />
-              <input v-model="editForm.note" placeholder="备注" class="form-input-sm" style="flex:1" />
+            <div class="save-inputs h-edit-inline" v-else @click.stop>
+              <input v-model="editForm.name" placeholder="姓名(可选)" class="form-input-sm" style="flex:1; min-width:50px" />
+              <input v-model="editForm.note" placeholder="备注(可选)" class="form-input-sm" style="flex:2" />
+              <button class="btn-sm" @click.stop="saveEdit(idx)">确定</button>
+              <button class="btn-sm" style="background:#888" @click.stop="cancelEdit">取消</button>
             </div>
-            
-            <div class="h-item-actions">
-              <template v-if="editingIndex === idx">
-                <button class="btn-action-sm btn-save-edit" @click.stop="saveEdit(idx)">✓</button>
-                <button class="btn-action-sm btn-cancel-edit" @click.stop="cancelEdit">✗</button>
-              </template>
-              <template v-else>
-                <button class="btn-action-sm btn-edit-item" @click.stop="startEdit(idx, item)" title="编辑">✎</button>
-                <button class="btn-action-sm btn-delete-item-new" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
-              </template>
+
+            <div class="h-item-actions" v-if="editingIndex !== idx">
+              <button class="btn-action-sm btn-edit-item" @click.stop="startEdit(idx, item)" title="编辑">✎</button>
+              <button class="btn-action-sm btn-delete-item-new" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
             </div>
           </div>
         </TransitionGroup>
@@ -590,6 +597,29 @@ function handleStarClick(name) {
       :scopeDesc="aiScopeDesc"
       @close="showAiModal = false"
     />
+
+    <!-- JSON Import/Export Modal -->
+    <div v-if="showJsonModal" class="json-modal-overlay" @click.self="showJsonModal=false">
+      <div class="json-modal">
+        <div class="json-modal-title">{{ jsonModalMode === 'export' ? '导出历史记录' : '导入历史记录' }}</div>
+        <p class="json-modal-hint">
+          {{ jsonModalMode === 'export' ? '复制下方 JSON，可粘贴到其他设备的「导入」功能中恢复记录。' : '将导出的 JSON 粘贴到下方，点击「确认导入」覆盖当前记录。' }}
+        </p>
+        <textarea class="json-textarea" v-model="jsonText" :readonly="jsonModalMode === 'export'"
+          :placeholder="jsonModalMode === 'import' ? '请粘贴历史记录 JSON 数据...' : ''"></textarea>
+        <div v-if="jsonImportError" class="json-error">{{ jsonImportError }}</div>
+        <div class="json-modal-actions">
+          <template v-if="jsonModalMode === 'export'">
+            <button class="btn-sm json-btn-copy" @click="copyJsonToClipboard">{{ jsonCopied ? '已复制 ✓' : '复制' }}</button>
+            <button class="btn-sm" style="background:#888" @click="showJsonModal=false">关闭</button>
+          </template>
+          <template v-else>
+            <button class="btn-sm" @click="confirmImportJson">确认导入</button>
+            <button class="btn-sm" style="background:#888" @click="showJsonModal=false">取消</button>
+          </template>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -741,7 +771,7 @@ function handleStarClick(name) {
 
 .btn-delete-item:hover { color: #c41e3a; }
 
-.h-edit-mode { display: flex; flex-direction: column; gap: 4px; flex: 1; margin-right: 8px; }
+.h-edit-inline { flex: 1; padding: 4px 0; }
 .h-item-actions { display: flex; gap: 4px; align-items: center; }
 .btn-action-sm {
   background: transparent;
@@ -783,4 +813,77 @@ function handleStarClick(name) {
 @media (min-width: 1200px) {
   .paipan-page { max-width: 90vw; }
 }
+
+/* Import / Export JSON buttons */
+.btn-json-action {
+  flex: 0;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-family: inherit;
+  color: #fff;
+  background: #5c6e7a;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.btn-json-action:hover { background: #4a5a66; }
+.btn-json-import { background: #4a6e5a; }
+.btn-json-import:hover { background: #3a5a4a; }
+
+/* JSON Modal */
+.json-modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.json-modal {
+  background: #faf6ef;
+  border: 1px solid #d4c5a9;
+  border-radius: 10px;
+  padding: 20px;
+  width: 90%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+.json-modal-title {
+  font-size: 1em;
+  font-weight: bold;
+  color: #3c2415;
+}
+.json-modal-hint {
+  font-size: 0.82em;
+  color: #666;
+  margin: 0;
+}
+.json-textarea {
+  width: 100%;
+  height: 200px;
+  font-family: monospace;
+  font-size: 0.78em;
+  padding: 8px;
+  border: 1px solid #d4c5a9;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+}
+.json-textarea:focus { border-color: #8b2500; }
+.json-error {
+  color: #c41e3a;
+  font-size: 0.82em;
+}
+.json-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.json-btn-copy { transition: background 0.2s; }
 </style>
