@@ -519,6 +519,10 @@ function handleStarClick(name) {
             <button class="h-btn h-btn-ghost" @click="openImportModal">导入</button>
           </div>
         </div>
+        <div class="h-storage-tip">
+          <span>⚠ 记录仅存于本浏览器，清除缓存或换浏览器将全部丢失</span>
+          <button class="h-tip-export" @click="openExportModal">导出备份</button>
+        </div>
         <div v-if="history.length === 0" class="history-empty">暂无历史记录</div>
         <TransitionGroup name="list" tag="div" class="history-list-wrapper">
           <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" @click="editingIndex === idx ? null : restoreHistory(item)">
@@ -748,6 +752,29 @@ function handleStarClick(name) {
 .h-note { font-weight: normal; color: #666; font-size: 0.85em; background: #eee; padding: 0 4px; border-radius: 4px; }
 .h-time-info { display: flex; gap: 8px; font-weight: normal; font-size: 0.85em; color: #555; }
 
+.h-storage-tip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 10px;
+  background: #fdf8ee;
+  border-bottom: 1px solid #e8dfc0;
+  font-size: 0.75em;
+  color: #8a6a20;
+}
+.h-tip-export {
+  font-family: inherit;
+  font-size: inherit;
+  color: #8b2500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  white-space: nowrap;
+  padding: 0;
+}
+.h-tip-export:hover { color: #a03000; }
 .history-empty { padding: 12px; text-align: center; color: #999; font-size: 0.9em; }
 
 /* === Unified history button system === */
