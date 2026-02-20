@@ -392,7 +392,7 @@ function handleStarClick(name) {
       <div v-if="history.length > 0" class="home-history">
         <div class="home-history-header">
           <span class="label-text">历史记录</span>
-          <button class="btn-clear-history-sm" :class="{ 'btn-confirm-danger': clearConfirming }" @click.stop="clearHistory">
+          <button class="h-btn h-btn-ghost h-btn-sm" :class="{ 'h-btn-danger': clearConfirming }" @click.stop="clearHistory">
             {{ clearConfirming ? '确定清空?' : '清空' }}
           </button>
         </div>
@@ -409,16 +409,19 @@ function handleStarClick(name) {
                 <span class="h-gender">{{ item.gender }}</span>
               </div>
             </div>
-            <div class="save-inputs h-edit-inline" v-else @click.stop>
-              <input v-model="editForm.name" placeholder="姓名(可选)" class="form-input-sm" style="flex:1; min-width:50px" />
-              <input v-model="editForm.note" placeholder="备注(可选)" class="form-input-sm" style="flex:2" />
-              <button class="btn-sm" @click.stop="saveEdit(idx)">确定</button>
-              <button class="btn-sm" style="background:#888" @click.stop="cancelEdit">取消</button>
+            <div class="h-edit-mode" v-else @click.stop>
+              <div class="h-edit-inputs">
+                <input v-model="editForm.name" placeholder="姓名（可选）" class="form-input-sm" />
+                <input v-model="editForm.note" placeholder="备注（可选）" class="form-input-sm" />
+              </div>
+              <div class="h-edit-btns">
+                <button class="h-btn h-btn-primary h-btn-sm" @click.stop="saveEdit(idx)">确定</button>
+                <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="cancelEdit">取消</button>
+              </div>
             </div>
-
             <div class="h-item-actions" v-if="editingIndex !== idx">
-              <button class="btn-item-tag btn-item-edit" @click.stop="startEdit(idx, item)">编辑</button>
-              <button class="btn-item-tag btn-item-delete" @click.stop="deleteHistoryItem(idx)">删除</button>
+              <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编辑</button>
+              <button class="h-btn h-btn-ghost h-btn-sm h-btn-del" @click.stop="deleteHistoryItem(idx)">删除</button>
             </div>
           </div>
         </TransitionGroup>
@@ -497,20 +500,24 @@ function handleStarClick(name) {
       <!-- History Panel -->
       <div v-show="showHistory" class="history-panel">
         <div class="h-actions">
-           <div class="save-inputs" v-if="isSaving">
-              <input v-model="saveForm.name" placeholder="姓名(可选)" class="form-input-sm" style="flex:1" />
-              <input v-model="saveForm.note" placeholder="备注(可选)" class="form-input-sm" style="flex:1" />
-              <button class="btn-sm" @click="confirmSave">确定</button>
-              <button class="btn-sm" style="background:#888" @click="isSaving=false">取消</button>
-           </div>
-           <div v-else style="display:flex; gap:6px; width:100%">
-             <button class="btn-save-history" @click="isSaving=true">💾 保存当前</button>
-             <button class="btn-clear-history" :class="{ 'btn-confirm-danger': clearConfirming }" @click.stop="clearHistory">
-               {{ clearConfirming ? '确定清空?' : '🗑️ 清空' }}
-             </button>
-             <button class="btn-json-action" @click="openExportModal" title="导出 JSON">导出</button>
-             <button class="btn-json-action btn-json-import" @click="openImportModal" title="导入 JSON">导入</button>
-           </div>
+          <div class="h-save-form" v-if="isSaving">
+            <div class="h-save-inputs">
+              <input v-model="saveForm.name" placeholder="姓名（可选）" class="form-input-sm" />
+              <input v-model="saveForm.note" placeholder="备注（可选）" class="form-input-sm" />
+            </div>
+            <div class="h-save-btns">
+              <button class="h-btn h-btn-primary h-btn-sm" @click="confirmSave">确定</button>
+              <button class="h-btn h-btn-ghost h-btn-sm" @click="isSaving=false">取消</button>
+            </div>
+          </div>
+          <div class="h-action-btns" v-else>
+            <button class="h-btn h-btn-primary" @click="isSaving=true">保存</button>
+            <button class="h-btn h-btn-ghost" :class="{ 'h-btn-danger': clearConfirming }" @click.stop="clearHistory">
+              {{ clearConfirming ? '确定清空?' : '清空' }}
+            </button>
+            <button class="h-btn h-btn-ghost" @click="openExportModal">导出</button>
+            <button class="h-btn h-btn-ghost" @click="openImportModal">导入</button>
+          </div>
         </div>
         <div v-if="history.length === 0" class="history-empty">暂无历史记录</div>
         <TransitionGroup name="list" tag="div" class="history-list-wrapper">
@@ -526,16 +533,19 @@ function handleStarClick(name) {
                 <span class="h-gender">{{ item.gender }}</span>
               </div>
             </div>
-            <div class="save-inputs h-edit-inline" v-else @click.stop>
-              <input v-model="editForm.name" placeholder="姓名(可选)" class="form-input-sm" style="flex:1; min-width:50px" />
-              <input v-model="editForm.note" placeholder="备注(可选)" class="form-input-sm" style="flex:2" />
-              <button class="btn-sm" @click.stop="saveEdit(idx)">确定</button>
-              <button class="btn-sm" style="background:#888" @click.stop="cancelEdit">取消</button>
+            <div class="h-edit-mode" v-else @click.stop>
+              <div class="h-edit-inputs">
+                <input v-model="editForm.name" placeholder="姓名（可选）" class="form-input-sm" />
+                <input v-model="editForm.note" placeholder="备注（可选）" class="form-input-sm" />
+              </div>
+              <div class="h-edit-btns">
+                <button class="h-btn h-btn-primary h-btn-sm" @click.stop="saveEdit(idx)">确定</button>
+                <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="cancelEdit">取消</button>
+              </div>
             </div>
-
             <div class="h-item-actions" v-if="editingIndex !== idx">
-              <button class="btn-item-tag btn-item-edit" @click.stop="startEdit(idx, item)">编辑</button>
-              <button class="btn-item-tag btn-item-delete" @click.stop="deleteHistoryItem(idx)">删除</button>
+              <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编辑</button>
+              <button class="h-btn h-btn-ghost h-btn-sm h-btn-del" @click.stop="deleteHistoryItem(idx)">删除</button>
             </div>
           </div>
         </TransitionGroup>
@@ -610,12 +620,12 @@ function handleStarClick(name) {
         <div v-if="jsonImportError" class="json-error">{{ jsonImportError }}</div>
         <div class="json-modal-actions">
           <template v-if="jsonModalMode === 'export'">
-            <button class="btn-sm json-btn-copy" @click="copyJsonToClipboard">{{ jsonCopied ? '已复制 ✓' : '复制' }}</button>
-            <button class="btn-sm" style="background:#888" @click="showJsonModal=false">关闭</button>
+            <button class="h-btn h-btn-primary json-btn-copy" @click="copyJsonToClipboard">{{ jsonCopied ? '已复制 ✓' : '复制' }}</button>
+            <button class="h-btn h-btn-ghost" @click="showJsonModal=false">关闭</button>
           </template>
           <template v-else>
-            <button class="btn-sm" @click="confirmImportJson">确认导入</button>
-            <button class="btn-sm" style="background:#888" @click="showJsonModal=false">取消</button>
+            <button class="h-btn h-btn-primary" @click="confirmImportJson">确认导入</button>
+            <button class="h-btn h-btn-ghost" @click="showJsonModal=false">取消</button>
           </template>
         </div>
       </div>
@@ -638,11 +648,6 @@ function handleStarClick(name) {
 /* Home history */
 .home-history { margin-top: 1.5em; border-top: 1px solid #d4c5a9; padding-top: 0.8em; }
 .home-history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5em; }
-.btn-clear-history-sm {
-  background: none; border: none; color: #999; cursor: pointer; font-size: 0.85em; font-family: inherit;
-}
-.btn-clear-history-sm:hover { color: #c41e3a; }
-.btn-clear-history-sm.btn-confirm-danger { background: #c41e3a; color: #fff; font-weight: bold; padding: 0.2em 0.6em; border-radius: 4px; }
 
 /* Compact nav inside settings */
 .compact-nav {
@@ -678,7 +683,6 @@ function handleStarClick(name) {
 .gender-toggle input { display: none; }
 .gender-toggle:hover { border-color: #8b2500; }
 .gender-toggle.active { background: #8b2500; color: #fff; border-color: #8b2500; }
-.btn-sm { background: #8b2500; color: #fff; border: none; padding: 0.3em 1em; border-radius: 10px; font-family: inherit; cursor: pointer; font-size: 0.85em; }
 .label-text-sm { font-size: 0.85em; color: #3c2415; white-space: nowrap; margin-right: 0; }
 .fc-divider { color: #d4c5a9; margin: 0 2px; }
 
@@ -746,46 +750,47 @@ function handleStarClick(name) {
 
 .history-empty { padding: 12px; text-align: center; color: #999; font-size: 0.9em; }
 
-.h-actions { 
-  padding: 8px; 
-  border-bottom: 1px solid #d4c5a9; 
-  background: #faf6ef;
-  display: flex;
-  gap: 8px;
-}
-.save-inputs { display: flex; gap: 6px; width: 100%; align-items: center; }
-.btn-save-history, .btn-clear-history {
-  flex: 1;
-  padding: 6px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em;
-  color: #fff;
-}
-.btn-save-history { background: #8b2500; }
-.btn-save-history:hover { background: #a03000; }
-.btn-clear-history { background: #888; }
-.btn-clear-history:hover { background: #666; }
-.btn-confirm-danger { background: #c41e3a !important; color: white !important; }
-
-.h-edit-inline { flex: 1; padding: 4px 0; }
-.h-item-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
-.btn-item-tag {
-  background: transparent;
-  border: 1px solid #d4c5a9;
-  border-radius: 4px;
-  padding: 2px 7px;
+/* === Unified history button system === */
+.h-btn {
   font-family: inherit;
-  font-size: 0.75em;
+  font-size: 0.84em;
+  padding: 5px 11px;
+  border-radius: 5px;
   cursor: pointer;
-  color: #aaa;
+  border: 1px solid transparent;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
   white-space: nowrap;
-  line-height: 1.6;
+  line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.btn-item-edit:hover { color: #8b2500; border-color: #8b2500; background: #fdf5ee; }
-.btn-item-delete:hover { color: #c41e3a; border-color: #e8b0b8; background: #fff0f2; }
+.h-btn-sm { font-size: 0.78em; padding: 3px 9px; }
+.h-btn-primary { background: #8b2500; color: #fff; border-color: #8b2500; }
+.h-btn-primary:hover { background: #a03000; border-color: #a03000; }
+.h-btn-ghost { background: transparent; color: #888; border-color: #d4c5a9; }
+.h-btn-ghost:hover { color: #8b2500; border-color: #8b2500; background: #fdf5ee; }
+.h-btn-danger { background: #c41e3a !important; color: #fff !important; border-color: #c41e3a !important; }
+.h-btn-del:hover { color: #c41e3a !important; border-color: #e8b0b8 !important; background: #fff0f2 !important; }
+
+/* Action bar */
+.h-actions { padding: 8px; border-bottom: 1px solid #d4c5a9; background: #faf6ef; }
+.h-action-btns { display: flex; gap: 6px; }
+.h-action-btns .h-btn { flex: 1; }
+
+/* Save form — two-row layout, no overflow */
+.h-save-form { display: flex; flex-direction: column; gap: 6px; }
+.h-save-inputs { display: flex; gap: 6px; }
+.h-save-inputs .form-input-sm { flex: 1; min-width: 0; }
+.h-save-btns { display: flex; gap: 6px; justify-content: flex-end; }
+
+/* Edit mode in history item — two-row, no overflow */
+.h-edit-mode { flex: 1; display: flex; flex-direction: column; gap: 5px; overflow: hidden; min-width: 0; }
+.h-edit-inputs { display: flex; gap: 5px; }
+.h-edit-inputs .form-input-sm { flex: 1; min-width: 0; }
+.h-edit-btns { display: flex; gap: 5px; justify-content: flex-end; }
+
+.h-item-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
 
 
 /* === Chart Grid === */
@@ -802,23 +807,6 @@ function handleStarClick(name) {
   .paipan-page { max-width: 90vw; }
 }
 
-/* Import / Export JSON buttons */
-.btn-json-action {
-  flex: 0;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85em;
-  font-family: inherit;
-  color: #fff;
-  background: #5c6e7a;
-  white-space: nowrap;
-  transition: background 0.15s;
-}
-.btn-json-action:hover { background: #4a5a66; }
-.btn-json-import { background: #4a6e5a; }
-.btn-json-import:hover { background: #3a5a4a; }
 
 /* JSON Modal */
 .json-modal-overlay {
