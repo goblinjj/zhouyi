@@ -450,7 +450,7 @@ function handleStarClick(name) {
           </button>
         </div>
         <div ref="homeListEl" class="history-list-wrapper">
-          <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" @click="editingIndex === idx ? null : (restoreHistory(item), generate())">
+          <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" :class="{ 'history-item-active': savedRecord && item.timestamp === savedRecord.timestamp }" @click="editingIndex === idx ? null : (restoreHistory(item), generate())">
             <div class="h-main" v-if="editingIndex !== idx">
               <div v-if="item.name || item.note" class="h-name-note">
                 <span v-if="item.name" class="h-name">{{ item.name }}</span>
@@ -574,7 +574,7 @@ function handleStarClick(name) {
         </div>
         <div v-if="history.length === 0" class="history-empty">暂无历史记录</div>
         <div ref="panelListEl" class="history-list-wrapper">
-          <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" @click="editingIndex === idx ? null : restoreHistory(item)">
+          <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" :class="{ 'history-item-active': savedRecord && item.timestamp === savedRecord.timestamp }" @click="editingIndex === idx ? null : restoreHistory(item)">
             <div class="h-main" v-if="editingIndex !== idx">
               <div v-if="item.name || item.note" class="h-name-note">
                 <span v-if="item.name" class="h-name">{{ item.name }}</span>
@@ -797,6 +797,7 @@ function handleStarClick(name) {
 }
 .history-item:hover { background: #fdfbf7; }
 .history-item:last-child { border-bottom: none; }
+.history-item-active { background: #f0f7f0 !important; border-left: 3px solid #2c6e49; }
 
 .h-main { display: flex; flex-direction: column; gap: 4px; font-weight: bold; color: #3c2415; align-items: flex-start; font-size: 0.95em; flex: 1; }
 .h-name-note { display: flex; gap: 8px; font-size: 0.9em; color: #8b2500; align-items: center; }
