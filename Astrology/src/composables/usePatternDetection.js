@@ -96,15 +96,24 @@ const PATTERNS = [
   {
     name: '君臣庆会',
     check(p, ps) {
+      if (!hasStar(p, '紫微') && !hasStar(p, '天府') && !hasStar(p, '太阳')) return false
+
       const sf = getSanfang(ps, p)
-      if (hasStar(p, '紫微') && hasStar(p, '破军'))
-        return sf.some(x => hasStar(x, '左辅')) || sf.some(x => hasStar(x, '右弼'))
-      if (hasStar(p, '紫微') && hasStar(p, '天相'))
-        return sf.some(x => hasStar(x, '文昌')) || sf.some(x => hasStar(x, '文曲'))
-      if (hasStar(p, '天府'))
-        return (sf.some(x => hasStar(x, '左辅')) || sf.some(x => hasStar(x, '右弼'))) &&
-          (sf.some(x => hasStar(x, '文昌')) || sf.some(x => hasStar(x, '文曲')))
-      return false
+
+      // 紫微为主的君臣庆会，必须要有天府或天相（双星之一即可，依题意紫微天相也可，故至少要有府或相），或者紫相/紫府同宫
+      if (hasStar(p, '紫微')) {
+        const hasFuXiang = sf.some(x => hasStar(x, '天府') || hasStar(x, '天相'))
+        if (!hasFuXiang) return false
+      }
+
+      // 检查三组吉星，每组至少要有一颗
+      const hasZuoYou = sf.some(x => hasStar(x, '左辅')) || sf.some(x => hasStar(x, '右弼'))
+      const hasChangQu = sf.some(x => hasStar(x, '文昌')) || sf.some(x => hasStar(x, '文曲'))
+      const hasKuiYue = sf.some(x => hasStar(x, '天魁')) || sf.some(x => hasStar(x, '天钺'))
+
+      if (!hasZuoYou || !hasChangQu || !hasKuiYue) return false
+
+      return true
     },
   },
   {
