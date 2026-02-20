@@ -33,7 +33,11 @@ npm install
 npm run build
 cd ..
 cp -r hexagram/dist dist/hexagram
-sed -i '' "s/__BUILD_VER__/$BUILD_VER/g" dist/hexagram/index.html dist/hexagram/study.html
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  sed -i '' "s/__BUILD_VER__/$BUILD_VER/g" dist/hexagram/index.html dist/hexagram/study.html
+else
+  sed -i "s/__BUILD_VER__/$BUILD_VER/g" dist/hexagram/index.html dist/hexagram/study.html
+fi
 
 # Generate SEO static pages (hexagram, stars, classics) + update sitemap
 node scripts/generate-seo-pages.js
