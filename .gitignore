@@ -7,3 +7,6 @@ dist/
 .idea
 *.sw?
 __pycache__/
+
+# Cloudflare Wrangler
+.wrangler/
