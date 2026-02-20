@@ -60,7 +60,7 @@
       <button class="ci-save-confirm" @click="confirmSave">保存</button>
       <button class="ci-save-cancel" @click="saving = false">×</button>
     </div>
-    <button v-else class="ci-save-btn" @click="startSave">保存当前命盘</button>
+    <button v-else-if="!savedRecord" class="ci-save-btn" @click="startSave">保存当前命盘</button>
   </div>
 </template>
 
