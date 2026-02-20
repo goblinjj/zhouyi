@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick, inject } from 'vue'
+import Sortable from 'sortablejs'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useWindowSize } from '@vueuse/core'
 import { astro } from 'iztro'
@@ -192,6 +193,42 @@ function saveEdit(idx) {
 function cancelEdit() {
   editingIndex.value = -1
 }
+
+// ===== Drag-to-sort =====
+const homeListEl = ref(null)
+const panelListEl = ref(null)
+let _homeSort = null
+let _panelSort = null
+
+function makeSortable(el) {
+  return Sortable.create(el, {
+    handle: '.h-btn-drag',
+    animation: 150,
+    ghostClass: 'h-item-ghost',
+    chosenClass: 'h-item-chosen',
+    onEnd(evt) {
+      if (evt.oldIndex === evt.newIndex) return
+      const arr = [...history.value]
+      const [moved] = arr.splice(evt.oldIndex, 1)
+      arr.splice(evt.newIndex, 0, moved)
+      history.value = arr
+      saveHistoryToStorage()
+    }
+  })
+}
+
+watch(homeListEl, (el) => {
+  _homeSort?.destroy(); _homeSort = null
+  if (el) _homeSort = makeSortable(el)
+}, { flush: 'post' })
+
+watch([panelListEl, showHistory], async ([el, visible]) => {
+  _panelSort?.destroy(); _panelSort = null
+  if (el && visible) {
+    await nextTick()
+    _panelSort = makeSortable(el)
+  }
+}, { flush: 'post' })
 
 function deleteHistoryItem(index) {
   history.value.splice(index, 1)
@@ -396,7 +433,7 @@ function handleStarClick(name) {
             {{ clearConfirming ? '确定清空?' : '清空' }}
           </button>
         </div>
-        <TransitionGroup name="list" tag="div" class="history-list-wrapper">
+        <div ref="homeListEl" class="history-list-wrapper">
           <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" @click="editingIndex === idx ? null : (restoreHistory(item), generate())">
             <div class="h-main" v-if="editingIndex !== idx">
               <div v-if="item.name || item.note" class="h-name-note">
@@ -420,11 +457,14 @@ function handleStarClick(name) {
               </div>
             </div>
             <div class="h-item-actions" v-if="editingIndex !== idx">
-              <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编辑</button>
-              <button class="h-btn h-btn-ghost h-btn-sm h-btn-del" @click.stop="deleteHistoryItem(idx)">删除</button>
+              <button class="h-btn h-btn-ghost h-btn-sm h-btn-drag" @click.stop title="拖动排序">
+                <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2.5" cy="2" r="1.3"/><circle cx="6.5" cy="2" r="1.3"/><circle cx="2.5" cy="6.5" r="1.3"/><circle cx="6.5" cy="6.5" r="1.3"/><circle cx="2.5" cy="11" r="1.3"/><circle cx="6.5" cy="11" r="1.3"/></svg>
+              </button>
+              <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编</button>
+              <button class="h-btn h-btn-ghost h-btn-sm h-btn-del" @click.stop="deleteHistoryItem(idx)">删</button>
             </div>
           </div>
-        </TransitionGroup>
+        </div>
       </div>
     </div>
 
@@ -524,7 +564,7 @@ function handleStarClick(name) {
           <button class="h-tip-export" @click="openExportModal">导出备份</button>
         </div>
         <div v-if="history.length === 0" class="history-empty">暂无历史记录</div>
-        <TransitionGroup name="list" tag="div" class="history-list-wrapper">
+        <div ref="panelListEl" class="history-list-wrapper">
           <div v-for="(item, idx) in history" :key="item.timestamp || idx" class="history-item" @click="editingIndex === idx ? null : restoreHistory(item)">
             <div class="h-main" v-if="editingIndex !== idx">
               <div v-if="item.name || item.note" class="h-name-note">
@@ -548,11 +588,14 @@ function handleStarClick(name) {
               </div>
             </div>
             <div class="h-item-actions" v-if="editingIndex !== idx">
-              <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编辑</button>
-              <button class="h-btn h-btn-ghost h-btn-sm h-btn-del" @click.stop="deleteHistoryItem(idx)">删除</button>
+              <button class="h-btn h-btn-ghost h-btn-sm h-btn-drag" @click.stop title="拖动排序">
+                <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2.5" cy="2" r="1.3"/><circle cx="6.5" cy="2" r="1.3"/><circle cx="2.5" cy="6.5" r="1.3"/><circle cx="6.5" cy="6.5" r="1.3"/><circle cx="2.5" cy="11" r="1.3"/><circle cx="6.5" cy="11" r="1.3"/></svg>
+              </button>
+              <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编</button>
+              <button class="h-btn h-btn-ghost h-btn-sm h-btn-del" @click.stop="deleteHistoryItem(idx)">删</button>
             </div>
           </div>
-        </TransitionGroup>
+        </div>
       </div>
     </div>
 
@@ -718,11 +761,12 @@ function handleStarClick(name) {
 }
 .btn-ai-interpret:hover { background: linear-gradient(135deg, #3a8f5f 0%, #2c6e49 100%); }
 
-/* Transition Group CSS for History */
 .history-list-wrapper { position: relative; }
-.list-enter-active, .list-leave-active { transition: all 0.4s ease; }
-.list-enter-from, .list-leave-to { opacity: 0; transform: translateX(-30px); }
-.list-leave-active { position: absolute; width: calc(100% - 24px); } /* prevent layout breaking */
+.h-item-ghost { opacity: 0.4; background: #fdf5ee !important; }
+.h-item-chosen { background: #fefaf4 !important; box-shadow: 0 2px 8px rgba(139,37,0,0.12); }
+.h-btn-drag { cursor: grab; color: #ccc; padding: 3px 5px; }
+.h-btn-drag:hover { color: #aaa; background: transparent !important; border-color: #d4c5a9 !important; }
+.h-btn-drag:active { cursor: grabbing; }
 
 .history-panel {
   background: var(--color-background-soft);
