@@ -417,8 +417,8 @@ function handleStarClick(name) {
             </div>
 
             <div class="h-item-actions" v-if="editingIndex !== idx">
-              <button class="btn-action-sm btn-edit-item" @click.stop="startEdit(idx, item)" title="编辑">✎</button>
-              <button class="btn-action-sm btn-delete-item-new" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
+              <button class="btn-item-tag btn-item-edit" @click.stop="startEdit(idx, item)">编辑</button>
+              <button class="btn-item-tag btn-item-delete" @click.stop="deleteHistoryItem(idx)">删除</button>
             </div>
           </div>
         </TransitionGroup>
@@ -534,8 +534,8 @@ function handleStarClick(name) {
             </div>
 
             <div class="h-item-actions" v-if="editingIndex !== idx">
-              <button class="btn-action-sm btn-edit-item" @click.stop="startEdit(idx, item)" title="编辑">✎</button>
-              <button class="btn-action-sm btn-delete-item-new" @click.stop="deleteHistoryItem(idx)" title="删除">×</button>
+              <button class="btn-item-tag btn-item-edit" @click.stop="startEdit(idx, item)">编辑</button>
+              <button class="btn-item-tag btn-item-delete" @click.stop="deleteHistoryItem(idx)">删除</button>
             </div>
           </div>
         </TransitionGroup>
@@ -769,35 +769,23 @@ function handleStarClick(name) {
 .btn-clear-history:hover { background: #666; }
 .btn-confirm-danger { background: #c41e3a !important; color: white !important; }
 
-.btn-delete-item:hover { color: #c41e3a; }
-
 .h-edit-inline { flex: 1; padding: 4px 0; }
-.h-item-actions { display: flex; gap: 4px; align-items: center; }
-.btn-action-sm {
+.h-item-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+.btn-item-tag {
   background: transparent;
   border: 1px solid #d4c5a9;
   border-radius: 4px;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 2px 7px;
+  font-family: inherit;
+  font-size: 0.75em;
   cursor: pointer;
-  color: #666;
-  font-size: 1.1em;
-  transition: all 0.2s;
+  color: #aaa;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  line-height: 1.6;
 }
-.btn-action-sm:hover {
-  background: #fdfbf7;
-  border-color: #8b2500;
-  color: #8b2500;
-}
-.btn-save-edit { color: #2c6e49; border-color: #2c6e49; }
-.btn-save-edit:hover { background: #2c6e49; color: #fff; }
-.btn-cancel-edit { color: #c41e3a; border-color: #c41e3a; }
-.btn-cancel-edit:hover { background: #c41e3a; color: #fff; }
-.btn-delete-item-new { color: #c0c0c0; border: none; font-size: 1.4em; }
-.btn-delete-item-new:hover { color: #c41e3a; border-color: transparent; background: transparent; }
+.btn-item-edit:hover { color: #8b2500; border-color: #8b2500; background: #fdf5ee; }
+.btn-item-delete:hover { color: #c41e3a; border-color: #e8b0b8; background: #fff0f2; }
 
 
 /* === Chart Grid === */
