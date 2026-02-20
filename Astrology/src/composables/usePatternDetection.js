@@ -303,11 +303,14 @@ const PATTERNS = [
   { name: '禄马佩印', check: (p) => hasStar(p, '禄存') && hasStar(p, '天马') && hasStar(p, '天相') },
   { name: '两重华盖', check: (p) => hasStar(p, '禄存') && hasMutagen(p, '禄') && (hasStar(p, '地空') || hasStar(p, '地劫')) },
   {
-    name: '羊陀夹命',
+    name: '羊陀夹忌',
     check(p, ps) {
       if (!hasStar(p, '禄存')) return false
       const [a, b] = getFlankPalaces(ps, p)
-      return (hasStar(a, '擎羊') && hasStar(b, '陀罗')) || (hasStar(a, '陀罗') && hasStar(b, '擎羊'))
+      const isJia = (hasStar(a, '擎羊') && hasStar(b, '陀罗')) || (hasStar(a, '陀罗') && hasStar(b, '擎羊'))
+      if (!isJia) return false
+      const opp = getOppositePalace(ps, p)
+      return hasMutagen(p, '忌') || hasMutagen(opp, '忌')
     },
   },
   { name: '马头带箭', check: (p) => hasStar(p, '擎羊') && p.earthlyBranch === '午' },
@@ -403,6 +406,22 @@ const PATTERNS = [
       if (!hasMutagen(opp, '权')) return false
       const sf = getSanfang(ps, p)
       return sf.some(x => hasStar(x, '文昌')) || sf.some(x => hasStar(x, '文曲'))
+    },
+  },
+  {
+    name: '双忌夹命',
+    check(p, ps) {
+      if (hasMutagen(p, '忌')) return false
+      const [a, b] = getFlankPalaces(ps, p)
+      return hasMutagen(a, '忌') && hasMutagen(b, '忌')
+    },
+  },
+  {
+    name: '双忌夹忌',
+    check(p, ps) {
+      if (!hasMutagen(p, '忌')) return false
+      const [a, b] = getFlankPalaces(ps, p)
+      return hasMutagen(a, '忌') && hasMutagen(b, '忌')
     },
   },
 ]
