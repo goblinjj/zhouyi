@@ -50,12 +50,17 @@
       <span v-if="age">　虚岁{{ age }}</span>
     </div>
 
-    <button class="ci-save-btn" @click="$emit('save-chart')">保存当前命盘</button>
+    <div v-if="saving" class="ci-save-form" @click.stop>
+      <input ref="saveInput" v-model="saveName" placeholder="输入名称（可选）" class="ci-save-input" @keyup.enter="confirmSave" @keyup.esc="saving = false" />
+      <button class="ci-save-confirm" @click="confirmSave">保存</button>
+      <button class="ci-save-cancel" @click="saving = false">×</button>
+    </div>
+    <button v-else class="ci-save-btn" @click="startSave">保存当前命盘</button>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import EightCharDaYun from './EightCharDaYun.vue'
 
 const props = defineProps({
@@ -67,7 +72,24 @@ const props = defineProps({
   selYear: { default: null },
 })
 
-defineEmits(['adjust', 'save-chart'])
+const emit = defineEmits(['adjust', 'save-chart'])
+
+const saving = ref(false)
+const saveName = ref('')
+const saveInput = ref(null)
+
+async function startSave() {
+  saving.value = true
+  saveName.value = ''
+  await nextTick()
+  saveInput.value?.focus()
+}
+
+function confirmSave() {
+  emit('save-chart', saveName.value.trim())
+  saving.value = false
+  saveName.value = ''
+}
 
 const adjustFields = [
   { key: 'year', label: '年' },
@@ -193,4 +215,45 @@ function pillarColor(char) {
   transition: background 0.15s, border-color 0.15s;
 }
 .ci-save-btn:hover { background: #fdf5ee; border-color: #8b2500; }
+.ci-save-form {
+  margin-top: 8px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.ci-save-input {
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 6px;
+  border: 1px solid #8b2500;
+  border-radius: 5px;
+  background: #fffcf5;
+  color: #3c2415;
+  outline: none;
+}
+.ci-save-confirm {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #8b2500;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ci-save-confirm:hover { background: #a03000; }
+.ci-save-cancel {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 2px 5px;
+  background: transparent;
+  color: #aaa;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+}
+.ci-save-cancel:hover { color: #666; }
 </style>

@@ -83,14 +83,6 @@ function loadHistory() {
   }
 }
 
-const isSaving = ref(false)
-const saveForm = ref({ name: '', note: '' })
-
-function confirmSave() {
-  saveHistory(saveForm.value.name, saveForm.value.note)
-  isSaving.value = false
-  saveForm.value = { name: '', note: '' }
-}
 
 function saveHistory(name = '', note = '') {
   const newItem = {
@@ -550,17 +542,7 @@ function handleStarClick(name) {
       <!-- History Panel -->
       <div v-show="showHistory" class="history-panel">
         <div class="h-actions">
-          <div class="h-save-form" v-if="isSaving">
-            <div class="h-save-inputs">
-              <input v-model="saveForm.name" placeholder="姓名（可选）" class="form-input-sm" />
-              <input v-model="saveForm.note" placeholder="备注（可选）" class="form-input-sm" />
-            </div>
-            <div class="h-save-btns">
-              <button class="h-btn h-btn-primary h-btn-sm" @click="confirmSave">确定</button>
-              <button class="h-btn h-btn-ghost h-btn-sm" @click="isSaving=false">取消</button>
-            </div>
-          </div>
-          <div class="h-action-btns" v-else>
+          <div class="h-action-btns">
             <button class="h-btn h-btn-ghost" :class="{ 'h-btn-danger': clearConfirming }" @click.stop="clearHistory">
               {{ clearConfirming ? '确定清空?' : '清空' }}
             </button>
@@ -637,7 +619,7 @@ function handleStarClick(name) {
           :horoscopeData="horoscopeData"
           :selYear="selYear"
           @adjust="adjustDate"
-          @save-chart="showHistory = true; isSaving = true"
+          @save-chart="(name) => { saveHistory(name, ''); showHistory = true }"
         />
       </div>
 
@@ -859,11 +841,6 @@ function handleStarClick(name) {
 .h-action-btns { display: flex; gap: 6px; }
 .h-action-btns .h-btn { flex: 1; }
 
-/* Save form — two-row layout, no overflow */
-.h-save-form { display: flex; flex-direction: column; gap: 6px; }
-.h-save-inputs { display: flex; gap: 6px; }
-.h-save-inputs .form-input-sm { flex: 1; min-width: 0; }
-.h-save-btns { display: flex; gap: 6px; justify-content: flex-end; }
 
 /* Edit mode in history item — two-row, no overflow */
 .h-edit-mode { flex: 1; display: flex; flex-direction: column; gap: 5px; overflow: hidden; min-width: 0; }
