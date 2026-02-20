@@ -485,7 +485,7 @@ function handleStarClick(name) {
            </svg>
          </a>
          <button class="btn-toggle-settings" style="flex: 1" @click="showSettings = !showSettings">
-           {{ showSettings ? '收起设置 ▲' : '展开设置 ▼' }}
+           导航&设置 {{ showSettings ? '▲' : '▼' }}
          </button>
          <button class="btn-toggle-settings" style="flex: 1" @click="showHistory = !showHistory">
            本地记录 {{ showHistory ? '▲' : '▼' }}
