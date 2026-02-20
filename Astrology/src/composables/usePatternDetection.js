@@ -503,6 +503,16 @@ const PATTERNS = [
     name: '风流綵杖',
     check: (p) => hasStar(p, '贪狼') && p.earthlyBranch === '寅' && hasStar(p, '陀罗')
   },
+  {
+    name: '贫士格',
+    check(p, ps) {
+      if (!hasStar(p, '贪狼')) return false
+      const sf = getSanfang(ps, p)
+      const hasSha = sf.some(x => hasStar(x, '地空') || hasStar(x, '地劫') || hasStar(x, '大耗') || hasMutagen(x, '忌'))
+      const hasJiXing = sf.some(x => hasStar(x, '禄存') || hasMutagen(x, '禄') || hasStar(x, '火星') || hasStar(x, '铃星'))
+      return hasSha && !hasJiXing
+    }
+  },
 ]
 
 // ============================================================
