@@ -220,7 +220,8 @@ const PATTERNS = [
   { name: '雄宿朝元',  check: (p) => hasStar(p, '廉贞') && ['寅','申'].includes(p.earthlyBranch) && !hasSha(p) },
   { name: '府相朝垣',
     check(p, ps) {
-      // 命宫必须无主星（正曜），天府天相方能朝垣
+      // 必须是命宫，且命宫无主星（正曜），天府天相在三方四正方成格
+      if (p.name !== '命宫') return false
       if ((p.majorStars || []).length > 0) return false
       const sf = getSanfang(ps, p)
       return sf.some(x => hasStar(x, '天府')) && sf.some(x => hasStar(x, '天相'))
