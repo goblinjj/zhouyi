@@ -561,7 +561,6 @@ function handleStarClick(name) {
             </div>
           </div>
           <div class="h-action-btns" v-else>
-            <button class="h-btn h-btn-primary" @click="isSaving=true">保存</button>
             <button class="h-btn h-btn-ghost" :class="{ 'h-btn-danger': clearConfirming }" @click.stop="clearHistory">
               {{ clearConfirming ? '确定清空?' : '清空' }}
             </button>
@@ -638,6 +637,7 @@ function handleStarClick(name) {
           :horoscopeData="horoscopeData"
           :selYear="selYear"
           @adjust="adjustDate"
+          @save-chart="showHistory = true; isSaving = true"
         />
       </div>
 

@@ -49,6 +49,8 @@
       流年：{{ yearlyInfo.stem }}{{ yearlyInfo.branch }}年
       <span v-if="age">　虚岁{{ age }}</span>
     </div>
+
+    <button class="ci-save-btn" @click="$emit('save-chart')">保存当前命盘</button>
   </div>
 </template>
 
@@ -65,7 +67,7 @@ const props = defineProps({
   selYear: { default: null },
 })
 
-defineEmits(['adjust'])
+defineEmits(['adjust', 'save-chart'])
 
 const adjustFields = [
   { key: 'year', label: '年' },
@@ -177,4 +179,18 @@ function pillarColor(char) {
   font-size: 13px; color: #8b2500; font-weight: bold;
   user-select: none;
 }
+.ci-save-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 5px 0;
+  background: transparent;
+  border: 1px solid #d4c5a9;
+  border-radius: 5px;
+  color: #8b2500;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ci-save-btn:hover { background: #fdf5ee; border-color: #8b2500; }
 </style>
