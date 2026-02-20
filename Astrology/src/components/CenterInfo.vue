@@ -38,6 +38,7 @@
       v-if="selectedPalace"
       :selectedPalace="selectedPalace"
       :allPalaces="astrolabe.palaces"
+      :horoscopeData="horoscopeData"
     />
 
 

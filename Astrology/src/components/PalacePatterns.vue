@@ -1,11 +1,12 @@
 <template>
   <div v-if="patterns.length" class="palace-patterns">
     <span
-      v-for="name in patterns"
-      :key="name"
+      v-for="item in patterns"
+      :key="item.name"
       class="pattern-tag"
-      @click.stop="openPattern(name)"
-    >{{ name }}</span>
+      :class="{ 'pattern-transient': item.isTransient }"
+      @click.stop="openPattern(item.name, item.isTransient)"
+    >{{ item.name }}</span>
   </div>
 
   <!-- Pattern Detail Popup -->
@@ -17,6 +18,7 @@
           <button class="pp-close" @click="activePattern = null">×</button>
         </div>
         <div class="pp-body">
+          <p v-if="activePattern.isTransient" class="pp-transient-note">⚡ 此格局由大运/流年/流月星曜共同促成</p>
           <p v-if="activePattern.conditions" class="pp-section pp-conditions">{{ activePattern.conditions }}</p>
           <p v-if="activePattern.desc" class="pp-section pp-desc">{{ activePattern.desc }}</p>
           <p v-if="!activePattern.conditions && !activePattern.desc" class="pp-nodesc">暂无典籍记载</p>
@@ -34,11 +36,14 @@ import classicsData from '@/data/classics'
 const props = defineProps({
   selectedPalace: { type: Object, default: null },
   allPalaces: { type: Array, default: () => [] },
+  horoscopeData: { type: Object, default: null },
 })
 
 const { detectPatterns } = usePatternDetection()
 
-const patterns = computed(() => detectPatterns(props.selectedPalace, props.allPalaces))
+const patterns = computed(() =>
+  detectPatterns(props.selectedPalace, props.allPalaces, props.horoscopeData)
+)
 
 // 从典籍中查找格局详情
 const gejuBook = classicsData.find(b => b.title === '紫微斗数格局详解')
@@ -52,17 +57,17 @@ function findSection(name) {
 
 const activePattern = ref(null)
 
-function openPattern(name) {
+function openPattern(name, isTransient = false) {
   const section = findSection(name)
   if (!section) {
-    activePattern.value = { title: name, conditions: '', desc: '' }
+    activePattern.value = { title: name, conditions: '', desc: '', isTransient }
     return
   }
   const content = section.content || ''
   const parts = content.split('\n\n')
   const conditions = parts.find(p => p.startsWith('成格条件：')) || ''
   const desc = parts.find(p => p.startsWith('格局说明：')) || ''
-  activePattern.value = { title: name, conditions, desc }
+  activePattern.value = { title: name, conditions, desc, isTransient }
 }
 </script>
 
@@ -93,6 +98,16 @@ function openPattern(name) {
 .pattern-tag:hover {
   background: rgba(139, 37, 0, 0.14);
   border-color: rgba(139, 37, 0, 0.45);
+}
+/* 流星促成的格局 — 蓝色系 */
+.pattern-tag.pattern-transient {
+  color: #1565c0;
+  background: rgba(21, 101, 192, 0.07);
+  border-color: rgba(21, 101, 192, 0.28);
+}
+.pattern-tag.pattern-transient:hover {
+  background: rgba(21, 101, 192, 0.15);
+  border-color: rgba(21, 101, 192, 0.5);
 }
 
 /* Popup */
@@ -170,5 +185,14 @@ function openPattern(name) {
   text-align: center;
   padding: 12px 0;
   margin: 0;
+}
+.pp-transient-note {
+  font-size: 11px;
+  color: #1565c0;
+  background: rgba(21, 101, 192, 0.07);
+  border: 1px solid rgba(21, 101, 192, 0.2);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 0 0 8px;
 }
 </style>
