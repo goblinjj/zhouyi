@@ -196,8 +196,9 @@ let _panelSort = null
 
 function makeSortable(el) {
   return Sortable.create(el, {
-    handle: '.h-btn-drag',
     animation: 150,
+    delay: 400,         // 长按 400ms 触发拖动
+    delayOnTouchOnly: false,
     ghostClass: 'h-item-ghost',
     chosenClass: 'h-item-chosen',
     onEnd(evt) {
@@ -461,9 +462,6 @@ function handleStarClick(name) {
               </div>
             </div>
             <div class="h-item-actions" v-if="editingIndex !== idx">
-              <button class="h-btn h-btn-ghost h-btn-sm h-btn-drag" @click.stop title="拖动排序">
-                <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2.5" cy="2" r="1.3"/><circle cx="6.5" cy="2" r="1.3"/><circle cx="2.5" cy="6.5" r="1.3"/><circle cx="6.5" cy="6.5" r="1.3"/><circle cx="2.5" cy="11" r="1.3"/><circle cx="6.5" cy="11" r="1.3"/></svg>
-              </button>
               <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编</button>
               <button class="h-btn h-btn-sm h-btn-del" :class="deletingIndex === idx ? 'h-btn-danger' : 'h-btn-ghost'" @click.stop="deleteHistoryItem(idx)">{{ deletingIndex === idx ? '确认' : '删' }}</button>
             </div>
@@ -588,9 +586,6 @@ function handleStarClick(name) {
               </div>
             </div>
             <div class="h-item-actions" v-if="editingIndex !== idx">
-              <button class="h-btn h-btn-ghost h-btn-sm h-btn-drag" @click.stop title="拖动排序">
-                <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2.5" cy="2" r="1.3"/><circle cx="6.5" cy="2" r="1.3"/><circle cx="2.5" cy="6.5" r="1.3"/><circle cx="6.5" cy="6.5" r="1.3"/><circle cx="2.5" cy="11" r="1.3"/><circle cx="6.5" cy="11" r="1.3"/></svg>
-              </button>
               <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编</button>
               <button class="h-btn h-btn-sm h-btn-del" :class="deletingIndex === idx ? 'h-btn-danger' : 'h-btn-ghost'" @click.stop="deleteHistoryItem(idx)">{{ deletingIndex === idx ? '确认' : '删' }}</button>
             </div>
@@ -766,9 +761,6 @@ function handleStarClick(name) {
 .history-list-wrapper { position: relative; }
 .h-item-ghost { opacity: 0.4; background: #fdf5ee !important; }
 .h-item-chosen { background: #fefaf4 !important; box-shadow: 0 2px 8px rgba(139,37,0,0.12); }
-.h-btn-drag { cursor: grab; color: #ccc; padding: 3px 5px; }
-.h-btn-drag:hover { color: #aaa; background: transparent !important; border-color: #d4c5a9 !important; }
-.h-btn-drag:active { cursor: grabbing; }
 
 .history-panel {
   background: var(--color-background-soft);
