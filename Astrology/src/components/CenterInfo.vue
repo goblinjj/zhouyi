@@ -6,11 +6,11 @@
     </div>
     <div class="ci-group">
       <div class="ci-row">命主：{{ astrolabe.soul }}　身主：{{ astrolabe.body }}</div>
-      <div class="ci-row">{{ astrolabe.zodiac }}　{{ astrolabe.sign }}</div>
     </div>
-    
-    <div class="ci-row pillars-row" v-if="fourPillars">
-      <div class="pillars-cols">
+
+    <!-- 四柱 + 大运 横向滚动 -->
+    <div class="pillars-dayun-scroll">
+      <div v-if="fourPillars" class="pillars-group">
         <div class="pillar-col">
           <span v-for="char in fourPillars.year" :key="'y'+char" :style="{ color: pillarColor(char) }">{{ char }}</span>
         </div>
@@ -24,14 +24,20 @@
           <span v-for="char in fourPillars.hour" :key="'h'+char" :style="{ color: pillarColor(char) }">{{ char }}</span>
         </div>
       </div>
+      <div v-if="fourPillars" class="pillars-dayun-sep"></div>
+      <EightCharDaYun
+        v-if="astrolabe && astrolabe.solarDate"
+        :solarDate="astrolabe.solarDate"
+        :timeIndex="timeIndex"
+        :gender="gender"
+      />
     </div>
 
-    <!-- Da Yun Display -->
-    <EightCharDaYun 
-      v-if="astrolabe && astrolabe.solarDate"
-      :solarDate="astrolabe.solarDate"
-      :timeIndex="timeIndex"
-      :gender="gender"
+    <!-- 格局 -->
+    <PalacePatterns
+      v-if="selectedPalace"
+      :selectedPalace="selectedPalace"
+      :allPalaces="astrolabe.palaces"
     />
 
 
@@ -67,6 +73,7 @@
 <script setup>
 import { computed, ref, nextTick } from 'vue'
 import EightCharDaYun from './EightCharDaYun.vue'
+import PalacePatterns from './PalacePatterns.vue'
 
 const props = defineProps({
   astrolabe: { type: Object, required: true },
@@ -76,6 +83,7 @@ const props = defineProps({
   horoscopeData: { type: Object, default: null },
   selYear: { default: null },
   savedRecord: { type: Object, default: null },
+  selectedPalace: { type: Object, default: null },
 })
 
 const emit = defineEmits(['adjust', 'save-chart'])
@@ -161,21 +169,47 @@ function pillarColor(char) {
 .ci-title { color: #8b2500; font-weight: bold; font-size: 1.2em; text-align: center; margin-bottom: 4px; }
 .ci-row { color: #3c2415; margin: 2px 0; text-align: center; }
 .ci-small { font-size: 0.9em; }
-.pillars-row {
+/* 四柱 + 大运 横向滚动容器 */
+.pillars-dayun-scroll {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
+  overflow-x: auto;
+  gap: 6px;
+  padding: 4px 2px;
+  border-top: 1px dotted #d4c5a9;
+  border-bottom: 1px dotted #d4c5a9;
+  margin: 4px 0;
 }
-.pillar-label { white-space: nowrap; }
-.pillars-cols {
-  display: flex; flex-direction: row; gap: 4px; justify-content: center;
+.pillars-dayun-scroll::-webkit-scrollbar { height: 3px; }
+.pillars-dayun-scroll::-webkit-scrollbar-thumb { background: #d4c5a9; border-radius: 2px; }
+.pillars-group {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  flex-shrink: 0;
 }
 .pillar-col {
   writing-mode: vertical-rl;
   text-orientation: upright;
   color: #c41e3a; font-weight: bold;
   letter-spacing: 2px; line-height: 1.2;
+}
+.pillars-dayun-sep {
+  width: 1px;
+  align-self: stretch;
+  background: #d4c5a9;
+  flex-shrink: 0;
+}
+/* Override EightCharDaYun internal separator when inline */
+.pillars-dayun-scroll :deep(.dayun-section) {
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+  flex-shrink: 0;
+}
+.pillars-dayun-scroll :deep(.dy-scroll) {
+  overflow-x: visible;
 }
 .ci-divider { border-top: 1px dotted #d4c5a9; margin: 4px 0; }
 

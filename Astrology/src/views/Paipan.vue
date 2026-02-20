@@ -58,6 +58,10 @@ const {
   selectDecadal, selectYear, selectMonth,
 } = useHoroscope(astrolabe)
 
+const selectedPalace = computed(() =>
+  astrolabe.value?.palaces?.find(p => p.index === selectedPalaceIdx.value) ?? null
+)
+
 // ===== Methods =====
 function generate() {
   if (!date.value) return
@@ -635,6 +639,7 @@ function handleStarClick(name) {
           :horoscopeData="horoscopeData"
           :selYear="selYear"
           :savedRecord="savedRecord"
+          :selectedPalace="selectedPalace"
           @adjust="adjustDate"
           @save-chart="(name) => { saveHistory(name, ''); showHistory = true }"
         />
