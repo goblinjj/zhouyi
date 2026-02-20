@@ -89,8 +89,8 @@ function openPattern(name, scope = 'natal') {
 .palace-patterns {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px;
-  padding: 3px 0;
+  gap: 2px;
+  padding: 2px 0;
   justify-content: center;
 }
 .pattern-tag {

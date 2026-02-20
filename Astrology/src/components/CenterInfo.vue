@@ -1,11 +1,9 @@
 <template>
   <div class="center-info">
     <div class="ci-group">
-      <div class="ci-row ci-main-info">{{ genderLabel }}　{{ astrolabe.fiveElementsClass }}</div>
+      <div class="ci-row">{{ genderLabel }}-{{ astrolabe.fiveElementsClass }}-{{ timeLabel }}</div>
+      <div class="ci-row">{{ astrolabe.solarDate }}</div>
       <div class="ci-row">{{ astrolabe.lunarDate }}</div>
-    </div>
-    <div class="ci-group">
-      <div class="ci-row">命主：{{ astrolabe.soul }}　身主：{{ astrolabe.body }}</div>
     </div>
 
     <!-- 四柱 + 大运 横向滚动 -->
@@ -52,11 +50,7 @@
       </div>
     </div>
 
-    <!-- Progressive Info Display -->
-    <div class="ci-row ci-small" v-if="yearlyInfo">
-      流年：{{ yearlyInfo.stem }}{{ yearlyInfo.branch }}年
-      <span v-if="age">　虚岁{{ age }}</span>
-    </div>
+
 
     <div v-if="savedRecord" class="ci-saved-badge">
       <span class="ci-saved-icon">✓</span>
@@ -76,6 +70,7 @@
 import { computed, ref, nextTick } from 'vue'
 import EightCharDaYun from './EightCharDaYun.vue'
 import PalacePatterns from './PalacePatterns.vue'
+import { TIME_OPTIONS } from '../composables/usePaipanConstants'
 
 const props = defineProps({
   astrolabe: { type: Object, required: true },
@@ -116,6 +111,12 @@ const adjustFields = [
 ]
 const genderLabel = computed(() => props.gender === '男' ? '阳男' : '阴女')
 
+const timeLabel = computed(() => {
+  const opt = TIME_OPTIONS.find(t => t.value === props.timeIndex)
+  if (!opt) return ''
+  return opt.label.split(' ')[0]
+})
+
 const yearlyInfo = computed(() => {
   if (!props.selYear || !props.horoscopeData?.yearly) return null
   return {
@@ -151,18 +152,18 @@ function pillarColor(char) {
   grid-row: 2 / 4;
   grid-column: 2 / 4;
   border: 1px solid #d4c5a9;
-  padding: 8px;
+  padding: 2px 8px;
   background: #fffcf5;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-size: 13px;
+  font-size: 12px;
 }
 .ci-group {
-  margin-bottom: 6px;
+  margin-bottom: 2px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0px;
 }
 .ci-main-info {
   font-weight: bold;
@@ -179,10 +180,10 @@ function pillarColor(char) {
   align-items: center;
   overflow-x: auto;
   gap: 6px;
-  padding: 4px 2px;
+  padding: 2px 2px;
   border-top: 1px dotted #d4c5a9;
   border-bottom: 1px dotted #d4c5a9;
-  margin: 4px 0;
+  margin: 2px 0;
 }
 .pillars-dayun-scroll::-webkit-scrollbar { height: 3px; }
 .pillars-dayun-scroll::-webkit-scrollbar-thumb { background: #d4c5a9; border-radius: 2px; }
@@ -218,8 +219,8 @@ function pillarColor(char) {
 
 /* Date/Time Adjustor */
 .ci-adjust {
-  display: flex; flex-wrap: wrap; gap: 4px 8px; justify-content: center; align-items: center;
-  padding: 4px 0; margin: 6px 0;
+  display: flex; flex-wrap: wrap; gap: 2px 4px; justify-content: center; align-items: center;
+  padding: 2px 0; margin: 2px 0;
   border-top: 1px dotted #d4c5a9;
   border-bottom: 1px dotted #d4c5a9;
 }
@@ -245,35 +246,35 @@ function pillarColor(char) {
   user-select: none;
 }
 .ci-saved-badge {
-  margin-top: 8px;
+  margin-top: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 4px 0;
+  padding: 2px 0;
   border-radius: 5px;
   background: #f0f7f0;
   border: 1px solid #b8dab8;
 }
-.ci-saved-icon { color: #2c6e49; font-size: 12px; font-weight: bold; }
-.ci-saved-text { color: #2c6e49; font-size: 12px; font-weight: bold; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ci-saved-icon { color: #2c6e49; font-size: 10px; font-weight: bold; }
+.ci-saved-text { color: #2c6e49; font-size: 10px; font-weight: bold; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .ci-save-btn {
-  margin-top: 8px;
+  margin-top: 2px;
   width: 100%;
-  padding: 5px 0;
+  padding: 2px 0;
   background: transparent;
   border: 1px solid #d4c5a9;
   border-radius: 5px;
   color: #8b2500;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 10px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
 .ci-save-btn:hover { background: #fdf5ee; border-color: #8b2500; }
 .ci-save-form {
-  margin-top: 8px;
+  margin-top: 2px;
   display: flex;
   gap: 4px;
   align-items: center;
@@ -282,8 +283,8 @@ function pillarColor(char) {
   flex: 1;
   min-width: 0;
   font-family: inherit;
-  font-size: 12px;
-  padding: 4px 6px;
+  font-size: 10px;
+  padding: 3px 4px;
   border: 1px solid #8b2500;
   border-radius: 5px;
   background: #fffcf5;
@@ -292,8 +293,8 @@ function pillarColor(char) {
 }
 .ci-save-confirm {
   font-family: inherit;
-  font-size: 12px;
-  padding: 4px 8px;
+  font-size: 10px;
+  padding: 3px 6px;
   background: #8b2500;
   color: #fff;
   border: none;
@@ -304,8 +305,8 @@ function pillarColor(char) {
 .ci-save-confirm:hover { background: #a03000; }
 .ci-save-cancel {
   font-family: inherit;
-  font-size: 14px;
-  padding: 2px 5px;
+  font-size: 10px;
+  padding: 3px 6px;
   background: transparent;
   color: #aaa;
   border: none;

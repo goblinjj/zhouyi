@@ -32,13 +32,12 @@ const daYunList = computed(() => {
     const gVal = props.gender === '男' ? 1 : 0
     const yun = eightChar.getYun(gVal)
     
-    const daYuns = yun.getDaYun()
-    const result = []
-
     // 1st DaYun is usually start age
     // lunar-javascript returns 10 DaYuns by default usually
     // We want the Start Year, Start Age, and the GanZhi
-    
+    const daYuns = yun.getDaYun(11)
+    const result = []
+
     for (const dy of daYuns) {
       // Index is usually 0, 1, 2... representing sequence
       // We only care about valid ones
