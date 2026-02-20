@@ -227,9 +227,19 @@ const PATTERNS = [
   {
     name: '刑囚夹印',
     check(p, ps) {
-      const sf = getSanfang(ps, p)
-      return sf.some(x => hasStar(x, '廉贞')) && sf.some(x => hasStar(x, '天相')) &&
-        (sf.some(x => hasStar(x, '天刑')) || sf.some(x => hasStar(x, '擎羊')))
+      const tongGong = hasStar(p, '廉贞') && hasStar(p, '天相') && (hasStar(p, '天刑') || hasStar(p, '擎羊'))
+      let jiaGong = false
+      if (hasStar(p, '天相')) {
+        const [a, b] = getFlankPalaces(ps, p)
+        const aHasQiu = hasStar(a, '廉贞')
+        const bHasQiu = hasStar(b, '廉贞')
+        const aHasXing = hasStar(a, '天刑') || hasStar(a, '擎羊')
+        const bHasXing = hasStar(b, '天刑') || hasStar(b, '擎羊')
+        if ((aHasQiu && bHasXing) || (aHasXing && bHasQiu)) {
+          jiaGong = true
+        }
+      }
+      return tongGong || jiaGong
     },
   },
   { name: '生不逢时', check: (p) => hasStar(p, '廉贞') && (hasStar(p, '地空') || hasStar(p, '地劫')) },
