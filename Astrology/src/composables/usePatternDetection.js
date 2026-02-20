@@ -459,15 +459,6 @@ const PATTERNS = [
     }
   },
   {
-    name: '羊陀夹命',
-    check(p, ps) {
-      // Different from 羊陀夹忌. Just check basic 夹命.
-      const [a, b] = getFlankPalaces(ps, p)
-      const isJia = (hasStar(a, '擎羊') && hasStar(b, '陀罗')) || (hasStar(a, '陀罗') && hasStar(b, '擎羊'))
-      return hasStar(p, '禄存') && isJia
-    }
-  },
-  {
     name: '火铃夹命',
     check(p, ps) {
       const [a, b] = getFlankPalaces(ps, p)
