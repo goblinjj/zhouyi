@@ -780,6 +780,8 @@ function handleStarClick(name) {
   align-items: center;
   gap: 2px;
   background: #fffcf5;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .history-item:hover { background: #fdfbf7; }
 .history-item:last-child { border-bottom: none; }
