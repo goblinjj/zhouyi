@@ -265,7 +265,6 @@ const PATTERNS = [
         sf.some(x => hasStar(x, '文昌')) && sf.some(x => hasStar(x, '禄存'))
     },
   },
-  { name: '杀破狼', check: (p) => hasStar(p, '七杀') || hasStar(p, '破军') || hasStar(p, '贪狼') },
   { name: '七杀朝斗', check: (p) => hasStar(p, '七杀') && ['子', '午', '寅', '申'].includes(p.earthlyBranch) },
   { name: '英星入庙', check: (p) => hasStar(p, '破军') && ['子', '午'].includes(p.earthlyBranch) },
   { name: '众水朝东', check: (p) => hasStar(p, '破军') && hasStar(p, '文曲') && ['寅', '卯'].includes(p.earthlyBranch) },
@@ -338,91 +337,175 @@ const PATTERNS = [
     },
   },
   {
-    name: '坐贵向贵',
+    name: '日出扶桑',
+    check: (p) => hasStar(p, '太阳') && p.earthlyBranch === '卯'
+  },
+  {
+    name: '将星得地',
+    check: (p) => hasStar(p, '武曲') && ['辰', '戌'].includes(p.earthlyBranch)
+  },
+  {
+    name: '财禄夹马',
+    check(p, ps) {
+      if (!hasStar(p, '天马')) return false
+      const [a, b] = getFlankPalaces(ps, p)
+      const isWuHuaJia = (hasStar(a, '武曲') && hasMutagen(b, '禄')) || (hasStar(b, '武曲') && hasMutagen(a, '禄'))
+      const isWuLuJia = (hasStar(a, '武曲') && hasStar(b, '禄存')) || (hasStar(b, '武曲') && hasStar(a, '禄存'))
+      return isWuHuaJia || isWuLuJia
+    }
+  },
+  {
+    name: '廉贞文武',
+    check(p, ps) {
+      if (!hasStar(p, '廉贞')) return false
+      const sf = getSanfang(ps, p)
+      const guanP = sf.find(x => (x.name || '').includes('官禄'))
+      if (!guanP || !hasStar(guanP, '武曲')) return false
+      return sf.some(x => hasStar(x, '文昌') || hasStar(x, '文曲'))
+    }
+  },
+  {
+    name: '财荫夹印',
+    check(p, ps) {
+      if (!hasStar(p, '天相')) return false
+      const [a, b] = getFlankPalaces(ps, p)
+      return (hasMutagen(a, '禄') && hasStar(b, '天梁')) || (hasMutagen(b, '禄') && hasStar(a, '天梁'))
+    }
+  },
+  {
+    name: '雄宿朝垣',
+    check: (p) => hasStar(p, '廉贞') && ['申', '寅'].includes(p.earthlyBranch) && !hasSha(p)
+  },
+  {
+    name: '寿星入庙',
+    check: (p) => hasStar(p, '天梁') && p.earthlyBranch === '午'
+  },
+  {
+    name: '辅拱文星',
+    check(p, ps) {
+      if (!hasStar(p, '文昌') && !hasStar(p, '文曲')) return false
+      const sf = getSanfang(ps, p)
+      const [a, b] = getFlankPalaces(ps, p)
+      const isJia = (hasStar(a, '左辅') && hasStar(b, '右弼')) || (hasStar(a, '右弼') && hasStar(b, '左辅'))
+      const isGong = sf.some(x => x !== p && hasStar(x, '左辅')) && sf.some(x => x !== p && hasStar(x, '右弼'))
+      return isJia || isGong
+    }
+  },
+  {
+    name: '坐贵向贵', // (Check for 天乙拱命格 requirement)
     check(p, ps) {
       const opp = getOppositePalace(ps, p)
       return (hasStar(p, '天魁') && hasStar(opp, '天钺')) || (hasStar(p, '天钺') && hasStar(opp, '天魁'))
-    },
+    }
   },
   {
-    name: '劫空夹命',
+    name: '天乙拱命',
     check(p, ps) {
-      const [a, b] = getFlankPalaces(ps, p)
-      return (hasStar(a, '地劫') && hasStar(b, '地空')) || (hasStar(a, '地空') && hasStar(b, '地劫'))
-    },
+      // 坐贵向贵优先于天乙拱命（如果不在这里排他也可以在页面显示时处理。但直接利用已有规律，若不是对宫则三方四正有即可）
+      const opp = getOppositePalace(ps, p)
+      const isZuoGuiXiangGui = (hasStar(p, '天魁') && hasStar(opp, '天钺')) || (hasStar(p, '天钺') && hasStar(opp, '天魁'))
+      if (isZuoGuiXiangGui) return false // Prevent double trigger; Let "坐贵向贵格" take this
+
+      const sf = getSanfang(ps, p)
+      return sf.some(x => hasStar(x, '天魁')) && sf.some(x => hasStar(x, '天钺'))
+    }
   },
-  { name: '禄逢两杀', check: (p) => (hasStar(p, '禄存') || hasMutagen(p, '禄')) && hasStar(p, '地空') && hasStar(p, '地劫') },
-  { name: '文贵文华', check: (p) => hasStar(p, '文昌') && hasStar(p, '文曲') && ['丑', '未'].includes(p.earthlyBranch) },
   {
-    name: '文星朝命',
+    name: '火羊格',
+    check(p, ps) {
+      const sf = getSanfang(ps, p)
+      const hasHuo = sf.some(x => hasStar(x, '火星'))
+      const hasYang = sf.some(x => hasStar(x, '擎羊'))
+      const hasOtherSha = sf.some(x => hasStar(x, '铃星') || hasStar(x, '陀罗') || hasStar(x, '地空') || hasStar(x, '地劫'))
+      return hasHuo && hasYang && !hasOtherSha
+    }
+  },
+  {
+    name: '铃陀格',
+    check(p, ps) {
+      const sf = getSanfang(ps, p)
+      const hasLing = sf.some(x => hasStar(x, '铃星'))
+      const hasTuo = sf.some(x => hasStar(x, '陀罗'))
+      const hasOtherSha = sf.some(x => hasStar(x, '火星') || hasStar(x, '擎羊') || hasStar(x, '地空') || hasStar(x, '地劫'))
+      return hasLing && hasTuo && !hasOtherSha
+    }
+  },
+  {
+    name: '擎羊入庙',
+    check: (p) => hasStar(p, '擎羊') && ['丑', '辰', '未', '戌'].includes(p.earthlyBranch)
+  },
+  {
+    name: '贞杀同宫',
+    check: (p) => hasStar(p, '廉贞') && hasStar(p, '七杀') && ['丑', '未'].includes(p.earthlyBranch)
+  },
+  {
+    name: '巨逢四煞',
+    check(p, ps) {
+      if (!hasStar(p, '巨门')) return false
+      const sf = getSanfang(ps, p)
+      return sf.some(x => hasStar(x, '擎羊')) && sf.some(x => hasStar(x, '陀罗')) &&
+        sf.some(x => hasStar(x, '火星')) && sf.some(x => hasStar(x, '铃星'))
+    }
+  },
+  {
+    name: '文星遇夹',
     check(p, ps) {
       if (!hasStar(p, '文昌') && !hasStar(p, '文曲')) return false
-      return getSanfang(ps, p).some(x => hasMutagen(x, '科'))
-    },
+      const [a, b] = getFlankPalaces(ps, p)
+      const jiaKongJie = (hasStar(a, '地空') && hasStar(b, '地劫')) || (hasStar(a, '地劫') && hasStar(b, '地空'))
+      const jiaHuoLing = (hasStar(a, '火星') && hasStar(b, '铃星')) || (hasStar(a, '铃星') && hasStar(b, '火星'))
+      const jiaYangTuo = (hasStar(a, '擎羊') && hasStar(b, '陀罗')) || (hasStar(a, '陀罗') && hasStar(b, '擎羊'))
+      return jiaKongJie || jiaHuoLing || jiaYangTuo
+    }
   },
   {
-    name: '昌曲夹命',
+    name: '羊陀夹命',
+    check(p, ps) {
+      // Different from 羊陀夹忌. Just check basic 夹命.
+      const [a, b] = getFlankPalaces(ps, p)
+      const isJia = (hasStar(a, '擎羊') && hasStar(b, '陀罗')) || (hasStar(a, '陀罗') && hasStar(b, '擎羊'))
+      return hasStar(p, '禄存') && isJia
+    }
+  },
+  {
+    name: '火铃夹命',
     check(p, ps) {
       const [a, b] = getFlankPalaces(ps, p)
-      return (hasStar(a, '文昌') && hasStar(b, '文曲')) || (hasStar(a, '文曲') && hasStar(b, '文昌'))
-    },
+      const isJia = (hasStar(a, '火星') && hasStar(b, '铃星')) || (hasStar(a, '铃星') && hasStar(b, '火星'))
+      return isJia && !hasStar(p, '贪狼') // 若为贪狼则不作此论
+    }
   },
   {
-    name: '文星暗拱',
+    name: '马落空亡',
     check(p, ps) {
-      const anhe = getAnhePalace(ps, p)
-      return hasStar(anhe, '文昌') || hasStar(anhe, '文曲')
-    },
-  },
-  {
-    name: '权禄生逢',
-    check(p, ps) {
+      if (!hasStar(p, '天马')) return false
       const sf = getSanfang(ps, p)
-      return sf.some(x => hasMutagen(x, '禄')) && sf.some(x => hasMutagen(x, '权'))
-    },
+      return sf.some(x => hasStar(x, '地空') || hasStar(x, '地劫'))
+    }
   },
   {
-    name: '科明暗禄',
+    name: '两重华盖',
+    check: (p) => hasStar(p, '禄存') && hasMutagen(p, '禄') && (hasStar(p, '地空') && hasStar(p, '地劫'))
+  },
+  {
+    name: '禄逢冲破',
     check(p, ps) {
-      if (!hasMutagen(p, '科')) return false
+      if (!hasStar(p, '禄存') && !hasMutagen(p, '禄')) return false
       const sf = getSanfang(ps, p)
-      const anhe = getAnhePalace(ps, p)
-      return sf.some(x => hasStar(x, '禄存')) || hasStar(anhe, '禄存')
-    },
+      return sf.some(x => hasStar(x, '地空')) || sf.some(x => hasStar(x, '地劫'))
+    }
   },
   {
-    name: '科权禄夹',
-    check(p, ps) {
-      const [a, b] = getFlankPalaces(ps, p)
-      return (hasMutagen(a, '禄') || hasMutagen(a, '权') || hasMutagen(a, '科')) &&
-        (hasMutagen(b, '禄') || hasMutagen(b, '权') || hasMutagen(b, '科'))
-    },
+    name: '泛水桃花',
+    check(p) {
+      const tanLangZi = hasStar(p, '贪狼') && p.earthlyBranch === '子'
+      const lianTanHai = hasStar(p, '廉贞') && hasStar(p, '贪狼') && p.earthlyBranch === '亥' && hasStar(p, '陀罗')
+      return tanLangZi || lianTanHai
+    }
   },
   {
-    name: '甲第登庸',
-    check(p, ps) {
-      if (!hasMutagen(p, '科')) return false
-      const opp = getOppositePalace(ps, p)
-      if (!hasMutagen(opp, '权')) return false
-      const sf = getSanfang(ps, p)
-      return sf.some(x => hasStar(x, '文昌')) || sf.some(x => hasStar(x, '文曲'))
-    },
-  },
-  {
-    name: '双忌夹命',
-    check(p, ps) {
-      if (hasMutagen(p, '忌')) return false
-      const [a, b] = getFlankPalaces(ps, p)
-      return hasMutagen(a, '忌') && hasMutagen(b, '忌')
-    },
-  },
-  {
-    name: '双忌夹忌',
-    check(p, ps) {
-      if (!hasMutagen(p, '忌')) return false
-      const [a, b] = getFlankPalaces(ps, p)
-      return hasMutagen(a, '忌') && hasMutagen(b, '忌')
-    },
+    name: '风流綵杖',
+    check: (p) => hasStar(p, '贪狼') && p.earthlyBranch === '寅' && hasStar(p, '陀罗')
   },
 ]
 
