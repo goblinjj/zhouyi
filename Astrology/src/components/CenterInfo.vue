@@ -51,7 +51,7 @@
     </div>
 
     <div v-if="saving" class="ci-save-form" @click.stop>
-      <input ref="saveInput" v-model="saveName" placeholder="输入名称（可选）" class="ci-save-input" @keyup.enter="confirmSave" @keyup.esc="saving = false" />
+      <input ref="saveInput" v-model="saveName" placeholder="名称(可空)" class="ci-save-input" @keyup.enter="confirmSave" @keyup.esc="saving = false" />
       <button class="ci-save-confirm" @click="confirmSave">保存</button>
       <button class="ci-save-cancel" @click="saving = false">×</button>
     </div>

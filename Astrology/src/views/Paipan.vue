@@ -33,6 +33,8 @@ const config = ref({
 })
 const astrolabe = ref(null)
 const showSettings = ref(false)
+const showAdjStars = ref(localStorage.getItem('showAdjStars') !== 'false')
+watch(showAdjStars, v => localStorage.setItem('showAdjStars', v))
 
 // ===== Horoscope Composable =====
 const {
@@ -536,6 +538,13 @@ function handleStarClick(name) {
         <label class="gender-toggle" :class="{ active: config.fixLeap === true }">
           <input type="radio" v-model="config.fixLeap" :value="true" />中分
         </label>
+
+        <span class="fc-divider">|</span>
+
+        <span class="label-text-sm">杂曜:</span>
+        <label class="gender-toggle" :class="{ active: showAdjStars }">
+          <input type="checkbox" v-model="showAdjStars" style="display:none" />{{ showAdjStars ? '显示' : '隐藏' }}
+        </label>
       </div>
       </div>
       
@@ -606,6 +615,7 @@ function handleStarClick(name) {
           :decadalPalaceName="getPalaceScopes(p).decadal"
           :yearlyPalaceName="getPalaceScopes(p).yearly"
           :monthlyPalaceName="getPalaceScopes(p).monthly"
+          :showAdjStars="showAdjStars"
           @click="clickPalace"
           @click-star="handleStarClick"
         />

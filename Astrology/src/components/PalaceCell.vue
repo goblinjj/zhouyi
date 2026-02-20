@@ -33,7 +33,7 @@
        </div>
 
        <!-- Adjective (Misc) Stars - horizontal wrapping -->
-       <div class="adj-stars-wrap">
+       <div v-if="showAdjStars" class="adj-stars-wrap">
           <span v-for="s in palace.adjectiveStars" :key="s.name" class="adj-star-item">{{ s.name }}</span>
        </div>
     </div>
@@ -94,6 +94,7 @@ const props = defineProps({
   decadalPalaceName: { type: String, default: '' },
   yearlyPalaceName: { type: String, default: '' },
   monthlyPalaceName: { type: String, default: '' },
+  showAdjStars: { type: Boolean, default: true },
 })
 
 defineEmits(['click', 'click-star'])
