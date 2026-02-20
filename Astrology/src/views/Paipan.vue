@@ -230,9 +230,19 @@ watch([panelListEl, showHistory], async ([el, visible]) => {
   }
 }, { flush: 'post' })
 
+const deletingIndex = ref(-1)
+
 function deleteHistoryItem(index) {
-  history.value.splice(index, 1)
-  saveHistoryToStorage()
+  if (deletingIndex.value === index) {
+    history.value.splice(index, 1)
+    saveHistoryToStorage()
+    deletingIndex.value = -1
+  } else {
+    deletingIndex.value = index
+    setTimeout(() => {
+      if (deletingIndex.value === index) deletingIndex.value = -1
+    }, 3000)
+  }
 }
 
 const clearConfirming = ref(false)
@@ -461,7 +471,7 @@ function handleStarClick(name) {
                 <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2.5" cy="2" r="1.3"/><circle cx="6.5" cy="2" r="1.3"/><circle cx="2.5" cy="6.5" r="1.3"/><circle cx="6.5" cy="6.5" r="1.3"/><circle cx="2.5" cy="11" r="1.3"/><circle cx="6.5" cy="11" r="1.3"/></svg>
               </button>
               <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编</button>
-              <button class="h-btn h-btn-ghost h-btn-sm h-btn-del" @click.stop="deleteHistoryItem(idx)">删</button>
+              <button class="h-btn h-btn-sm h-btn-del" :class="deletingIndex === idx ? 'h-btn-danger' : 'h-btn-ghost'" @click.stop="deleteHistoryItem(idx)">{{ deletingIndex === idx ? '确认' : '删' }}</button>
             </div>
           </div>
         </div>
@@ -592,7 +602,7 @@ function handleStarClick(name) {
                 <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2.5" cy="2" r="1.3"/><circle cx="6.5" cy="2" r="1.3"/><circle cx="2.5" cy="6.5" r="1.3"/><circle cx="6.5" cy="6.5" r="1.3"/><circle cx="2.5" cy="11" r="1.3"/><circle cx="6.5" cy="11" r="1.3"/></svg>
               </button>
               <button class="h-btn h-btn-ghost h-btn-sm" @click.stop="startEdit(idx, item)">编</button>
-              <button class="h-btn h-btn-ghost h-btn-sm h-btn-del" @click.stop="deleteHistoryItem(idx)">删</button>
+              <button class="h-btn h-btn-sm h-btn-del" :class="deletingIndex === idx ? 'h-btn-danger' : 'h-btn-ghost'" @click.stop="deleteHistoryItem(idx)">{{ deletingIndex === idx ? '确认' : '删' }}</button>
             </div>
           </div>
         </div>
