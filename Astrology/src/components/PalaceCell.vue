@@ -8,10 +8,10 @@
     <!-- Main Content Area: Stars & Si Hua -->
     <div class="pc-content">
        <!-- Stars with Si Hua (Major + Minor) -->
-       <div class="stars-with-sihua">
-          <!-- Star names row -->
-          <div class="star-names-row">
-             <div v-for="s in allStars" :key="s.name" class="star-col-v">
+       <div class="stars-with-sihua" :style="{ gridTemplateColumns: allStars.length ? `repeat(${allStars.length}, auto)` : 'none' }">
+          <template v-for="(s, colIndex) in allStars" :key="s.name">
+             <!-- Star Info -->
+             <div class="star-col-v" :style="{ gridColumn: colIndex + 1, gridRow: 1 }">
                <div class="sc-info">
                   <span class="sname-v" :class="[palace.majorStars.includes(s) ? 'major-name' : (isLucky(s.name) ? 'lucky-star' : 'minor-name'), flyingSihuaBg[s.name] ? 'flying-highlight' : '']"
                         :style="flyingSihuaBg[s.name] ? { backgroundColor: flyingSihuaBg[s.name] } : {}"
@@ -20,16 +20,14 @@
                   <span class="sbright-v" :class="bClass(s.brightness)">{{ s.brightness }}</span>
                </div>
              </div>
-          </div>
-          <!-- Si Hua rows: one row per level (本命/大限/流年/流月) -->
-          <div v-for="level in 4" :key="'sh-level-'+level" class="sihua-row">
-             <div v-for="s in allStars" :key="s.name+'-sh-'+level" class="sh-slot">
-                <span v-if="getStarMutagens(s.name, s.mutagen)[level-1]" 
-                      class="sh-chip" 
-                      :style="{ backgroundColor: getStarMutagens(s.name, s.mutagen)[level-1].color }"
-                >{{ getStarMutagens(s.name, s.mutagen)[level-1].label }}</span>
+             <!-- Si Hua Slots -->
+             <div v-for="(level, rowOffset) in activeSihuaLevels" :key="s.name+'-sh-'+level" class="sh-slot" :style="{ gridColumn: colIndex + 1, gridRow: 2 + rowOffset }">
+                 <span v-if="getStarMutagens(s.name, s.mutagen)[level-1]" 
+                       class="sh-chip" 
+                       :style="{ backgroundColor: getStarMutagens(s.name, s.mutagen)[level-1].color }"
+                 >{{ getStarMutagens(s.name, s.mutagen)[level-1].label }}</span>
              </div>
-          </div>
+          </template>
        </div>
 
        <!-- Adjective (Misc) Stars - horizontal wrapping -->
@@ -105,6 +103,23 @@ const cellStyle = computed(() => gridStyle(props.palace))
 
 const allStars = computed(() => [...props.palace.majorStars, ...props.palace.minorStars])
 
+const activeSihuaLevels = computed(() => {
+  if (!allStars.value || allStars.value.length === 0) return []
+  const levels = []
+  for (let level = 1; level <= 4; level++) {
+     let hasSihua = false
+     for (const s of allStars.value) {
+        const mut = props.getStarMutagens(s.name, s.mutagen)
+        if (mut && mut[level - 1]) {
+           hasSihua = true
+           break
+        }
+     }
+     if (hasSihua) levels.push(level)
+  }
+  return levels
+})
+
 const LUCKY_STARS = new Set(['左辅','右弼','文昌','文曲','天魁','天钺','禄存','天马'])
 function isLucky(name) { return LUCKY_STARS.has(name) }
 </script>
@@ -146,17 +161,10 @@ function isLucky(name) { return LUCKY_STARS.has(name) }
 }
 
 .stars-with-sihua {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 1px;
-}
-
-.star-names-row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: 1px;
+  justify-content: start;
+  justify-items: center;
 }
 
 .star-col-v {
@@ -194,16 +202,6 @@ function isLucky(name) { return LUCKY_STARS.has(name) }
 .sbright-v { font-size: 9px; margin-top: 2px; }
 
 /* Si Hua Rows */
-.sihua-row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 1px;
-  min-height: 0;
-}
-.sihua-row:not(:has(.sh-chip)) {
-  display: none;
-}
 .sh-slot {
     width: 14px;
     min-width: 14px;
