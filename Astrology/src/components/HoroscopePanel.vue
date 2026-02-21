@@ -11,7 +11,6 @@
           <div class="h-sub">{{ d.stem }}{{ d.branch }}限</div>
         </div>
       </div>
-      <div class="h-arrow" @click="scrollRight(decadalScrollRef)">▷</div>
     </div>
 
     <!-- 流年 (Visible if Decadal selected) -->
@@ -25,7 +24,6 @@
           <div class="h-sub">{{ y.sb }}{{ y.age }}岁</div>
         </div>
       </div>
-      <div class="h-arrow" @click="scrollRight(yearScrollRef)">▷</div>
     </div>
 
     <!-- 流月 (Visible if Year selected) -->
@@ -115,15 +113,4 @@ function scrollRight(refEl) {
 .h-item.is-current-time { background: #ffebd2; } /* Darkened background for current time */
 .h-item.active { background: #3366cc; color: #fff; }
 .h-sub { font-size: 10px; color: inherit; }
-.h-arrow {
-  padding: 0 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  color: #8b2500;
-  border-left: 1px solid #d4c5a9;
-  flex-shrink: 0;
-  font-size: 14px;
-}
-.h-arrow:hover { background: rgba(184, 134, 11, 0.1); }
 </style>
