@@ -52,11 +52,50 @@ const {
   horoscopeData, selectedPalaceIdx,
   selDecadal, selYear, selMonth,
   fourPillars, derivedNames, flyingSihuaBg,
-  decadalList, yearList, flowStarsByPalace,
+  decadalList, yearList, monthList, flowStarsByPalace,
   getStarMutagens, resetSelections, clickPalace,
   isSanfang, isSelected, autoSelectLifePalace,
   selectDecadal, selectYear, selectMonth,
 } = useHoroscope(astrolabe)
+
+const currentScopeIndices = computed(() => {
+  if (!astrolabe.value) return {}
+  const now = new Date()
+  const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+  try {
+    const currentHoro = astrolabe.value.horoscope(dateStr, 0)
+    const getLifeIdx = (data) => (data?.index > -1 && data?.palaceNames) ? data.palaceNames.indexOf('命宫') : -1
+    return {
+      decadal: getLifeIdx(currentHoro.decadal),
+      yearly: getLifeIdx(currentHoro.yearly),
+      monthly: getLifeIdx(currentHoro.monthly)
+    }
+  } catch(e) {
+    return {}
+  }
+})
+
+const currentTimeData = computed(() => {
+  if (!astrolabe.value) return {}
+  const now = new Date()
+  const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+  try {
+    // Current year is straightforward calendar year
+    const currentYear = now.getFullYear()
+    
+    // For lunar month, getting it exactly for today
+    const todayAstrolabe = astro.bySolar(dateStr, 0, '男', true)
+    const currentMonth = todayAstrolabe.rawDates?.lunarDate?.lunarMonth
+
+    return {
+      decadalIdx: currentScopeIndices.value.decadal,
+      year: currentYear,
+      month: currentMonth
+    }
+  } catch(e) {
+    return {}
+  }
+})
 
 const selectedPalace = computed(() =>
   astrolabe.value?.palaces?.find(p => p.index === selectedPalaceIdx.value) ?? null
@@ -632,6 +671,7 @@ function handleStarClick(name) {
           :yearlyPalaceName="getPalaceScopes(p).yearly"
           :monthlyPalaceName="getPalaceScopes(p).monthly"
           :showAdjStars="showAdjStars"
+          :currentScopeIndices="currentScopeIndices"
           @click="clickPalace"
           @click-star="handleStarClick"
         />
@@ -656,9 +696,11 @@ function handleStarClick(name) {
       <HoroscopePanel
         :decadalList="decadalList"
         :yearList="yearList"
+        :monthList="monthList"
         :selDecadal="selDecadal"
         :selYear="selYear"
         :selMonth="selMonth"
+        :currentTimeData="currentTimeData"
         @select-decadal="selectDecadal"
         @select-year="selectYear"
         @select-month="selectMonth"

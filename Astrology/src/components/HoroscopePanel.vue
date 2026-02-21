@@ -5,7 +5,7 @@
       <div class="h-label">大限</div>
       <div class="h-scroll" ref="decadalScrollRef">
         <div v-for="d in decadalList" :key="d.palaceIdx"
-          class="h-item" :class="{ active: selDecadal?.palaceIdx === d.palaceIdx }"
+          class="h-item" :class="{ active: selDecadal?.palaceIdx === d.palaceIdx, 'is-current-time': currentTimeData?.decadalIdx === d.palaceIdx }"
           @click="$emit('select-decadal', d)">
           <div>{{ d.range[0] }}~{{ d.range[1] }}</div>
           <div class="h-sub">{{ d.stem }}{{ d.branch }}限</div>
@@ -19,7 +19,7 @@
       <div class="h-label">流年</div>
       <div class="h-scroll" ref="yearScrollRef">
         <div v-for="y in yearList" :key="y.year"
-          class="h-item" :class="{ active: selYear === y.year }"
+          class="h-item" :class="{ active: selYear === y.year, 'is-current-time': currentTimeData?.year === y.year }"
           @click="$emit('select-year', y)">
           <div>{{ y.year }}年</div>
           <div class="h-sub">{{ y.sb }}{{ y.age }}岁</div>
@@ -32,9 +32,12 @@
     <div class="h-row" v-if="selYear">
       <div class="h-label">流月</div>
       <div class="h-scroll">
-        <div v-for="(m, i) in monthNames" :key="i"
-          class="h-item" :class="{ active: selMonth === i + 1 }"
-          @click="$emit('select-month', i + 1)">{{ m }}</div>
+        <div v-for="m in monthList" :key="m.index"
+          class="h-item" :class="{ active: selMonth === m.index, 'is-current-time': selYear === currentTimeData?.year && currentTimeData?.month === m.index }"
+          @click="$emit('select-month', m.index)">
+          <div>{{ m.lunarName }}</div>
+          <div class="h-sub">{{ m.sb }} {{ m.solarMonth }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -47,14 +50,15 @@ import { MONTH_NAMES } from '../composables/usePaipanConstants'
 defineProps({
   decadalList: { type: Array, required: true },
   yearList: { type: Array, required: true },
+  monthList: { type: Array, default: () => [] },
   selDecadal: { default: null },
   selYear: { default: null },
   selMonth: { default: null },
+  currentTimeData: { type: Object, default: () => ({}) },
 })
 
 defineEmits(['select-decadal', 'select-year', 'select-month'])
 
-const monthNames = MONTH_NAMES
 const decadalScrollRef = ref(null)
 const yearScrollRef = ref(null)
 
@@ -108,6 +112,7 @@ function scrollRight(refEl) {
   min-width: 3.5em;
 }
 .h-item:hover { background: rgba(184, 134, 11, 0.1); }
+.h-item.is-current-time { background: #ffebd2; } /* Darkened background for current time */
 .h-item.active { background: #3366cc; color: #fff; }
 .h-sub { font-size: 10px; color: inherit; }
 .h-arrow {

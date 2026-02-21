@@ -1,7 +1,9 @@
 // Horoscope state management and scope logic
 import { ref, computed } from 'vue'
+import { astro } from 'iztro'
 import {
     STEMS, BRANCHES, PALACE_SEQ, PALACE_SHORT,
+    MONTH_NAMES,
     MUTAGEN_LABELS, SCOPE_COLORS, SIHUA_TABLE, FLYING_BG,
     bIdx, yearSB,
 } from './usePaipanConstants'
@@ -105,6 +107,35 @@ export function useHoroscope(astrolabe) {
             const age = s + i
             const yr = birthYear.value + age - 1
             return { year: yr, age, sb: yearSB(yr) }
+        })
+    })
+
+    // Month list
+    const monthList = computed(() => {
+        if (!selYear.value || !birthYear.value) return []
+        const currentSelectedYear = selYear.value
+
+        return Array.from({ length: 12 }, (_, i) => {
+            const m = i + 1
+            try {
+                const h = astro.byLunar(`${currentSelectedYear}-${m}-1`, 0, '男', false)
+                const solarMonthStr = h.solarDate.split('-')[1]
+                const solarMonth = parseInt(solarMonthStr, 10)
+
+                return {
+                    index: m,
+                    lunarName: MONTH_NAMES[i],
+                    sb: (h.rawDates?.chineseDate?.monthly || []).join(''),
+                    solarMonth: `${solarMonth}月`
+                }
+            } catch (e) {
+                return {
+                    index: m,
+                    lunarName: MONTH_NAMES[i],
+                    sb: '',
+                    solarMonth: ''
+                }
+            }
         })
     })
 
@@ -299,7 +330,7 @@ export function useHoroscope(astrolabe) {
         selDecadal, selYear, selMonth, selDay, selHour,
         // Computed
         birthYear, fourPillars, sanfangSet, derivedNames,
-        flyingSihuaBg, decadalList, yearList, flowStarsByPalace,
+        flyingSihuaBg, decadalList, yearList, monthList, flowStarsByPalace,
         // Methods
         getStarMutagens, resetSelections, clickPalace,
         isSanfang, isSelected, autoSelectLifePalace,

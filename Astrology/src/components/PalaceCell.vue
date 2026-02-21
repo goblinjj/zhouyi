@@ -53,7 +53,9 @@
     <!-- Palace Bottom Info -->
     <div class="palace-bottom-bar">
        <div class="pbb-left">
-          <span class="decadal-range" v-if="palace.decadal">{{ palace.decadal.range[0] }} - {{ palace.decadal.range[1] }}</span>
+          <span class="decadal-range" v-if="palace.decadal">
+            <span :style="currentUnderlineStyle">{{ palace.decadal.range[0] }} - {{ palace.decadal.range[1] }}</span>
+          </span>
           <span class="cs12">{{ palace.changsheng12 }}</span>
        </div>
        <div class="pbb-right">
@@ -93,6 +95,7 @@ const props = defineProps({
   yearlyPalaceName: { type: String, default: '' },
   monthlyPalaceName: { type: String, default: '' },
   showAdjStars: { type: Boolean, default: true },
+  currentScopeIndices: { type: Object, default: () => ({}) },
 })
 
 defineEmits(['click', 'click-star'])
@@ -102,6 +105,21 @@ const scopeColors = SCOPE_COLORS
 const cellStyle = computed(() => gridStyle(props.palace))
 
 const allStars = computed(() => [...props.palace.majorStars, ...props.palace.minorStars])
+
+const currentUnderlineStyle = computed(() => {
+  const { decadal } = props.currentScopeIndices || {}
+  if (decadal === props.palace.index) {
+    return {
+      textDecoration: `underline`,
+      textDecorationColor: scopeColors.da,
+      textDecorationThickness: '1px',
+      textUnderlineOffset: '2px',
+      color: scopeColors.da,
+      display: 'inline-block'
+    }
+  }
+  return {}
+})
 
 const activeSihuaLevels = computed(() => {
   if (!allStars.value || allStars.value.length === 0) return []
@@ -290,7 +308,7 @@ function isLucky(name) { return LUCKY_STARS.has(name) }
   font-weight: bold;
 }
 .cs12 { color: #888; font-size: 10px; }
-.decadal-range { color: #c41e3a; font-weight: bold; font-size: 10px; flex: 1; text-align: right; padding-right: 3px;}
+.decadal-range { color: rgb(56, 142, 60); font-weight: bold; font-size: 10px; flex: 1; text-align: right; padding-right: 3px;}
 .p-name { color: #8b2500; font-weight: bold; font-size: 12px; }
 .body-tag { background: #c41e3a; color: #fff; font-size: 9px; padding: 0 2px; border-radius: 2px; display: inline-block; }
 .p-branch { color: #b8860b; font-size: 11px; font-weight: bold; }
