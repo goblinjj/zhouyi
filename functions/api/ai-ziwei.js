@@ -126,7 +126,7 @@ export async function onRequestPost(context) {
     }
     userPrompt += '\n\n请根据以上信息进行解盘分析。';
 
-    const models = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
     const requestBody = JSON.stringify({
       system_instruction: { parts: [{ text: systemPrompt }] },
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
@@ -162,9 +162,10 @@ export async function onRequestPost(context) {
             body: requestBody,
           });
 
-          if (geminiResponse.ok || (geminiResponse.status !== 429 && geminiResponse.status !== 403)) {
-            break;
-          }
+          if (geminiResponse.ok) break;
+          const s = geminiResponse.status;
+          if (s === 429 || s === 403 || (s >= 500 && s < 600)) continue;
+          break; // 4xx client errors won't recover, stop retrying
         }
 
         if (!geminiResponse.ok) {
