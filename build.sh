@@ -27,6 +27,13 @@ cp Astrology/dist/index.html dist/astrology/dianji/index.html
 cp Astrology/dist/index.html dist/astrology/stars/index.html
 cp Astrology/dist/index.html dist/astrology/true-solar-time/index.html
 
+# Build qimen
+cd qimen
+npm install
+npm run build
+cd ..
+cp -r qimen/dist dist/qimen
+
 # Build hexagram (Vite handles JS/CSS hashing, but HTML refs need version)
 cd hexagram
 npm install
