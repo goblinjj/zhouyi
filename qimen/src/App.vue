@@ -1,5 +1,4 @@
 <script setup>
-import Paipan from './views/Paipan.vue'
 </script>
 
 <template>
@@ -18,10 +17,11 @@ import Paipan from './views/Paipan.vue'
         <circle cx="100" cy="100" r="96" fill="none" stroke="#c4a97d" stroke-width="3"/>
       </svg>
     </a>
-    <span class="nav-title">奇门遁甲</span>
+    <RouterLink class="routelink" to="/">排盘</RouterLink>
+    <RouterLink class="routelink" to="/knowledge">知识库</RouterLink>
   </nav>
   <div class="divider"></div>
-  <Paipan />
+  <RouterView />
 </template>
 
 <style scoped>
@@ -31,7 +31,7 @@ import Paipan from './views/Paipan.vue'
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5em;
+  gap: 0.3em;
 }
 
 .taiji-home {
@@ -49,11 +49,24 @@ import Paipan from './views/Paipan.vue'
   background: none;
 }
 
-.nav-title {
-  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
-  font-size: 1.6em;
+.routelink {
+  color: #3c2415;
+  font-size: x-large;
+  padding: 0.3em 0.8em;
+  display: inline-block;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  outline: none;
+}
+
+.routelink:hover,
+.routelink:active {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.router-link-active {
   color: #8b2500;
-  letter-spacing: 0.15em;
+  border-bottom: 2px solid #8b2500;
 }
 
 .divider {
@@ -62,9 +75,5 @@ import Paipan from './views/Paipan.vue'
   border-bottom: 1px solid #d4c5a9;
   height: 4px;
   margin-bottom: 1.2em;
-}
-
-.content {
-  min-height: 60vh;
 }
 </style>

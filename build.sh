@@ -33,6 +33,9 @@ npm install
 npm run build
 cd ..
 cp -r qimen/dist dist/qimen
+# SPA fallback for qimen sub-routes
+mkdir -p dist/qimen/knowledge
+cp qimen/dist/index.html dist/qimen/knowledge/index.html
 
 # Build hexagram (Vite handles JS/CSS hashing, but HTML refs need version)
 cd hexagram
