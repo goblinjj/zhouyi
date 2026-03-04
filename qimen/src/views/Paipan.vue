@@ -1,10 +1,13 @@
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useQimen } from '../composables/useQimen'
 import TimeInput from '../components/TimeInput.vue'
 import NineGrid from '../components/NineGrid.vue'
+import AiInterpret from '../components/AiInterpret.vue'
 
 const { city, inputDate, inputTime, useTrueSolar, chart, initNow } = useQimen()
+
+const showAi = ref(false)
 
 onMounted(() => {
   initNow()
@@ -44,6 +47,14 @@ onMounted(() => {
 
       <!-- 九宫格 -->
       <NineGrid :chart="chart" />
+
+      <!-- AI 解读按钮 -->
+      <div class="ai-action">
+        <button class="btn-ai" @click="showAi = true">AI 解读</button>
+      </div>
+
+      <!-- AI 解读弹窗 -->
+      <AiInterpret v-if="showAi" :chart="chart" @close="showAi = false" />
     </div>
 
     <div v-else class="loading-hint">
@@ -84,6 +95,22 @@ onMounted(() => {
   font-weight: 600;
   letter-spacing: 0.1em;
 }
+.ai-action {
+  text-align: center;
+  margin-top: 1em;
+}
+.btn-ai {
+  background: #8b2500;
+  color: #fff;
+  border: none;
+  padding: 0.5em 2em;
+  border-radius: 15px;
+  font-size: 1em;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+}
+.btn-ai:hover { background: #a03000; }
 .loading-hint {
   text-align: center;
   color: #9a8c7a;
