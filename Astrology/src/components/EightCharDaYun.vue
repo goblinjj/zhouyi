@@ -9,7 +9,7 @@ const props = defineProps({
 })
 
 // Map timeIndex to Hour (approximate for Lunar)
-// 0: 23-01 (Early Rat), 1: 01-03 (Ox), ..., 12: 23-01 (Late Rat)
+// 0: 00-01 (早子时), 1: 01-03 (丑), ..., 12: 23-00 (晚子时)
 // Lunar-javascript expects valid hour (0-23)
 const hourMap = {
   0: 0, 1: 2, 2: 4, 3: 6, 4: 8, 5: 10,

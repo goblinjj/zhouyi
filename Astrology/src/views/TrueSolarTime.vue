@@ -111,9 +111,9 @@ function getPaipanLink() {
   const sc = result.value.currentShichen
   let timeIndex
   if (sc.subBranch === '晚子') {
-    timeIndex = 0
-  } else if (sc.subBranch === '早子') {
     timeIndex = 12
+  } else if (sc.subBranch === '早子') {
+    timeIndex = 0
   } else {
     timeIndex = BRANCH_TO_TIME_INDEX[sc.branch]
   }
