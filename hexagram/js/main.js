@@ -2,6 +2,8 @@ import { Divination } from './core/divination.js';
 import { PALACE_ELEMENTS } from './data/constants.js';
 import { Solar, Lunar } from 'lunar-javascript';
 import { Takashima } from './modules/takashima.js';
+import { calcTrueSolarTime } from '@shared/true-solar-time';
+import { CITIES } from '@shared/cities';
 
 const castingBtn = document.getElementById('cast-btn');
 const manualInputBtn = document.getElementById('manual-input-btn');
@@ -19,9 +21,83 @@ const takashima = new Takashima();
 // Initialize Takashima data
 takashima.init();
 
+// True solar time state
+let currentCity = { name: '北京', lng: 116.41, lat: 39.90, tz: 8 };
+let useTrueSolarTime = true;
+
+function initCitySelector() {
+    const cityInput = document.getElementById('city-input');
+    const cityDropdown = document.getElementById('city-dropdown');
+    const cityNameEl = document.getElementById('city-name');
+    const tstCheckbox = document.getElementById('tst-checkbox');
+
+    tstCheckbox.addEventListener('change', () => {
+        useTrueSolarTime = tstCheckbox.checked;
+        refreshDate();
+    });
+
+    cityInput.addEventListener('input', () => {
+        const q = cityInput.value.trim();
+        if (!q) { cityDropdown.style.display = 'none'; return; }
+        const qLower = q.toLowerCase();
+        const matches = CITIES.filter(c => c.name.includes(q) || c.nameEn.toLowerCase().includes(qLower)).slice(0, 8);
+        if (matches.length === 0) { cityDropdown.style.display = 'none'; return; }
+        cityDropdown.innerHTML = matches.map(c =>
+            `<li data-lng="${c.lng}" data-lat="${c.lat}" data-tz="${c.tz}" data-name="${c.name}">${c.name}<span class="city-extra">${c.province || ''}</span></li>`
+        ).join('');
+        cityDropdown.style.display = 'block';
+    });
+
+    cityInput.addEventListener('focus', () => {
+        if (cityInput.value.trim()) cityInput.dispatchEvent(new Event('input'));
+    });
+
+    cityDropdown.addEventListener('mousedown', (e) => {
+        const li = e.target.closest('li');
+        if (!li) return;
+        e.preventDefault();
+        currentCity = {
+            name: li.dataset.name,
+            lng: parseFloat(li.dataset.lng),
+            lat: parseFloat(li.dataset.lat),
+            tz: parseFloat(li.dataset.tz)
+        };
+        cityNameEl.textContent = currentCity.name;
+        cityInput.value = '';
+        cityDropdown.style.display = 'none';
+        refreshDate();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.city-picker')) cityDropdown.style.display = 'none';
+    });
+}
+
+function refreshDate() {
+    const dateData = initDate();
+    const dayGan = dateData.dayStem;
+    currentDayStem = STEM_MAP[dayGan] || "Jia";
+    currentXunKong = dateData.xunKong || "";
+    currentDayBranch = dateData.dayBranch || "";
+    currentMonthBranch = dateData.monthBranch || "";
+}
+
 function initDate() {
     try {
-        const d = Solar.fromDate(new Date());
+        const now = new Date();
+        let effectiveDate = now;
+
+        let tstNote = '';
+        if (useTrueSolarTime) {
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const tst = calcTrueSolarTime(dateStr, timeStr, currentCity.lng, currentCity.tz);
+            effectiveDate = new Date(now);
+            effectiveDate.setHours(tst.hours, tst.minutes, 0, 0);
+            tstNote = ` <span style="font-size:0.85em;color:var(--accent-gold);">(真太阳时 ${String(tst.hours).padStart(2,'0')}:${String(tst.minutes).padStart(2,'0')})</span>`;
+        }
+
+        const d = Solar.fromDate(effectiveDate);
         const lunar = d.getLunar();
         const bazi = lunar.getEightChar();
 
@@ -31,11 +107,11 @@ function initDate() {
         const ganZhiHour = bazi.getTime();
 
         dateInfo.innerHTML = `
-            ${d.getYear()}年${d.getMonth()}月${d.getDay()}日
+            ${Solar.fromDate(now).getYear()}年${Solar.fromDate(now).getMonth()}月${Solar.fromDate(now).getDay()}日
             农历:${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}
             <br>
             ${ganZhiYear}年 ${ganZhiMonth}月 ${ganZhiDay}日
-            <span class="shichen-highlight">${ganZhiHour}时</span>
+            <span class="shichen-highlight">${ganZhiHour}时</span>${tstNote}
             <br>
             <span class="xunkong-info">空亡: ${lunar.getDayXunKong()}</span>
         `;
@@ -49,7 +125,7 @@ function initDate() {
     } catch (e) {
         console.error(e);
         dateInfo.innerHTML = "错误: 日期库加载失败。";
-        return { dayStem: "Jia" };
+        return { dayStem: "甲" };
     }
 }
 
@@ -89,10 +165,9 @@ let currentDayBranch = "";
 let currentMonthBranch = "";
 
 document.addEventListener('DOMContentLoaded', () => {
+    initCitySelector();
     const dateData = initDate();
-    const d = Solar.fromDate(new Date());
-    const lunar = d.getLunar();
-    const dayGan = lunar.getDayGan();
+    const dayGan = dateData.dayStem;
     currentDayStem = STEM_MAP[dayGan] || "Jia";
     currentXunKong = dateData.xunKong || "";
     currentDayBranch = dateData.dayBranch || "";

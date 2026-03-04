@@ -40,6 +40,17 @@
             <nav class="study-nav" style="margin-bottom:8px;">
                 <a href="study.html" style="color:var(--accent-gold);text-decoration:none;font-size:0.9em;letter-spacing:0.05em;">六十四卦</a>
             </nav>
+            <div id="tst-panel" class="tst-panel">
+                <label class="tst-toggle">
+                    <input type="checkbox" id="tst-checkbox" checked />
+                    真太阳时
+                </label>
+                <div class="city-picker">
+                    <input type="text" id="city-input" placeholder="搜索城市..." class="city-input" />
+                    <span id="city-name" class="city-name">北京</span>
+                    <ul id="city-dropdown" class="city-dropdown" style="display:none;"></ul>
+                </div>
+            </div>
             <div id="date-info" class="date-info">
                 <!-- Date info will be populated here -->
             </div>
