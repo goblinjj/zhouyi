@@ -1,3 +1,7 @@
+<script setup>
+import Paipan from './views/Paipan.vue'
+</script>
+
 <template>
   <nav class="nav">
     <a class="taiji-home" href="/">
@@ -17,9 +21,7 @@
     <span class="nav-title">奇门遁甲</span>
   </nav>
   <div class="divider"></div>
-  <div class="content">
-    <!-- 排盘内容区 -->
-  </div>
+  <Paipan />
 </template>
 
 <style scoped>
