@@ -228,12 +228,13 @@ function calcKongWang(xunStartIndex) {
 
 /**
  * Main entry: generate a complete Qi Men Dun Jia chart
- * @param {Date} date - JavaScript Date object
+ * @param {Date} date - JavaScript Date object（用于年月日柱和定局）
+ * @param {Date} [hourDate] - 真太阳时调整后的 Date（仅用于时柱），不传则使用 date
  * @returns {Object} complete chart data
  */
-export function generateQimenChart(date) {
+export function generateQimenChart(date, hourDate) {
   // Step 1: 干支 & 定局
-  const ganZhi = getGanZhi(date)
+  const ganZhi = getGanZhi(date, hourDate)
   const { isYangDun, juNum, currentTerm, yuan } = determineJu(date, ganZhi)
 
   const hourGZ = ganZhi.hourFull

@@ -25,14 +25,15 @@ export function useQimen() {
     if (isNaN(date.getTime())) return null
     date.setHours(h, m, 0, 0)
 
+    let hourDate = date
     if (useTrueSolar.value) {
       const tst = calcTrueSolarTime(inputDate.value, inputTime.value, city.value.lng, city.value.tz)
-      date = new Date(date)
-      date.setHours(tst.hours, tst.minutes, 0, 0)
+      hourDate = new Date(date)
+      hourDate.setHours(tst.hours, tst.minutes, 0, 0)
     }
 
     try {
-      return generateQimenChart(date)
+      return generateQimenChart(date, hourDate)
     } catch (e) {
       console.error('Qimen calculation error:', e)
       return null
