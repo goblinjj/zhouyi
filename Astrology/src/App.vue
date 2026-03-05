@@ -60,6 +60,13 @@ provide('setNavVisible', (val) => { isNavVisible.value = val })
   display: inline-block;
   letter-spacing: 0.1em;
 }
+@media (max-width: 480px) {
+  .routelink {
+    font-size: medium;
+    padding: 0.3em 0.5em;
+    letter-spacing: 0.05em;
+  }
+}
 .router-link-active {
   color: #8b2500;
   border-bottom: 2px solid #8b2500;
