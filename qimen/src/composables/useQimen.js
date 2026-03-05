@@ -37,11 +37,13 @@ export function useQimen() {
     const isLateZi = sc.subBranch === '晚子'
     const hourGZ = calcHourGanZhi(dayStem, sc.branch, isLateZi)
 
+    const pad = (n) => String(n).padStart(2, '0')
     return {
       tst,
       shichen: sc,
       hourGZ,
-      tstText: `${String(tst.hours).padStart(2, '0')}:${String(tst.minutes).padStart(2, '0')}`,
+      tstText: `${pad(tst.hours)}:${pad(tst.minutes)}`,
+      scRange: `${pad(sc.start.h)}:${pad(sc.start.m)}~${pad(sc.end.h)}:${pad(sc.end.m)}`,
     }
   })
 

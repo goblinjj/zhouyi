@@ -107,7 +107,10 @@ function initDate() {
                     const dayStem = ganZhiDay[0];
                     const isLateZi = sc.subBranch === '晚子';
                     ganZhiHour = calcHourGanZhi(dayStem, sc.branch, isLateZi);
-                    tstNote = ` <span style="font-size:0.85em;color:var(--accent-gold);">(真太阳时 ${String(tst.hours).padStart(2,'0')}:${String(tst.minutes).padStart(2,'0')} · ${sc.name})</span>`;
+                    const tstTime = `${String(tst.hours).padStart(2,'0')}:${String(tst.minutes).padStart(2,'0')}`;
+                    const scStart = `${String(sc.start.h).padStart(2,'0')}:${String(sc.start.m).padStart(2,'0')}`;
+                    const scEnd = `${String(sc.end.h).padStart(2,'0')}:${String(sc.end.m).padStart(2,'0')}`;
+                    tstNote = ` <span style="font-size:0.85em;color:var(--accent-gold);">(${tstTime}- ${sc.name}(${scStart}~${scEnd}))</span>`;
                 }
             }
         }
