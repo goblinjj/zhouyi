@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useQimen } from '../composables/useQimen'
+import { STEM_ELEMENTS, getWuxingColor } from '../core/constants'
 import TimeInput from '../components/TimeInput.vue'
 import NineGrid from '../components/NineGrid.vue'
 import AiInterpret from '../components/AiInterpret.vue'
@@ -8,6 +9,15 @@ import AiInterpret from '../components/AiInterpret.vue'
 const { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo } = useQimen()
 
 const showAi = ref(false)
+
+// 地支五行映射
+const BRANCH_ELEMENTS = {
+  '子': '水', '丑': '土', '寅': '木', '卯': '木', '辰': '土', '巳': '火',
+  '午': '火', '未': '土', '申': '金', '酉': '金', '戌': '土', '亥': '水'
+}
+
+function stemColor(s) { return getWuxingColor(STEM_ELEMENTS[s]) }
+function branchColor(b) { return getWuxingColor(BRANCH_ELEMENTS[b]) }
 
 onMounted(() => {
   initNow()
@@ -28,21 +38,12 @@ onMounted(() => {
     <div v-if="chart" class="chart-section">
       <!-- 四柱 -->
       <div class="four-pillars">
-        <div class="pillar">
-          <span class="pillar-label">年柱</span>
-          <span class="pillar-value">{{ chart.ganZhi.year.full }}</span>
-        </div>
-        <div class="pillar">
-          <span class="pillar-label">月柱</span>
-          <span class="pillar-value">{{ chart.ganZhi.month.full }}</span>
-        </div>
-        <div class="pillar">
-          <span class="pillar-label">日柱</span>
-          <span class="pillar-value">{{ chart.ganZhi.day.full }}</span>
-        </div>
-        <div class="pillar">
-          <span class="pillar-label">时柱</span>
-          <span class="pillar-value">{{ chart.ganZhi.hour.full }}</span>
+        <div class="pillar" v-for="key in ['year', 'month', 'day', 'hour']" :key="key">
+          <span class="pillar-label">{{ {year:'年柱',month:'月柱',day:'日柱',hour:'时柱'}[key] }}</span>
+          <span class="pillar-value">
+            <span :style="{ color: stemColor(chart.ganZhi[key].stem) }">{{ chart.ganZhi[key].stem }}</span>
+            <span :style="{ color: branchColor(chart.ganZhi[key].branch) }">{{ chart.ganZhi[key].branch }}</span>
+          </span>
         </div>
       </div>
 
