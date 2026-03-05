@@ -27,33 +27,23 @@ const TERM_ORDER = [
 
 /**
  * 获取干支信息
- * @param {Date} date - JavaScript Date 对象（用于年月日柱）
- * @param {Date} [hourDate] - 用于时柱的 Date 对象（真太阳时调整后），不传则使用 date
+ * @param {Date} date - JavaScript Date 对象
  * @returns {Object} 年月日时的干支
  */
-export function getGanZhi(date, hourDate) {
+export function getGanZhi(date) {
   const solar = Solar.fromDate(date)
   const lunar = solar.getLunar()
   const eightChar = lunar.getEightChar()
-
-  // 时柱：若提供了 hourDate（真太阳时），用它来算时柱
-  let hourChar
-  if (hourDate && hourDate.getTime() !== date.getTime()) {
-    const hourSolar = Solar.fromDate(hourDate)
-    hourChar = hourSolar.getLunar().getEightChar()
-  } else {
-    hourChar = eightChar
-  }
 
   return {
     year: { stem: eightChar.getYear()[0], branch: eightChar.getYear()[1] },
     month: { stem: eightChar.getMonth()[0], branch: eightChar.getMonth()[1] },
     day: { stem: eightChar.getDay()[0], branch: eightChar.getDay()[1] },
-    hour: { stem: hourChar.getTime()[0], branch: hourChar.getTime()[1] },
+    hour: { stem: eightChar.getTime()[0], branch: eightChar.getTime()[1] },
     yearFull: eightChar.getYear(),
     monthFull: eightChar.getMonth(),
     dayFull: eightChar.getDay(),
-    hourFull: hourChar.getTime(),
+    hourFull: eightChar.getTime(),
   }
 }
 

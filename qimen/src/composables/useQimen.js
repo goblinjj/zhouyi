@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { generateQimenChart } from '../core/qimen'
-import { calcTrueSolarTime } from '@shared/true-solar-time'
+import { calcTrueSolarTimeOffset } from '@shared/true-solar-time'
 
 export function useQimen() {
   const city = ref({ name: '北京', lng: 116.41, lat: 39.90, tz: 8 })
@@ -25,15 +25,13 @@ export function useQimen() {
     if (isNaN(date.getTime())) return null
     date.setHours(h, m, 0, 0)
 
-    let hourDate = date
     if (useTrueSolar.value) {
-      const tst = calcTrueSolarTime(inputDate.value, inputTime.value, city.value.lng, city.value.tz)
-      hourDate = new Date(date)
-      hourDate.setHours(tst.hours, tst.minutes, 0, 0)
+      const offset = calcTrueSolarTimeOffset(inputDate.value, city.value.lng, city.value.tz)
+      date = new Date(date.getTime() + offset * 60000)
     }
 
     try {
-      return generateQimenChart(date, hourDate)
+      return generateQimenChart(date)
     } catch (e) {
       console.error('Qimen calculation error:', e)
       return null

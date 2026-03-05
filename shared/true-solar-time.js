@@ -60,17 +60,26 @@ export function geographicTimeDiff(longitude, timezoneOffset) {
 }
 
 /**
- * Calculate true solar time from standard clock time.
- * @returns {{ hours: number, minutes: number }}
+ * Calculate the true solar time offset in minutes.
+ * @returns {number} offset in minutes (positive = clock ahead, add to get TST)
  */
-export function calcTrueSolarTime(dateStr, timeStr, longitude, timezoneOffset) {
+export function calcTrueSolarTimeOffset(dateStr, longitude, timezoneOffset) {
   const date = new Date(dateStr + 'T00:00:00')
   const doy = dayOfYear(date)
   const eot = equationOfTime(doy)
   const geoDiff = geographicTimeDiff(longitude, timezoneOffset)
+  return geoDiff + eot
+}
+
+/**
+ * Calculate true solar time from standard clock time.
+ * @returns {{ hours: number, minutes: number }}
+ */
+export function calcTrueSolarTime(dateStr, timeStr, longitude, timezoneOffset) {
+  const offset = calcTrueSolarTimeOffset(dateStr, longitude, timezoneOffset)
 
   const [h, m] = timeStr.split(':').map(Number)
-  let totalMinutes = h * 60 + m + geoDiff + eot
+  let totalMinutes = h * 60 + m + offset
 
   // Wrap into [0, 1440)
   totalMinutes = ((totalMinutes % 1440) + 1440) % 1440

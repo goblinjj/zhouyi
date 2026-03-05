@@ -2,7 +2,7 @@ import { Divination } from './core/divination.js';
 import { PALACE_ELEMENTS } from './data/constants.js';
 import { Solar, Lunar } from 'lunar-javascript';
 import { Takashima } from './modules/takashima.js';
-import { calcTrueSolarTime } from '@shared/true-solar-time';
+import { calcTrueSolarTime, calcTrueSolarTimeOffset } from '@shared/true-solar-time';
 import { CITIES } from '@shared/cities';
 
 const castingBtn = document.getElementById('cast-btn');
@@ -86,29 +86,24 @@ function initDate() {
     try {
         const now = new Date();
         let tstNote = '';
-        let hourDate = now;
+        let effectiveDate = now;
         if (useTrueSolarTime) {
             const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const offset = calcTrueSolarTimeOffset(dateStr, currentCity.lng, currentCity.tz);
+            effectiveDate = new Date(now.getTime() + offset * 60000);
             const tst = calcTrueSolarTime(dateStr, timeStr, currentCity.lng, currentCity.tz);
-            hourDate = new Date(now);
-            hourDate.setHours(tst.hours, tst.minutes, 0, 0);
             tstNote = ` <span style="font-size:0.85em;color:var(--accent-gold);">(真太阳时 ${String(tst.hours).padStart(2,'0')}:${String(tst.minutes).padStart(2,'0')})</span>`;
         }
 
-        // 用原始日期算年月日柱，真太阳时仅影响时柱
-        const d = Solar.fromDate(now);
+        const d = Solar.fromDate(effectiveDate);
         const lunar = d.getLunar();
         const bazi = lunar.getEightChar();
-
-        const hourBazi = (hourDate.getTime() !== now.getTime())
-            ? Solar.fromDate(hourDate).getLunar().getEightChar()
-            : bazi;
 
         const ganZhiYear = bazi.getYear();
         const ganZhiMonth = bazi.getMonth();
         const ganZhiDay = bazi.getDay();
-        const ganZhiHour = hourBazi.getTime();
+        const ganZhiHour = bazi.getTime();
 
         dateInfo.innerHTML = `
             ${Solar.fromDate(now).getYear()}年${Solar.fromDate(now).getMonth()}月${Solar.fromDate(now).getDay()}日
