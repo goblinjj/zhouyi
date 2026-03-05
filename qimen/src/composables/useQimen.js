@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { generateQimenChart } from '../core/qimen'
-import { calcTrueSolarTimeOffset } from '@shared/true-solar-time'
+import { calcTrueSolarTimeOffset, calcTrueSolarTime } from '@shared/true-solar-time'
 
 export function useQimen() {
   const city = ref({ name: '北京', lng: 116.41, lat: 39.90, tz: 8 })
@@ -38,5 +38,11 @@ export function useQimen() {
     }
   })
 
-  return { city, inputDate, inputTime, useTrueSolar, chart, initNow }
+  const trueSolarTimeText = computed(() => {
+    if (!useTrueSolar.value || !inputDate.value || !inputTime.value) return ''
+    const tst = calcTrueSolarTime(inputDate.value, inputTime.value, city.value.lng, city.value.tz)
+    return `${String(tst.hours).padStart(2, '0')}:${String(tst.minutes).padStart(2, '0')}`
+  })
+
+  return { city, inputDate, inputTime, useTrueSolar, chart, initNow, trueSolarTimeText }
 }

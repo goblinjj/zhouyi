@@ -5,7 +5,7 @@ import TimeInput from '../components/TimeInput.vue'
 import NineGrid from '../components/NineGrid.vue'
 import AiInterpret from '../components/AiInterpret.vue'
 
-const { city, inputDate, inputTime, useTrueSolar, chart, initNow } = useQimen()
+const { city, inputDate, inputTime, useTrueSolar, chart, initNow, trueSolarTimeText } = useQimen()
 
 const showAi = ref(false)
 
@@ -21,6 +21,7 @@ onMounted(() => {
       v-model:inputTime="inputTime"
       v-model:city="city"
       v-model:useTrueSolar="useTrueSolar"
+      :trueSolarTimeText="trueSolarTimeText"
       @setNow="initNow"
     />
 

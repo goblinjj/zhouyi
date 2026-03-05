@@ -7,6 +7,7 @@ const props = defineProps({
   inputTime: String,
   city: Object,
   useTrueSolar: Boolean,
+  trueSolarTimeText: String,
 })
 
 const emit = defineEmits(['update:inputDate', 'update:inputTime', 'update:city', 'update:useTrueSolar', 'setNow'])
@@ -89,6 +90,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         <input type="checkbox" :checked="useTrueSolar" @change="emit('update:useTrueSolar', $event.target.checked)" />
         真太阳时
       </label>
+      <span v-if="useTrueSolar && trueSolarTimeText" class="tst-value">{{ trueSolarTimeText }}</span>
       <button class="btn-now" @click="emit('setNow')">当前时间</button>
     </div>
   </div>
@@ -194,4 +196,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   margin-left: auto;
 }
 .btn-now:hover { background: #a03000; }
+.tst-value {
+  color: #8b2500;
+  font-size: 0.9em;
+  font-weight: 500;
+}
 </style>
