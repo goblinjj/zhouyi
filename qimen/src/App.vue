@@ -58,6 +58,13 @@
   text-decoration: none;
   outline: none;
 }
+@media (max-width: 480px) {
+  .routelink {
+    font-size: medium;
+    padding: 0.3em 0.5em;
+    letter-spacing: 0.05em;
+  }
+}
 
 .routelink:hover,
 .routelink:active {
