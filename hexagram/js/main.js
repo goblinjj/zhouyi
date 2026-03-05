@@ -2,7 +2,7 @@ import { Divination } from './core/divination.js';
 import { PALACE_ELEMENTS } from './data/constants.js';
 import { Solar, Lunar } from 'lunar-javascript';
 import { Takashima } from './modules/takashima.js';
-import { calcTrueSolarTime, calcTrueSolarTimeOffset } from '@shared/true-solar-time';
+import { calcTrueSolarTime, calcSunriseSunset, calcUnequalShichen, findShichen, calcHourGanZhi } from '@shared/true-solar-time';
 import { CITIES } from '@shared/cities';
 
 const castingBtn = document.getElementById('cast-btn');
@@ -85,28 +85,35 @@ function refreshDate() {
 function initDate() {
     try {
         const now = new Date();
-        let tstNote = '';
-        let effectiveDate = now;
-        if (useTrueSolarTime) {
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            const offset = calcTrueSolarTimeOffset(dateStr, currentCity.lng, currentCity.tz);
-            effectiveDate = new Date(now.getTime() + offset * 60000);
-            const tst = calcTrueSolarTime(dateStr, timeStr, currentCity.lng, currentCity.tz);
-            tstNote = ` <span style="font-size:0.85em;color:var(--accent-gold);">(真太阳时 ${String(tst.hours).padStart(2,'0')}:${String(tst.minutes).padStart(2,'0')})</span>`;
-        }
-
-        const d = Solar.fromDate(effectiveDate);
+        const d = Solar.fromDate(now);
         const lunar = d.getLunar();
         const bazi = lunar.getEightChar();
 
         const ganZhiYear = bazi.getYear();
         const ganZhiMonth = bazi.getMonth();
         const ganZhiDay = bazi.getDay();
-        const ganZhiHour = bazi.getTime();
+        let ganZhiHour = bazi.getTime();
+        let tstNote = '';
+
+        if (useTrueSolarTime) {
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const tst = calcTrueSolarTime(dateStr, timeStr, currentCity.lng, currentCity.tz);
+            const sunData = calcSunriseSunset(dateStr, currentCity.lat, currentCity.lng, currentCity.tz);
+            if (sunData) {
+                const shichenTable = calcUnequalShichen(sunData.sunrise, sunData.sunset);
+                const sc = findShichen(tst.hours, tst.minutes, shichenTable);
+                if (sc) {
+                    const dayStem = ganZhiDay[0];
+                    const isLateZi = sc.subBranch === '晚子';
+                    ganZhiHour = calcHourGanZhi(dayStem, sc.branch, isLateZi);
+                    tstNote = ` <span style="font-size:0.85em;color:var(--accent-gold);">(真太阳时 ${String(tst.hours).padStart(2,'0')}:${String(tst.minutes).padStart(2,'0')} · ${sc.name})</span>`;
+                }
+            }
+        }
 
         dateInfo.innerHTML = `
-            ${Solar.fromDate(now).getYear()}年${Solar.fromDate(now).getMonth()}月${Solar.fromDate(now).getDay()}日
+            ${d.getYear()}年${d.getMonth()}月${d.getDay()}日
             农历:${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}
             <br>
             ${ganZhiYear}年 ${ganZhiMonth}月 ${ganZhiDay}日

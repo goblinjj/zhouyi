@@ -243,6 +243,30 @@ export function findShichen(hours, minutes, shichenTable) {
 }
 
 /**
+ * Calculate hour pillar (时柱) GanZhi using 五鼠遁 rule.
+ * @param {string} dayStem - Day heavenly stem (日干), e.g. '甲'
+ * @param {string} hourBranch - Hour earthly branch (时支), e.g. '午'
+ * @param {boolean} isLateZi - true if 晚子时 (23:xx), uses next day's stem
+ * @returns {string} Hour pillar, e.g. '丙午'
+ */
+export function calcHourGanZhi(dayStem, hourBranch, isLateZi = false) {
+  const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
+  // 五鼠遁: day stem → 子时 starting stem index
+  const START = { '甲': 0, '己': 0, '乙': 2, '庚': 2, '丙': 4, '辛': 4, '丁': 6, '壬': 6, '戊': 8, '癸': 8 }
+
+  let effectiveStem = dayStem
+  if (isLateZi) {
+    // 晚子时 belongs to next day's 子时
+    effectiveStem = GAN[(GAN.indexOf(dayStem) + 1) % 10]
+  }
+
+  const startIdx = START[effectiveStem]
+  const branchIdx = EARTHLY_BRANCHES.indexOf(hourBranch)
+  const stemIdx = (startIdx + branchIdx) % 10
+  return GAN[stemIdx] + hourBranch
+}
+
+/**
  * Format hours and minutes as "HH:MM".
  */
 export function formatTime(h, m) {

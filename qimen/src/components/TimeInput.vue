@@ -7,7 +7,7 @@ const props = defineProps({
   inputTime: String,
   city: Object,
   useTrueSolar: Boolean,
-  trueSolarTimeText: String,
+  shichenInfo: Object,
 })
 
 const emit = defineEmits(['update:inputDate', 'update:inputTime', 'update:city', 'update:useTrueSolar', 'setNow'])
@@ -90,7 +90,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         <input type="checkbox" :checked="useTrueSolar" @change="emit('update:useTrueSolar', $event.target.checked)" />
         真太阳时
       </label>
-      <span v-if="useTrueSolar && trueSolarTimeText" class="tst-value">{{ trueSolarTimeText }}</span>
+      <span v-if="useTrueSolar && shichenInfo" class="tst-value">{{ shichenInfo.tstText }} · {{ shichenInfo.shichen.name }} · {{ shichenInfo.hourGZ }}时</span>
       <button class="btn-now" @click="emit('setNow')">当前时间</button>
     </div>
   </div>

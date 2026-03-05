@@ -231,10 +231,17 @@ function calcKongWang(xunStartIndex) {
  * @param {Date} date - JavaScript Date object
  * @returns {Object} complete chart data
  */
-export function generateQimenChart(date) {
+export function generateQimenChart(date, hourGZOverride = null) {
   // Step 1: 干支 & 定局
   const ganZhi = getGanZhi(date)
   const { isYangDun, juNum, currentTerm, yuan } = determineJu(date, ganZhi)
+
+  // Allow overriding the hour pillar (for unequal shichen TST)
+  if (hourGZOverride) {
+    ganZhi.hour.stem = hourGZOverride[0]
+    ganZhi.hour.branch = hourGZOverride[1]
+    ganZhi.hourFull = hourGZOverride
+  }
 
   const hourGZ = ganZhi.hourFull
   const hourStem = ganZhi.hour.stem
