@@ -63,6 +63,44 @@ export const PALACE_GRID = {
   8: { row: 3, col: 1 }, 1: { row: 3, col: 2 }, 6: { row: 3, col: 3 }
 }
 
+// 五行颜色
+export const WUXING_COLORS = {
+  '木': '#2e7d32', // 绿
+  '火': '#c62828', // 红
+  '土': '#b8860b', // 黄棕
+  '金': '#bf6c00', // 金橙
+  '水': '#1565c0', // 蓝
+}
+
+// 九星五行
+export const STAR_ELEMENTS = {
+  '天蓬': '水', '天任': '土', '天冲': '木', '天辅': '木',
+  '天英': '火', '天芮': '土', '天柱': '金', '天心': '金', '天禽': '土'
+}
+
+// 八门五行
+export const GATE_ELEMENTS = {
+  '休门': '水', '生门': '土', '伤门': '木', '杜门': '木',
+  '景门': '火', '死门': '土', '惊门': '金', '开门': '金'
+}
+
+// 八神五行
+export const GOD_ELEMENTS = {
+  '值符': '土', '腾蛇': '火', '太阴': '金', '六合': '木',
+  '白虎': '金', '玄武': '水', '九地': '土', '九天': '火'
+}
+
+// 天干五行
+export const STEM_ELEMENTS = {
+  '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
+  '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水'
+}
+
+// 获取五行对应颜色
+export function getWuxingColor(element) {
+  return WUXING_COLORS[element] || '#3c2415'
+}
+
 // 六十甲子表
 export const JIA_ZI_TABLE = (() => {
   const table = []

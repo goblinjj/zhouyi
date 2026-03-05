@@ -1,7 +1,16 @@
 <script setup>
+import { STAR_ELEMENTS, GATE_ELEMENTS, getWuxingColor } from '../core/constants.js'
+
 defineProps({
   chart: Object,
 })
+
+function starColor(star) {
+  return getWuxingColor(STAR_ELEMENTS[star])
+}
+function gateColor(gate) {
+  return getWuxingColor(GATE_ELEMENTS[gate])
+}
 </script>
 
 <template>
@@ -12,8 +21,8 @@ defineProps({
     </div>
     <div class="term-info">{{ chart.currentTerm }} · {{ chart.yuan }}元</div>
     <div class="duty-info">
-      <div>值符 <span class="duty-star">{{ chart.dutyStar }}</span></div>
-      <div>值使 <span class="duty-gate">{{ chart.dutyGate }}</span></div>
+      <div>值符 <span class="duty-star" :style="{ color: starColor(chart.dutyStar) }">{{ chart.dutyStar }}</span></div>
+      <div>值使 <span class="duty-gate" :style="{ color: gateColor(chart.dutyGate) }">{{ chart.dutyGate }}</span></div>
     </div>
     <div class="xun-info">{{ chart.xunShou }}旬</div>
     <div class="kong-info" v-if="chart.kongWang">空亡：{{ chart.kongWang.join(' ') }}</div>
@@ -58,11 +67,9 @@ defineProps({
   text-align: center;
 }
 .duty-star {
-  color: #1976d2;
   font-weight: 500;
 }
 .duty-gate {
-  color: #388e3c;
   font-weight: 500;
 }
 .xun-info {
