@@ -66,6 +66,20 @@ export const FLYING_BG = {
     '忌': 'rgba(244,67,54,0.75)'
 }
 
+// 晚子归次日：将 (date, 晚子时) 归一化为 (next day, 早子时)
+// iztro 'forward' 模式自身在跨农历月时处理不一致（如 lunar 月末），统一在应用层预先推进日期。
+export function normalizeLateZi(dateStr, timeIndex) {
+    if (timeIndex !== 12 || !dateStr) return { dateStr, timeIndex }
+    const [y, m, d] = dateStr.split('-').map(Number)
+    const dt = new Date(y, m - 1, d)
+    dt.setDate(dt.getDate() + 1)
+    const pad = n => String(n).padStart(2, '0')
+    return {
+        dateStr: `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`,
+        timeIndex: 0,
+    }
+}
+
 // Helper functions
 export function bIdx(b) { return BRANCHES.indexOf(b) }
 

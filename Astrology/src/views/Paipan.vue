@@ -4,13 +4,14 @@ import Sortable from 'sortablejs'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useWindowSize } from '@vueuse/core'
 import { astro } from 'iztro'
+import { Solar } from 'lunar-javascript'
 
 const setNavVisible = inject('setNavVisible')
 
 onBeforeRouteLeave(() => { setNavVisible(true); document.title = '紫微斗数' })
 onUnmounted(() => { setNavVisible(true) })
 
-import { TIME_OPTIONS, SCOPE_COLORS, gridStyle } from '../composables/usePaipanConstants'
+import { TIME_OPTIONS, SCOPE_COLORS, gridStyle, normalizeLateZi } from '../composables/usePaipanConstants'
 import { useHoroscope } from '../composables/useHoroscope'
 import PalaceCell from '../components/PalaceCell.vue'
 import CenterInfo from '../components/CenterInfo.vue'
@@ -110,10 +111,13 @@ const scopeFlags = computed(() => ({
 // ===== Methods =====
 function generate() {
   if (!date.value) return
+  // 晚子归次日：将输入归一化到 (次日, 早子时) 再传给 iztro，
+  // 避免 iztro 'forward' 模式在农历月末日 (如 1962-04-04 二月卅) 处理不一致。
+  const eff = normalizeLateZi(date.value, timeIndex.value)
   astrolabe.value = astro.withOptions({
     type: 'solar',
-    dateStr: date.value,
-    timeIndex: timeIndex.value,
+    dateStr: eff.dateStr,
+    timeIndex: eff.timeIndex,
     gender: gender.value,
     config: {
       yearDivide: config.value.yearDivide,
@@ -125,6 +129,12 @@ function generate() {
     },
     fixLeap: config.value.fixLeap,
   })
+  // 晚子归次日：星耀/日柱已按次日计算，但展示给用户的阳历/阴历保留其输入日
+  if (timeIndex.value === 12) {
+    const [iy, im, id] = date.value.split('-').map(Number)
+    astrolabe.value.solarDate = date.value
+    astrolabe.value.lunarDate = Solar.fromYmd(iy, im, id).getLunar().toString()
+  }
   resetSelections()
   autoSelectLifePalace()
   router.replace({ query: { date: date.value, time: String(timeIndex.value), gender: gender.value === '男' ? '1' : '0' } })
