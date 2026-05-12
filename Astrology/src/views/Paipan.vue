@@ -118,6 +118,7 @@ function generate() {
     config: {
       yearDivide: config.value.yearDivide,
       horoscopeDivide: config.value.yearDivide,
+      dayDivide: 'forward',
       brightness: {
         '太阴': ['旺', '陷', '陷', '陷', '不', '不', '利', '旺', '旺', '庙', '庙', '庙'],
       },

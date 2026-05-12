@@ -26,11 +26,11 @@ const daYunList = computed(() => {
     const solar = Solar.fromYmdHms(y, m, d, h, 0, 0)
     const lunar = solar.getLunar()
     const eightChar = lunar.getEightChar()
-    
-    // Set gender: 1 for male, 0 for female (Lunar lib expectation)
-    // Actually getYun takes gender: 1 male, 0 female
+    // 晚子时归次日：23:00 后日柱进位（与紫微排盘 dayDivide:'forward' 保持一致）
+    eightChar.setSect(1)
+
     const gVal = props.gender === '男' ? 1 : 0
-    const yun = eightChar.getYun(gVal)
+    const yun = eightChar.getYun(gVal, 1)
     
     // 1st DaYun is usually start age
     // lunar-javascript returns 10 DaYuns by default usually

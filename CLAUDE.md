@@ -19,7 +19,7 @@ bash build.sh --deploy     # build + git push + deploy to Cloudflare Pages
 bash build.sh -d "message" # deploy with custom commit message
 ```
 
-`build.sh` assembles all sub-projects into `dist/`, creates SPA fallback pages, generates SEO static pages, and copies Cloudflare Functions.
+`build.sh` assembles all sub-projects into `dist/`, creates SPA fallback pages (e.g. `astrology/{dianji,stars,true-solar-time}`, `qimen/knowledge`), generates SEO static pages, copies Cloudflare Functions, and injects `__BUILD_VER__` (unix timestamp) into root and hexagram HTML for cache-busting.
 
 Manual deploy: `npx wrangler pages deploy dist --project-name=zhouyi --branch=main --commit-dirty=true`
 
@@ -31,7 +31,7 @@ cd hexagram && npm run dev     # localhost:5173/hexagram/
 cd qimen && npm run dev        # localhost:5173/qimen/
 ```
 
-MCP server is deployed independently: `cd mcp-server && npm run deploy`
+MCP server is deployed independently as a Cloudflare Worker (uses `agents` SDK + `@anthropic-ai/sdk`): `cd mcp-server && npm run deploy` (dev: `npm run dev` via wrangler).
 
 ## Architecture
 
@@ -51,7 +51,7 @@ zhouyi/
 
 ### Astrology Sub-Project (Vue 3)
 
-Key routes: `/` (Paipan chart), `/stars` (star index), `/dianji` (classical texts), `/true-solar-time`
+Key routes: `/` (Paipan chart), `/stars` (star index), `/dianji` (classical texts), `/true-solar-time`. Vite aliases: `@` → `./src`, `@shared` → `../shared`.
 
 Core composables:
 - `useHoroscope.js` — horoscope scope state (大限/流年/流月), 三方四正, flying si-hua
@@ -70,7 +70,7 @@ Core logic in `js/core/divination.js` (coin casting, Na Jia table)
 
 ### qimen Sub-Project (Vue 3)
 
-Single-page app for 时家转盘奇门 (time-based rotating board Qi Men Dun Jia).
+Single-page app for 时家转盘奇门 (time-based rotating board Qi Men Dun Jia). Routes: `/` (paipan), `/knowledge`. Vite aliases: `@` → `./src`, `@shared` → `../shared`.
 
 Core modules:
 - `core/constants.js` — 九星/八门/八神/三奇六仪/九宫环形队列
