@@ -14,10 +14,10 @@ provide('setNavVisible', (val) => { isNavVisible.value = val })
           <g clip-path="url(#tc)">
             <circle cx="100" cy="100" r="100" fill="#faf6ef"/>
             <rect x="100" y="0" width="100" height="200" fill="#3a2e2a"/>
-            <circle cx="100" cy="50" r="50" fill="#3a2e2a"/>
-            <circle cx="100" cy="150" r="50" fill="#faf6ef"/>
-            <circle cx="100" cy="50" r="12" fill="#faf6ef"/>
-            <circle cx="100" cy="150" r="12" fill="#3a2e2a"/>
+            <circle cx="100" cy="50" r="50" fill="#faf6ef"/>
+            <circle cx="100" cy="150" r="50" fill="#3a2e2a"/>
+            <circle cx="100" cy="50" r="12" fill="#3a2e2a"/>
+            <circle cx="100" cy="150" r="12" fill="#faf6ef"/>
           </g>
           <circle cx="100" cy="100" r="96" fill="none" stroke="#c4a97d" stroke-width="3"/>
         </svg>
