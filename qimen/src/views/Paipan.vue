@@ -9,6 +9,25 @@ import AiInterpret from '../components/AiInterpret.vue'
 const { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo, submitted, triggerPaipan, paipanKey } = useQimen()
 
 const showAi = ref(false)
+const ritualOrigin = ref({ x: 0, y: 0 })
+
+function handlePaipan(event) {
+  // 优先用鼠标点击坐标；移动端触摸用按钮中心
+  let x, y
+  if (event && typeof event.clientX === 'number' && event.clientX > 0) {
+    x = event.clientX
+    y = event.clientY
+  } else if (event?.currentTarget?.getBoundingClientRect) {
+    const r = event.currentTarget.getBoundingClientRect()
+    x = r.left + r.width / 2
+    y = r.top + r.height / 2
+  } else {
+    x = window.innerWidth / 2
+    y = window.innerHeight / 2
+  }
+  ritualOrigin.value = { x, y }
+  triggerPaipan()
+}
 
 // 地支五行映射
 const BRANCH_ELEMENTS = {
@@ -27,8 +46,13 @@ onMounted(() => {
 
 <template>
   <div class="paipan-page">
-    <!-- 起局仪式水印（每次排盘瞬时浮现） -->
-    <div v-if="submitted" :key="paipanKey" class="ritual-overlay">
+    <!-- 起局仪式水印（每次排盘从点击位置浮现） -->
+    <div
+      v-if="submitted"
+      :key="paipanKey"
+      class="ritual-overlay"
+      :style="{ left: ritualOrigin.x + 'px', top: ritualOrigin.y + 'px' }"
+    >
       <span class="ritual-text">起</span>
     </div>
 
@@ -39,7 +63,7 @@ onMounted(() => {
       v-model:useTrueSolar="useTrueSolar"
       :shichenInfo="shichenInfo"
       @setNow="initNow"
-      @paipan="triggerPaipan"
+      @paipan="handlePaipan"
     />
 
     <div v-if="submitted && chart" class="chart-section">
@@ -83,9 +107,6 @@ onMounted(() => {
 }
 .ritual-overlay {
   position: fixed;
-  top: 38%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 60;
   animation: ritual-flash 1.4s ease-out forwards;
@@ -103,23 +124,23 @@ onMounted(() => {
 @keyframes ritual-flash {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.6);
-    filter: blur(8px);
+    transform: translate(-50%, -50%) scale(0.2);
+    filter: blur(6px);
   }
-  35% {
+  25% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -55%) scale(1);
     filter: blur(0);
   }
-  65% {
+  60% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.05);
+    transform: translate(-50%, -90%) scale(1.25);
     filter: blur(0);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1.25);
-    filter: blur(2px);
+    transform: translate(-50%, -140%) scale(1.6);
+    filter: blur(3px);
   }
 }
 .chart-section {
