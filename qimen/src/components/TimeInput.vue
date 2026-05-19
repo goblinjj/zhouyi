@@ -95,7 +95,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     </div>
 
     <div class="input-row paipan-row">
-      <button class="btn-paipan" @click="emit('paipan', $event)" :disabled="!inputDate || !inputTime">排盘</button>
+      <button class="btn-paipan" @click="emit('paipan', $event)" :disabled="!inputDate || !inputTime">奇门起局</button>
     </div>
   </div>
 </template>

@@ -94,7 +94,7 @@ onMounted(() => {
       正在计算排盘...
     </div>
     <div v-else class="loading-hint">
-      请选择日期时间后点击"排盘"按钮
+      请选择日期时间后点击"奇门起局"按钮
     </div>
   </div>
 </template>
