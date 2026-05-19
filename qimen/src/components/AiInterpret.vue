@@ -8,9 +8,10 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-const { aiLoading, aiContent, aiError, aiDone, collectChartInfo, startAiInterpret, simpleMarkdown, reset } = useAiInterpret()
+const { aiLoading, aiContent, aiError, aiDone, collectChartInfo, startAiInterpret, simpleMarkdown } = useAiInterpret()
 
 const question = ref('')
+const copyTip = ref('')
 
 function handleStart() {
   const chartInfo = collectChartInfo(props.chart)
@@ -18,8 +19,26 @@ function handleStart() {
 }
 
 function handleClose() {
-  reset()
+  // 不再 reset：盘面 1 时辰内不变，关闭后再次打开应保留解读内容
   emit('close')
+}
+
+async function handleCopyChart() {
+  const text = collectChartInfo(props.chart)
+  try {
+    await navigator.clipboard.writeText(text)
+    copyTip.value = '已复制盘面，可粘贴到你常用的 AI 工具中解盘'
+  } catch {
+    // 兼容旧浏览器
+    const ta = document.createElement('textarea')
+    ta.value = text
+    document.body.appendChild(ta)
+    ta.select()
+    try { document.execCommand('copy'); copyTip.value = '已复制盘面' }
+    catch { copyTip.value = '复制失败，请手动选择文本' }
+    document.body.removeChild(ta)
+  }
+  setTimeout(() => { copyTip.value = '' }, 2500)
 }
 </script>
 
@@ -28,8 +47,14 @@ function handleClose() {
     <div class="ai-modal">
       <div class="ai-header">
         <h3>AI 解读</h3>
-        <button class="close-btn" @click="handleClose">&times;</button>
+        <div class="header-actions">
+          <button class="btn-copy" @click="handleCopyChart" title="复制盘面到剪贴板">复制盘面</button>
+          <button class="close-btn" @click="handleClose">&times;</button>
+        </div>
       </div>
+
+      <div class="ritual-hint">初筮告　再三渎　渎则不告</div>
+      <div v-if="copyTip" class="copy-tip">{{ copyTip }}</div>
 
       <div v-if="!aiContent && !aiLoading" class="ai-input-section">
         <div class="question-row">
@@ -81,12 +106,31 @@ function handleClose() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.8em;
+  margin-bottom: 0.5em;
 }
 .ai-header h3 {
   color: #8b2500;
   font-size: 1.2em;
   margin: 0;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.btn-copy {
+  background: transparent;
+  color: #8b2500;
+  border: 1px solid #c4a97d;
+  padding: 0.3em 0.9em;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-family: inherit;
+  cursor: pointer;
+}
+.btn-copy:hover {
+  background: #f5ede0;
+  border-color: #8b2500;
 }
 .close-btn {
   background: none;
@@ -95,8 +139,28 @@ function handleClose() {
   color: #9a8c7a;
   cursor: pointer;
   padding: 0 0.3em;
+  line-height: 1;
 }
 .close-btn:hover { color: #3c2415; }
+.ritual-hint {
+  text-align: center;
+  color: #9a8c7a;
+  font-size: 0.9em;
+  letter-spacing: 0.1em;
+  font-style: italic;
+  margin-bottom: 0.9em;
+  padding-bottom: 0.7em;
+  border-bottom: 1px dashed #e0d4ba;
+}
+.copy-tip {
+  text-align: center;
+  color: #8b2500;
+  font-size: 0.85em;
+  background: #faf3e6;
+  padding: 0.4em 0.6em;
+  border-radius: 6px;
+  margin-bottom: 0.8em;
+}
 .ai-input-section {
   text-align: center;
 }

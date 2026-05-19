@@ -1,12 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useQimen } from '../composables/useQimen'
+import { useAiInterpret } from '../composables/useAiInterpret'
 import { STEM_ELEMENTS, getWuxingColor } from '../core/constants'
 import TimeInput from '../components/TimeInput.vue'
 import NineGrid from '../components/NineGrid.vue'
 import AiInterpret from '../components/AiInterpret.vue'
 
 const { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo, submitted, triggerPaipan, paipanKey } = useQimen()
+const { reset: resetAi } = useAiInterpret()
 
 const showAi = ref(false)
 const ritualOrigin = ref({ x: 0, y: 0 })
@@ -26,6 +28,8 @@ function handlePaipan(event) {
     y = window.innerHeight / 2
   }
   ritualOrigin.value = { x, y }
+  // 新一次起局：清空上一次的 AI 解读结果（盘面变了，旧解读已无效）
+  resetAi()
   triggerPaipan()
 }
 

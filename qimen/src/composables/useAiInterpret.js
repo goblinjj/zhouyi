@@ -1,10 +1,13 @@
 import { ref } from 'vue'
 
+// 模块级状态：让 AI 解读结果在 AiInterpret 组件卸载/重建后仍保留，
+// 直到主动重置（新一次起局）或刷新页面。
+const aiLoading = ref(false)
+const aiContent = ref('')
+const aiError = ref('')
+const aiDone = ref(false)
+
 export function useAiInterpret() {
-  const aiLoading = ref(false)
-  const aiContent = ref('')
-  const aiError = ref('')
-  const aiDone = ref(false)
 
   function collectChartInfo(chart) {
     if (!chart) return ''
