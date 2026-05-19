@@ -114,7 +114,7 @@ onMounted(() => {
 .ritual-text {
   display: inline-block;
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
-  font-size: 6em;
+  font-size: 3.5em;
   color: #8b2500;
   text-shadow:
     0 0 18px rgba(184, 134, 11, 0.6),
