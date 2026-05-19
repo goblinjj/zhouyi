@@ -6,7 +6,7 @@ import TimeInput from '../components/TimeInput.vue'
 import NineGrid from '../components/NineGrid.vue'
 import AiInterpret from '../components/AiInterpret.vue'
 
-const { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo } = useQimen()
+const { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo, submitted, triggerPaipan } = useQimen()
 
 const showAi = ref(false)
 
@@ -20,6 +20,7 @@ function stemColor(s) { return getWuxingColor(STEM_ELEMENTS[s]) }
 function branchColor(b) { return getWuxingColor(BRANCH_ELEMENTS[b]) }
 
 onMounted(() => {
+  // 预填当前日期时间，但不自动排盘
   initNow()
 })
 </script>
@@ -33,9 +34,10 @@ onMounted(() => {
       v-model:useTrueSolar="useTrueSolar"
       :shichenInfo="shichenInfo"
       @setNow="initNow"
+      @paipan="triggerPaipan"
     />
 
-    <div v-if="chart" class="chart-section">
+    <div v-if="submitted && chart" class="chart-section">
       <!-- 四柱 -->
       <div class="four-pillars">
         <div class="pillar" v-for="key in ['year', 'month', 'day', 'hour']" :key="key">
@@ -59,8 +61,11 @@ onMounted(() => {
       <AiInterpret v-if="showAi" :chart="chart" @close="showAi = false" />
     </div>
 
-    <div v-else class="loading-hint">
+    <div v-else-if="submitted" class="loading-hint">
       正在计算排盘...
+    </div>
+    <div v-else class="loading-hint">
+      请选择日期时间后点击"排盘"按钮
     </div>
   </div>
 </template>

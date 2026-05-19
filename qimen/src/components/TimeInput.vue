@@ -10,7 +10,7 @@ const props = defineProps({
   shichenInfo: Object,
 })
 
-const emit = defineEmits(['update:inputDate', 'update:inputTime', 'update:city', 'update:useTrueSolar', 'setNow'])
+const emit = defineEmits(['update:inputDate', 'update:inputTime', 'update:city', 'update:useTrueSolar', 'setNow', 'paipan'])
 
 const cityQuery = ref('')
 const showDropdown = ref(false)
@@ -92,6 +92,10 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
       </label>
       <span v-if="useTrueSolar && shichenInfo" class="tst-value">{{ shichenInfo.tstText }}- {{ shichenInfo.shichen.name }}({{ shichenInfo.scRange }})</span>
       <button class="btn-now" @click="emit('setNow')">当前时间</button>
+    </div>
+
+    <div class="input-row paipan-row">
+      <button class="btn-paipan" @click="emit('paipan')" :disabled="!inputDate || !inputTime">排盘</button>
     </div>
   </div>
 </template>
@@ -196,6 +200,28 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   margin-left: auto;
 }
 .btn-now:hover { background: #a03000; }
+.paipan-row {
+  justify-content: center;
+  margin-top: 0.8em;
+}
+.btn-paipan {
+  background: #8b2500;
+  color: #fff;
+  border: none;
+  padding: 0.55em 3em;
+  border-radius: 18px;
+  font-size: 1.05em;
+  font-family: inherit;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  cursor: pointer;
+}
+.btn-paipan:hover:not(:disabled) { background: #a03000; }
+.btn-paipan:disabled {
+  background: #c4a97d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 .tst-value {
   color: #8b2500;
   font-size: 0.9em;

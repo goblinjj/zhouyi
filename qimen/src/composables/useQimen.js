@@ -8,6 +8,7 @@ export function useQimen() {
   const inputDate = ref('')
   const inputTime = ref('')
   const useTrueSolar = ref(true)
+  const submitted = ref(false)
 
   function initNow() {
     const now = new Date()
@@ -16,6 +17,10 @@ export function useQimen() {
     const d = String(now.getDate()).padStart(2, '0')
     inputDate.value = `${y}-${mo}-${d}`
     inputTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  }
+
+  function triggerPaipan() {
+    submitted.value = true
   }
 
   // Compute unequal shichen info when TST is enabled
@@ -66,5 +71,5 @@ export function useQimen() {
     }
   })
 
-  return { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo }
+  return { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo, submitted, triggerPaipan }
 }
