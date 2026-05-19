@@ -6,7 +6,7 @@ import TimeInput from '../components/TimeInput.vue'
 import NineGrid from '../components/NineGrid.vue'
 import AiInterpret from '../components/AiInterpret.vue'
 
-const { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo, submitted, triggerPaipan } = useQimen()
+const { city, inputDate, inputTime, useTrueSolar, chart, initNow, shichenInfo, submitted, triggerPaipan, paipanKey } = useQimen()
 
 const showAi = ref(false)
 
@@ -27,6 +27,11 @@ onMounted(() => {
 
 <template>
   <div class="paipan-page">
+    <!-- 起局仪式水印（每次排盘瞬时浮现） -->
+    <div v-if="submitted" :key="paipanKey" class="ritual-overlay">
+      <span class="ritual-text">奇門起局</span>
+    </div>
+
     <TimeInput
       v-model:inputDate="inputDate"
       v-model:inputTime="inputTime"
@@ -50,7 +55,7 @@ onMounted(() => {
       </div>
 
       <!-- 九宫格 -->
-      <NineGrid :chart="chart" />
+      <NineGrid :chart="chart" :paipanKey="paipanKey" />
 
       <!-- AI 解读按钮 -->
       <div class="ai-action">
@@ -74,6 +79,51 @@ onMounted(() => {
 .paipan-page {
   max-width: 700px;
   margin: 0 auto;
+  position: relative;
+}
+.ritual-overlay {
+  position: fixed;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 60;
+  animation: ritual-flash 1.4s ease-out forwards;
+}
+.ritual-text {
+  display: inline-block;
+  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+  font-size: 3.2em;
+  letter-spacing: 0.45em;
+  text-indent: 0.45em;
+  color: #8b2500;
+  text-shadow:
+    0 0 14px rgba(184, 134, 11, 0.55),
+    0 0 28px rgba(139, 37, 0, 0.35);
+  padding: 0.2em 0.6em;
+  white-space: nowrap;
+}
+@keyframes ritual-flash {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+    filter: blur(8px);
+  }
+  35% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.25);
+    filter: blur(2px);
+  }
 }
 .chart-section {
   margin-top: 0.5em;

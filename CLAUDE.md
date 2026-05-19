@@ -38,6 +38,7 @@ MCP server is deployed independently as a Cloudflare Worker (uses `agents` SDK +
 ```
 zhouyi/
 ├── index.html, style.css    # Root homepage (太极图 + navigation)
+├── llms.txt                 # LLM-readable index of the static JSON API
 ├── build.sh                 # Master build/deploy orchestrator
 ├── shared/                  # Shared modules (true-solar-time, cities)
 ├── Astrology/               # Vue 3 + Vite SPA (base: /astrology/)
@@ -46,8 +47,11 @@ zhouyi/
 ├── functions/api/           # Cloudflare Pages Functions (AI streaming via Gemini)
 ├── scripts/                 # Build-time scripts (SEO page generation)
 ├── mcp-server/              # Separate Cloudflare Worker (MCP protocol)
+├── docs/plans/              # Dated design docs (true-solar-time, qimen, ...)
 └── dist/                    # Build output (gitignored, assembled by build.sh)
 ```
+
+No automated test suite exists. `hexagram/` has a stub `npm test` only.
 
 ### Astrology Sub-Project (Vue 3)
 
@@ -62,6 +66,11 @@ Core composables:
 Four display scopes with distinct colors: `ben` (red #d32f2f), `da` (green #388e3c), `yi` (blue #1976d2), `yue` (purple #7b1fa2)
 
 Key dependencies: `iztro` (chart engine), `lunar-javascript` (lunar calendar/八字)
+
+**晚子时 (23:00–00:00) day-boundary convention.** A 23:xx birth is mapped to the *next* day's 早子时 before chart calculation. Three sites must stay in sync; if you touch one, audit the others:
+- `views/Paipan.vue` passes `dayDivide: 'forward'` to `iztro.astro.bySolar`.
+- `composables/usePaipanConstants.js#normalizeLateZi(dateStr, timeIndex)` pre-advances the date when `timeIndex === 12` (handles lunar month-end crossings like 1962-04-04 that iztro's own `forward` mishandles).
+- `components/EightCharDaYun.vue` calls `eightChar.setSect(1)` and `getYun(gender, 1)` so lunar-javascript's 八字/大运 agree with the紫微 day pillar.
 
 ### hexagram Sub-Project (Vanilla JS)
 
@@ -89,6 +98,8 @@ Framework-independent modules used by multiple sub-apps:
 - `shared/cities.js` — Global cities dataset with longitude/latitude/timezone
 
 Sub-apps reference via Vite alias: `"@shared": "../shared"`
+
+**True-solar-time scope:** the correction adjusts the *hour pillar only*; month/day/year pillars use the user-entered civil date. The conversion is implemented as a time offset (not a datetime substitution) so midnight crossings don't shift the day pillar.
 
 ### Cloudflare Functions
 
