@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(ping:*)",
+      "Bash(dig:*)",
+      "Bash(nslookup:*)",
+      "Bash(host:*)",
+      "Bash(traceroute:*)"
+    ]
+  }
+}

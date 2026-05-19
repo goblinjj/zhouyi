@@ -39,6 +39,11 @@ const revealOrder = { 5: 0, 1: 1, 2: 2, 3: 3, 4: 4, 6: 5, 7: 6, 8: 7, 9: 8 }
   animation: palace-reveal 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) both;
   animation-delay: var(--reveal-delay, 0ms);
   transform-origin: center center;
+  display: flex;
+  flex-direction: column;
+}
+.palace-slot > * {
+  flex: 1;
 }
 @keyframes palace-reveal {
   0% {
