@@ -83,6 +83,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
       <input type="date" :value="inputDate" @input="emit('update:inputDate', $event.target.value)" class="input" />
       <span class="label">时间</span>
       <input type="time" :value="inputTime" @input="emit('update:inputTime', $event.target.value)" class="input" />
+      <button class="btn-now" @click="emit('setNow')">当前时间</button>
     </div>
 
     <div class="input-row">
@@ -91,7 +92,6 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         真太阳时
       </label>
       <span v-if="useTrueSolar && shichenInfo" class="tst-value">{{ shichenInfo.tstText }}- {{ shichenInfo.shichen.name }}({{ shichenInfo.scRange }})</span>
-      <button class="btn-now" @click="emit('setNow')">当前时间</button>
     </div>
 
     <div class="input-row paipan-row">
