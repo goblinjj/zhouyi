@@ -29,7 +29,7 @@ onMounted(() => {
   <div class="paipan-page">
     <!-- 起局仪式水印（每次排盘瞬时浮现） -->
     <div v-if="submitted" :key="paipanKey" class="ritual-overlay">
-      <span class="ritual-text">奇門起局</span>
+      <span class="ritual-text">起</span>
     </div>
 
     <TimeInput
@@ -93,15 +93,12 @@ onMounted(() => {
 .ritual-text {
   display: inline-block;
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
-  font-size: 3.2em;
-  letter-spacing: 0.45em;
-  text-indent: 0.45em;
+  font-size: 6em;
   color: #8b2500;
   text-shadow:
-    0 0 14px rgba(184, 134, 11, 0.55),
-    0 0 28px rgba(139, 37, 0, 0.35);
-  padding: 0.2em 0.6em;
-  white-space: nowrap;
+    0 0 18px rgba(184, 134, 11, 0.6),
+    0 0 36px rgba(139, 37, 0, 0.4);
+  padding: 0.15em 0.35em;
 }
 @keyframes ritual-flash {
   0% {
