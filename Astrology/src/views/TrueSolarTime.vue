@@ -240,7 +240,7 @@ function selectGender(g) {
 
       <!-- Shichen table -->
       <div v-if="result.shichenTable" class="shichen-table-wrapper">
-        <h3 class="section-title sub-title">十三时辰对照表</h3>
+        <h3 class="section-title sub-title">十二时辰对照表</h3>
         <table class="shichen-table">
           <thead>
             <tr>
