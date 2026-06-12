@@ -504,7 +504,7 @@ button:disabled {
         radial-gradient(circle at 30% 26%, rgba(196, 158, 98, 0.5), rgba(196, 158, 98, 0) 45%),
         radial-gradient(circle at 74% 78%, rgba(52, 36, 16, 0.55), rgba(52, 36, 16, 0) 50%),
         radial-gradient(circle at 50% 48%, #886835 0%, #6d4f27 56%, #553e1c 100%);
-    border: 1px solid #3c2c12;
+    border: 3px solid #2c1f0a;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -514,10 +514,12 @@ button:disabled {
     font-size: 24px;
     box-shadow:
         0 3px 7px rgba(35, 24, 12, 0.45),
-        /* 外缘高光：外廓凸起 */
-        inset 0 0 0 2px rgba(122, 94, 52, 0.65),
+        /* 外廓暗环（加厚） */
+        inset 0 0 0 4px rgba(46, 33, 11, 0.9),
+        /* 外廓内缘高光：凸起感 */
+        inset 0 0 0 6px rgba(128, 98, 54, 0.6),
         /* 田面内凹阴影 */
-        inset 0 0 6px 3px rgba(40, 26, 10, 0.5);
+        inset 0 0 7px 4px rgba(40, 26, 10, 0.5);
     transition: transform 0.3s ease-out, top 0.3s ease-out, left 0.3s ease-out;
 }
 
@@ -532,12 +534,14 @@ button:disabled {
 }
 
 /* ── 真·铜钱：天圆地方（外圆内方孔）+ 内廓 + 钱文 ── */
-/* 内层裁剪面：与外层圆形一致，二次裁掉溢出边界的钱文 */
+/* 内层裁剪面：裁到田面内圈（廓以内），压到外廓上的钱文笔画一律裁掉。
+   用 clip-path 圆形裁剪，不改变 .ch 的定位坐标。 */
 .coin-face {
     position: absolute;
     inset: 0;
     border-radius: 50%;
     overflow: hidden;
+    clip-path: circle(43% at 50% 50%);
 }
 
 .coin-hole {
