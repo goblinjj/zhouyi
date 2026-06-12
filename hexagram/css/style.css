@@ -532,6 +532,14 @@ button:disabled {
 }
 
 /* ── 真·铜钱：天圆地方（外圆内方孔）+ 内廓 + 钱文 ── */
+/* 内层裁剪面：与外层圆形一致，二次裁掉溢出边界的钱文 */
+.coin-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
 .coin-hole {
     position: absolute;
     top: 50%;
