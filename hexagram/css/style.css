@@ -580,6 +580,21 @@ button:disabled {
     letter-spacing: 0;
 }
 
+/* 背面只有左右两字，向内靠拢、贴近方孔并上下居中（覆盖共用的 .l/.r） */
+.coin .ch.manchu.l {
+    left: 18%;
+    right: auto;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.coin .ch.manchu.r {
+    right: 18%;
+    left: auto;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 /* Coin Animation */
 @keyframes spin {
     0% {
