@@ -586,6 +586,7 @@ button:disabled {
     right: auto;
     top: 50%;
     transform: translateY(-50%);
+    font-size: 0.76em;
 }
 
 .coin .ch.manchu.r {
@@ -593,6 +594,7 @@ button:disabled {
     left: auto;
     top: 50%;
     transform: translateY(-50%);
+    font-size: 0.54em;
 }
 
 /* Coin Animation */
