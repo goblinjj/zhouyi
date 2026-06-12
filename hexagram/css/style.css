@@ -574,22 +574,22 @@ button:disabled {
 .coin .ch.manchu {
     writing-mode: vertical-lr;
     font-family: "Noto Sans Mongolian", "Mongolian Baiti", "Noto Serif SC", serif;
-    font-size: 0.46em;
+    font-size: 0.62em;
     font-weight: 500;
-    line-height: 0.9;
+    line-height: 0.8;
     letter-spacing: 0;
 }
 
 /* 背面只有左右两字，向内靠拢、贴近方孔并上下居中（覆盖共用的 .l/.r） */
 .coin .ch.manchu.l {
-    left: 18%;
+    left: 13%;
     right: auto;
     top: 50%;
     transform: translateY(-50%);
 }
 
 .coin .ch.manchu.r {
-    right: 18%;
+    right: 13%;
     left: auto;
     top: 50%;
     transform: translateY(-50%);
