@@ -520,8 +520,12 @@ button:disabled {
     font-family: "Noto Serif SC", "Songti SC", serif;
     font-weight: 700;
     font-size: 0.72em;
-    color: inherit;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    /* 浮雕铸字：左上高光 + 右下投影，模拟铜钱凸起的钱文 */
+    color: #4a3209;
+    text-shadow:
+        -0.5px -0.5px 0 rgba(255, 238, 196, 0.55),
+        0.5px 0.5px 0.5px rgba(40, 26, 6, 0.55),
+        1px 1.5px 1.5px rgba(40, 26, 6, 0.35);
     pointer-events: none;
 }
 
