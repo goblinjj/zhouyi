@@ -477,6 +477,8 @@ button:disabled {
     width: 64px;
     height: 64px;
     border-radius: 50%;
+    /* 裁掉超出圆形边界的钱文（部分设备缺满文字体会回退并溢出） */
+    overflow: hidden;
     /* 斑驳青铜：受光高光 + 暗角包浆 + 主体棕铜 */
     background:
         radial-gradient(circle at 30% 26%, rgba(196, 158, 98, 0.5), rgba(196, 158, 98, 0) 45%),
