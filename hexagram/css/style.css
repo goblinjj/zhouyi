@@ -504,6 +504,65 @@ button:disabled {
     color: #5a3d0a;
 }
 
+/* ── 真·铜钱：天圆地方（外圆内方孔）+ 钱文 ── */
+.coin-hole {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30%;
+    height: 30%;
+    transform: translate(-50%, -50%);
+    border-radius: 2px;
+    background: var(--bg-paper);
+    box-shadow:
+        inset 0 1px 2px rgba(74, 52, 32, 0.55),
+        0 0 0 1px rgba(74, 52, 32, 0.35);
+}
+
+.coin .ch {
+    position: absolute;
+    line-height: 1;
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-weight: 700;
+    font-size: 0.72em;
+    color: inherit;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    pointer-events: none;
+}
+
+.coin .ch.t {
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.coin .ch.b {
+    bottom: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.coin .ch.l {
+    left: 8%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.coin .ch.r {
+    right: 8%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 背面满文：竖排书写，字号略小 */
+.coin .ch.manchu {
+    writing-mode: vertical-lr;
+    font-family: "Noto Sans Mongolian", "Mongolian Baiti", "Noto Serif SC", serif;
+    font-size: 0.5em;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
 /* Coin Animation */
 @keyframes spin {
     0% {

@@ -18,6 +18,15 @@ const variedHexContainer = document.getElementById('varied-hexagram');
 const divination = new Divination();
 const takashima = new Takashima();
 
+// 铜钱钱文：正面「乾隆通宝」（上下右左对读），背面满文「宝（左）泉（右）」宝泉局
+const COIN_FACE_FRONT = '<span class="ch t">乾</span><span class="ch b">隆</span><span class="ch r">通</span><span class="ch l">寶</span><span class="coin-hole"></span>';
+const COIN_FACE_BACK = '<span class="ch l manchu">ᠪᠣᠣ</span><span class="ch r manchu">ᠴᡳᠣᠸᠠᠨ</span><span class="coin-hole"></span>';
+
+// isYin=true 显示背面（满文），false 显示正面（乾隆通宝）
+function setCoinFace(coin, isYin) {
+    coin.innerHTML = isYin ? COIN_FACE_BACK : COIN_FACE_FRONT;
+}
+
 // Initialize Takashima data
 takashima.init();
 
@@ -336,7 +345,7 @@ function performToss() {
 
         // Reset class to start spin
         c.className = 'coin spinning';
-        c.innerText = '';
+        setCoinFace(c, false);
 
         // spin speed
         c.style.animationDuration = (0.5 + Math.random() * 0.3) + 's';
@@ -371,7 +380,7 @@ function performToss() {
             // Preserve spinning class, just toggle yin/yang class for color
             c.classList.remove('yin', 'yang');
             c.classList.add(isYin ? 'yin' : 'yang');
-            c.innerText = isYin ? "阴" : "阳";
+            setCoinFace(c, isYin);
         });
     }, 80);
 
@@ -391,10 +400,10 @@ function performToss() {
             // Set Final Face
             if (val === 2) {
                 c.classList.add('yin');
-                c.innerText = "阴";
+                setCoinFace(c, true);
             } else {
                 c.classList.add('yang');
-                c.innerText = "阳";
+                setCoinFace(c, false);
             }
 
             // Final resting rotation (random angle on floor)
