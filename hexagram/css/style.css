@@ -504,7 +504,7 @@ button:disabled {
         radial-gradient(circle at 30% 26%, rgba(196, 158, 98, 0.5), rgba(196, 158, 98, 0) 45%),
         radial-gradient(circle at 74% 78%, rgba(52, 36, 16, 0.55), rgba(52, 36, 16, 0) 50%),
         radial-gradient(circle at 50% 48%, #886835 0%, #6d4f27 56%, #553e1c 100%);
-    border: 3px solid #2c1f0a;
+    border: 1px solid rgba(44, 31, 10, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -514,12 +514,10 @@ button:disabled {
     font-size: 24px;
     box-shadow:
         0 3px 7px rgba(35, 24, 12, 0.45),
-        /* 外廓暗环（加厚） */
-        inset 0 0 0 4px rgba(46, 33, 11, 0.9),
-        /* 外廓内缘高光：凸起感 */
-        inset 0 0 0 6px rgba(128, 98, 54, 0.6),
-        /* 田面内凹阴影 */
-        inset 0 0 7px 4px rgba(40, 26, 10, 0.5);
+        /* 外廓：加宽的同色铜环凸起（高光，不用暗环） */
+        inset 0 0 0 5px rgba(150, 116, 66, 0.5),
+        /* 廓内缘向田面的过渡阴影，使廓显得更宽、更立体 */
+        inset 0 0 11px 6px rgba(45, 30, 12, 0.4);
     transition: transform 0.3s ease-out, top 0.3s ease-out, left 0.3s ease-out;
 }
 
