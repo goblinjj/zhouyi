@@ -22,9 +22,10 @@ const takashima = new Takashima();
 const COIN_FACE_FRONT = '<span class="ch t">乾</span><span class="ch b">隆</span><span class="ch r">通</span><span class="ch l">寶</span><span class="coin-hole"></span>';
 const COIN_FACE_BACK = '<span class="ch l manchu">ᠪᠣᠣ</span><span class="ch r manchu">ᠴᡳᠣᠸᠠᠨ</span><span class="coin-hole"></span>';
 
-// isYin=true 显示背面（满文），false 显示正面（乾隆通宝）
+// 字面（乾隆通宝）为阴，背面（满文）为阳
+// isYin=true 显示字面（乾隆通宝），false 显示背面（满文）
 function setCoinFace(coin, isYin) {
-    coin.innerHTML = isYin ? COIN_FACE_BACK : COIN_FACE_FRONT;
+    coin.innerHTML = isYin ? COIN_FACE_FRONT : COIN_FACE_BACK;
 }
 
 // Initialize Takashima data
