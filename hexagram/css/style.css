@@ -467,15 +467,15 @@ button:disabled {
 /* ── Coin Animation ── */
 .coin-container {
     position: relative;
-    width: 320px;
-    height: 200px;
+    width: 360px;
+    height: 220px;
     margin: 0 auto 20px auto;
 }
 
 .coin {
     position: absolute;
-    width: 64px;
-    height: 64px;
+    width: 84px;
+    height: 84px;
     border-radius: 50%;
     /* 裁掉超出圆形边界的钱文（部分设备缺满文字体会回退并溢出） */
     overflow: hidden;
@@ -491,7 +491,7 @@ button:disabled {
     font-family: "Noto Serif SC", serif;
     font-weight: 700;
     color: #3e2a08;
-    font-size: 18px;
+    font-size: 24px;
     box-shadow:
         0 3px 7px rgba(35, 24, 12, 0.45),
         /* 外缘高光：外廓凸起 */
@@ -1294,14 +1294,14 @@ button:disabled {
     }
 
     .coin-container {
-        width: 280px;
-        height: 180px;
+        width: 320px;
+        height: 200px;
     }
 
     .coin {
-        width: 56px;
-        height: 56px;
-        font-size: 16px;
+        width: 74px;
+        height: 74px;
+        font-size: 21px;
     }
 
     .modal-content {
@@ -1334,14 +1334,14 @@ button:disabled {
     }
 
     .coin-container {
-        width: 240px;
-        height: 150px;
+        width: 270px;
+        height: 170px;
     }
 
     .coin {
-        width: 48px;
-        height: 48px;
-        font-size: 15px;
+        width: 62px;
+        height: 62px;
+        font-size: 18px;
         border-width: 2px;
     }
 
