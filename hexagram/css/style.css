@@ -590,10 +590,12 @@ button:disabled {
 }
 
 .coin .ch.manchu.r {
-    right: 13%;
+    right: 11%;
     left: auto;
     top: 50%;
-    transform: translateY(-50%);
+    /* 字号(竖向)不变，仅横向拉宽，让左右撑满 */
+    transform: translateY(-50%) scaleX(1.6);
+    transform-origin: center;
     font-size: 0.54em;
 }
 
