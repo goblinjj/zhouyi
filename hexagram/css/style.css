@@ -1,5 +1,14 @@
 @import url('https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400;600;700&family=Ma+Shan+Zheng&display=swap');
 
+/* 自托管满文字体子集（Noto Sans Mongolian，仅含「宝泉」满文字符，约 7KB）。
+   自托管避免依赖 Google Fonts CDN，适配大陆网络环境。 */
+@font-face {
+    font-family: "Manchu Subset";
+    src: url("/hexagram/fonts/manchu.woff2") format("woff2");
+    font-display: swap;
+    unicode-range: U+1800-18AF, U+200C-200D, U+202F;
+}
+
 :root {
     --bg-color: #f4ece1;
     --bg-paper: #faf6ef;
@@ -303,6 +312,17 @@ button:disabled {
     transform: none;
 }
 
+/* 起卦 / 手动排盘 / 重置：上下排列、等宽、居中 */
+#cast-btn,
+#manual-input-btn,
+#reset-btn {
+    display: block;
+    width: 220px;
+    max-width: 80%;
+    margin: 0 auto 10px;
+    box-sizing: border-box;
+}
+
 #status-message {
     margin-top: 14px;
     font-size: 0.92em;
@@ -575,7 +595,7 @@ button:disabled {
 /* 背面满文：竖排书写 */
 .coin .ch.manchu {
     writing-mode: vertical-lr;
-    font-family: "Noto Sans Mongolian", "Mongolian Baiti", "Noto Serif SC", serif;
+    font-family: "Manchu Subset", "Noto Sans Mongolian", "Mongolian Baiti", serif;
     font-size: 0.62em;
     font-weight: 500;
     line-height: 0.8;
