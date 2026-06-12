@@ -492,12 +492,7 @@ button:disabled {
     transition: transform 0.3s ease-out, top 0.3s ease-out, left 0.3s ease-out;
 }
 
-.coin.yin {
-    background: radial-gradient(circle at 35% 35%, #c4b39a, #9e8e76 50%, #7a6b5d 100%);
-    border-color: #7a6b5d;
-    color: #4a3d30;
-}
-
+.coin.yin,
 .coin.yang {
     background: radial-gradient(circle at 35% 35%, #d4a84b, #a67c30 50%, #8b6914 100%);
     border-color: #8b6914;
@@ -590,14 +585,9 @@ button:disabled {
     animation: spin 0.6s infinite linear;
 }
 
-.coin.yang.spinning {
-    background-image: linear-gradient(45deg, #d4a84b, #f5e6c8, #d4a84b);
-}
-
+.coin.yang.spinning,
 .coin.yin.spinning {
-    background-image: linear-gradient(45deg, #c4b39a, #e8dfd0, #c4b39a);
-    border-color: #7a6b5d;
-    color: #4a3d30;
+    background-image: linear-gradient(45deg, #d4a84b, #f5e6c8, #d4a84b);
 }
 
 /* ── Modal ── */
