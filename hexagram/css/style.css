@@ -578,26 +578,31 @@ button:disabled {
     pointer-events: none;
 }
 
+/* 以方孔边缘为锚点定位，使每字内侧紧靠方孔（孔边约在 40%/60% 处） */
 .coin .ch.t {
-    top: 4%;
+    bottom: 60%;
+    top: auto;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .coin .ch.b {
-    bottom: 4%;
+    top: 60%;
+    bottom: auto;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .coin .ch.l {
-    left: 6%;
+    right: 60%;
+    left: auto;
     top: 50%;
     transform: translateY(-50%);
 }
 
 .coin .ch.r {
-    right: 6%;
+    left: 60%;
+    right: auto;
     top: 50%;
     transform: translateY(-50%);
 }
@@ -614,20 +619,20 @@ button:disabled {
 
 /* 背面只有左右两字，向内靠拢、贴近方孔并上下居中（覆盖共用的 .l/.r） */
 .coin .ch.manchu.l {
-    left: 13%;
-    right: auto;
+    right: 60%;
+    left: auto;
     top: 50%;
     transform: translateY(-50%);
     font-size: 0.76em;
 }
 
 .coin .ch.manchu.r {
-    right: 11%;
-    left: auto;
+    left: 60%;
+    right: auto;
     top: 50%;
-    /* 字号(竖向)不变，仅横向拉宽，让左右撑满 */
+    /* 字号(竖向)不变，仅横向拉宽，让左右撑满；从左缘向外拉宽，左缘紧靠方孔 */
     transform: translateY(-50%) scaleX(1.6);
-    transform-origin: center;
+    transform-origin: left center;
     font-size: 0.54em;
 }
 
