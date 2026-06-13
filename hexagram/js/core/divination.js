@@ -60,6 +60,15 @@ export class Divination {
         };
     }
 
+    // 互卦：取本卦内四爻互联。下卦取 2、3、4 爻，上卦取 3、4、5 爻。
+    // primaryLines 以初爻为索引 0（自下而上）。
+    huGua(primaryLines) {
+        return [
+            primaryLines[1], primaryLines[2], primaryLines[3], // 下卦：2、3、4 爻
+            primaryLines[2], primaryLines[3], primaryLines[4]  // 上卦：3、4、5 爻
+        ];
+    }
+
     identifyPalace(lines) {
         const lower = lines.slice(0, 3).join('');
         const upper = lines.slice(3, 6).join('');

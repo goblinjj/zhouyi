@@ -14,6 +14,7 @@ const statusMsg = document.getElementById('status-message');
 const dateInfo = document.getElementById('date-info');
 const primaryHexContainer = document.getElementById('primary-hexagram');
 const variedHexContainer = document.getElementById('varied-hexagram');
+const huHexContainer = document.getElementById('hu-hexagram');
 
 const divination = new Divination();
 const takashima = new Takashima();
@@ -228,6 +229,8 @@ window.startCasting = () => {
     primaryHexContainer.querySelector('.hexagram-info').innerHTML = '';
     variedHexContainer.style.display = 'none';
     variedHexContainer.querySelector('.hexagram-lines').innerHTML = '';
+    huHexContainer.style.display = 'none';
+    huHexContainer.querySelector('.hexagram-lines').innerHTML = '';
 
     castingBtn.innerText = castingButtonText[0];
     castingBtn.disabled = false;
@@ -562,8 +565,18 @@ function renderResult(castResult) {
         const variedBinaryCode = hexs.varied.join('');
         addTakashimaButton(variedHexContainer, variedBinaryCode, null, "变卦卦辞");
         addStudyLink(variedHexContainer, variedBinaryCode, variedName);
+
+        // 互卦：有动爻时由本卦内四爻互联生成
+        const huLines = divination.huGua(hexs.primary);
+        const huChart = divination.chart(huLines, currentDayStem);
+        huHexContainer.style.display = 'block';
+        renderHexagram(huHexContainer, huLines, huChart, null, 'Hu');
+        const huBinaryCode = huLines.join('');
+        addTakashimaButton(huHexContainer, huBinaryCode, null, "互卦卦辞");
+        addStudyLink(huHexContainer, huBinaryCode, huChart.name);
     } else {
         variedHexContainer.style.display = 'none';
+        huHexContainer.style.display = 'none';
     }
 
     // Save to history (skip when restoring)
@@ -910,6 +923,12 @@ function collectHexagramInfo() {
     if (hexs.varied) {
         const variedChart = divination.chart(hexs.varied, currentDayStem);
         info += `\n变卦：${variedChart.name}\n`;
+
+        // 互卦：本卦下卦取 2、3、4 爻，上卦取 3、4、5 爻
+        const huChart = divination.chart(divination.huGua(hexs.primary), currentDayStem);
+        const huPName = PALACE_CN[huChart.palace.palace] || huChart.palace.palace;
+        const huPalaceEl = ELEMENT_CN[PALACE_ELEMENTS[huChart.palace.palace]] || '';
+        info += `互卦：${huChart.name}（${huPName}宫${huPalaceEl}，由本卦下卦取二三四爻、上卦取三四五爻互联而成）\n`;
     }
 
     info += `\n日期：${dateInfo.textContent.trim()}\n`;
