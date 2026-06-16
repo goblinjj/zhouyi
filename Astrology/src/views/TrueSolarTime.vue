@@ -63,7 +63,7 @@ function handleClickOutside(e) {
 }
 
 onBeforeRouteLeave(() => {
-  document.title = '紫微斗数 - 在线排盘与星耀查询'
+  document.title = '紫微斗数 - 在线排盘与星曜查询'
 })
 
 onMounted(() => {

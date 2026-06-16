@@ -424,8 +424,8 @@ function generateStarPages() {
     }
 
     const filename = path.basename(file, '.js');
-    const title = `${star.title} - 紫微斗数星耀详解`;
-    const description = truncate(star.all || star['经典'] || `${star.title}星耀在紫微斗数中的赋性与十二宫解读`, 150);
+    const title = `${star.title} - 紫微斗数星曜详解`;
+    const description = truncate(star.all || star['经典'] || `${star.title}星曜在紫微斗数中的赋性与十二宫解读`, 150);
     const canonical = `${SITE}/astrology/star/${filename}.html`;
 
     let bodyHtml = `<h1>${escapeHtml(star.title)}</h1>`;
@@ -467,14 +467,14 @@ function generateStarPages() {
 
     // Navigation
     bodyHtml += `<div class="nav-links">
-      <a href="/astrology/stars">← 返回星耀列表</a>
+      <a href="/astrology/stars">← 返回星曜列表</a>
       <a href="/">首页</a>
     </div>`;
 
     const jsonLd = {
       '@context': 'https://schema.org',
       '@type': 'Article',
-      headline: `${star.title} - 紫微斗数星耀`,
+      headline: `${star.title} - 紫微斗数星曜`,
       description,
       url: canonical,
       isPartOf: { '@type': 'WebSite', name: '周易占卜', url: SITE },
@@ -489,7 +489,7 @@ function generateStarPages() {
       breadcrumbs: [
         { name: '首页', url: '/' },
         { name: '紫微斗数', url: '/astrology/' },
-        { name: '星耀', url: '/astrology/stars' },
+        { name: '星曜', url: '/astrology/stars' },
         { name: star.title },
       ],
     });

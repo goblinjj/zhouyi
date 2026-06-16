@@ -11,7 +11,7 @@ const router = createRouter({
     },
     {
       path: '/stars',
-      name: '星耀',
+      name: '星曜',
       component: () => import('../views/Home.vue')
     },
     {

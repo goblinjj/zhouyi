@@ -1,6 +1,6 @@
 {
-    "short_name": "星耀查询",
-    "name": "紫微斗数-星耀查询",
+    "short_name": "星曜查询",
+    "name": "紫微斗数-星曜查询",
     "start_url": "/",
     "display": "standalone",
     "icons": [

@@ -129,7 +129,7 @@ function generate() {
     },
     fixLeap: config.value.fixLeap,
   })
-  // 晚子归次日：星耀/日柱已按次日计算，但展示给用户的阳历/阴历保留其输入日
+  // 晚子归次日：星曜/日柱已按次日计算，但展示给用户的阳历/阴历保留其输入日
   if (timeIndex.value === 12) {
     const [iy, im, id] = date.value.split('-').map(Number)
     astrolabe.value.solarDate = date.value
@@ -570,7 +570,7 @@ function handleStarClick(name) {
        <div v-show="showSettings" class="form-compact">
       <nav class="compact-nav">
         <RouterLink class="compact-navlink" to="/">排盘</RouterLink>
-        <RouterLink class="compact-navlink" to="/stars">星耀</RouterLink>
+        <RouterLink class="compact-navlink" to="/stars">星曜</RouterLink>
         <RouterLink class="compact-navlink" to="/dianji">典籍</RouterLink>
         <RouterLink class="compact-navlink" to="/true-solar-time">真太阳时</RouterLink>
       </nav>

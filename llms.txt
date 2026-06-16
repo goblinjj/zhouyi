@@ -9,7 +9,7 @@ Website: https://zhouyi.goblin.top
 This site provides structured data on three domains of Chinese metaphysics:
 
 1. **I Ching Hexagrams (易经六十四卦)** — All 64 hexagrams with classical text, modern interpretation, and Takashima divination commentary for each hexagram and its six lines.
-2. **Zi Wei Dou Shu Stars (紫微斗数星耀)** — 53 stars/star-combinations with classical references, general descriptions, and interpretations across all 12 palaces.
+2. **Zi Wei Dou Shu Stars (紫微斗数星曜)** — 53 stars/star-combinations with classical references, general descriptions, and interpretations across all 12 palaces.
 3. **Zi Wei Dou Shu Classics (紫微斗数典籍)** — 23 classical texts including 太微赋, 形性赋, and other foundational treatises.
 4. **Qi Men Dun Jia (奇门遁甲)** — Time-based rotating board (时家转盘奇门) with true solar time correction, nine palaces display showing Heaven/Earth/Human/Spirit plates, and AI interpretation.
 
