@@ -88,8 +88,9 @@ function renderGrid() {
     }
 }
 
-// 当前选中的八卦（卦名），null 表示未筛选
+// 当前选中的八卦（卦名）及筛选位置：'upper'=上卦, 'lower'=下卦, null=未筛选
 let activeTrigram = null;
+let activePosition = null;
 
 // 先天八卦序：乾 兑 离 震 巽 坎 艮 坤
 const TRIGRAM_ORDER = ['111', '110', '101', '100', '011', '010', '001', '000'];
@@ -107,32 +108,52 @@ function renderTrigramFilter() {
         btn.title = `${info.name}（${info.nature}）`;
         btn.innerHTML =
             `<span class="trigram-btn-symbol">${info.symbol}</span>` +
-            `<span class="trigram-btn-name">${info.name}</span>`;
+            `<span class="trigram-btn-name">${info.name}</span>` +
+            `<span class="trigram-btn-pos"></span>`;
         btn.addEventListener('click', () => {
-            if (activeTrigram === info.name) {
-                activeTrigram = null;
-                btn.classList.remove('active');
-            } else {
+            // 三态循环：上卦 → 下卦 → 取消
+            if (activeTrigram !== info.name) {
                 activeTrigram = info.name;
-                container.querySelectorAll('.trigram-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                activePosition = 'upper';
+            } else if (activePosition === 'upper') {
+                activePosition = 'lower';
+            } else {
+                activeTrigram = null;
+                activePosition = null;
             }
+            updateTrigramButtons(container);
             applyFilter();
         });
         container.appendChild(btn);
     });
 }
 
-// 综合卦名搜索 + 八卦筛选
+function updateTrigramButtons(container) {
+    container.querySelectorAll('.trigram-btn').forEach(b => {
+        const pos = b.querySelector('.trigram-btn-pos');
+        if (b.dataset.trigram === activeTrigram) {
+            b.classList.add('active');
+            pos.textContent = activePosition === 'upper' ? '上' : '下';
+        } else {
+            b.classList.remove('active');
+            pos.textContent = '';
+        }
+    });
+}
+
+// 综合卦名搜索 + 八卦筛选（按上卦或下卦）
 function applyFilter() {
     const searchInput = document.getElementById('hex-search');
     const query = searchInput ? searchInput.value.trim() : '';
     document.querySelectorAll('.hex-cell').forEach(cell => {
         const name = cell.querySelector('.hex-cell-name');
         const textMatch = !query || (name && name.textContent.includes(query));
-        const trigramMatch = !activeTrigram ||
-            cell.dataset.upper === activeTrigram ||
-            cell.dataset.lower === activeTrigram;
+        let trigramMatch = true;
+        if (activeTrigram) {
+            trigramMatch = activePosition === 'upper'
+                ? cell.dataset.upper === activeTrigram
+                : cell.dataset.lower === activeTrigram;
+        }
         cell.style.display = (textMatch && trigramMatch) ? '' : 'none';
     });
 }
