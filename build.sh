@@ -57,6 +57,11 @@ if [ -d "functions" ]; then
   cp -r functions dist/functions
 fi
 
+# Copy Cloudflare Pages headers (HTML no-store + hashed assets immutable)
+if [ -f "_headers" ]; then
+  cp _headers dist/_headers
+fi
+
 echo "Build complete (v=$BUILD_VER). Output in dist/"
 
 # Deploy
