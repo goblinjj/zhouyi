@@ -47,9 +47,8 @@
 
 /* ── 八卦筛选 ── */
 .trigram-filter {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
     gap: 6px;
     margin-bottom: 16px;
 }
@@ -59,8 +58,7 @@
     flex-direction: column;
     align-items: center;
     gap: 1px;
-    min-width: 40px;
-    padding: 5px 9px;
+    padding: 5px 4px;
     font-family: "Noto Serif SC", "Songti SC", serif;
     border: 1px solid var(--border-color);
     border-radius: 3px;
@@ -251,6 +249,11 @@
         gap: 5px;
     }
 
+    .trigram-filter {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+
     .hex-cell-name {
         font-size: 12px;
     }
@@ -265,6 +268,10 @@
 @media (min-width: 561px) and (max-width: 680px) {
     .hexagram-grid {
         grid-template-columns: repeat(6, 1fr);
+    }
+
+    .trigram-filter {
+        grid-template-columns: repeat(8, 1fr);
     }
 }
 
