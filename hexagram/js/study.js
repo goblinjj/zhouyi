@@ -88,9 +88,10 @@ function renderGrid() {
     }
 }
 
-// 当前选中的八卦（卦名）及筛选位置：'upper'=上卦, 'lower'=下卦, null=未筛选
-let activeTrigram = null;
-let activePosition = null;
+// 两步选卦状态：0=未选, 1=已定上卦(待定下卦), 2=上下卦均定(锁定唯一卦)
+let selectStep = 0;
+let upperTrigram = null;
+let lowerTrigram = null;
 
 // 先天八卦序：乾 兑 离 震 巽 坎 艮 坤
 const TRIGRAM_ORDER = ['111', '110', '101', '100', '011', '010', '001', '000'];
@@ -111,15 +112,18 @@ function renderTrigramFilter() {
             `<span class="trigram-btn-name">${info.name}</span>` +
             `<span class="trigram-btn-pos"></span>`;
         btn.addEventListener('click', () => {
-            // 三态循环：上卦 → 下卦 → 取消
-            if (activeTrigram !== info.name) {
-                activeTrigram = info.name;
-                activePosition = 'upper';
-            } else if (activePosition === 'upper') {
-                activePosition = 'lower';
+            // 两步选卦：第1次定上卦 → 第2次定下卦(锁定唯一卦) → 第3次取消
+            if (selectStep === 0) {
+                upperTrigram = info.name;
+                lowerTrigram = null;
+                selectStep = 1;
+            } else if (selectStep === 1) {
+                lowerTrigram = info.name;
+                selectStep = 2;
             } else {
-                activeTrigram = null;
-                activePosition = null;
+                upperTrigram = null;
+                lowerTrigram = null;
+                selectStep = 0;
             }
             updateTrigramButtons(container);
             applyFilter();
@@ -131,17 +135,19 @@ function renderTrigramFilter() {
 function updateTrigramButtons(container) {
     container.querySelectorAll('.trigram-btn').forEach(b => {
         const pos = b.querySelector('.trigram-btn-pos');
-        if (b.dataset.trigram === activeTrigram) {
-            b.classList.add('active');
-            pos.textContent = activePosition === 'upper' ? '上' : '下';
-        } else {
-            b.classList.remove('active');
-            pos.textContent = '';
-        }
+        const name = b.dataset.trigram;
+        const isUpper = selectStep >= 1 && name === upperTrigram;
+        const isLower = selectStep >= 2 && name === lowerTrigram;
+        let label = '';
+        if (isUpper && isLower) label = '上下';
+        else if (isUpper) label = '上';
+        else if (isLower) label = '下';
+        pos.textContent = label;
+        b.classList.toggle('active', !!label);
     });
 }
 
-// 综合卦名搜索 + 八卦筛选（按上卦或下卦）
+// 综合卦名搜索 + 八卦筛选（上卦 → 上卦+下卦唯一定卦）
 function applyFilter() {
     const searchInput = document.getElementById('hex-search');
     const query = searchInput ? searchInput.value.trim() : '';
@@ -149,10 +155,11 @@ function applyFilter() {
         const name = cell.querySelector('.hex-cell-name');
         const textMatch = !query || (name && name.textContent.includes(query));
         let trigramMatch = true;
-        if (activeTrigram) {
-            trigramMatch = activePosition === 'upper'
-                ? cell.dataset.upper === activeTrigram
-                : cell.dataset.lower === activeTrigram;
+        if (selectStep === 1) {
+            trigramMatch = cell.dataset.upper === upperTrigram;
+        } else if (selectStep === 2) {
+            trigramMatch = cell.dataset.upper === upperTrigram &&
+                cell.dataset.lower === lowerTrigram;
         }
         cell.style.display = (textMatch && trigramMatch) ? '' : 'none';
     });
