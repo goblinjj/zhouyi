@@ -33,20 +33,11 @@ async function init() {
     }
 
     renderGrid();
+    renderTrigramFilter();
 
     const searchInput = document.getElementById('hex-search');
     if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim();
-            document.querySelectorAll('.hex-cell').forEach(cell => {
-                const name = cell.querySelector('.hex-cell-name');
-                if (!query || (name && name.textContent.includes(query))) {
-                    cell.style.display = '';
-                } else {
-                    cell.style.display = 'none';
-                }
-            });
-        });
+        searchInput.addEventListener('input', applyFilter);
     }
 
     // Open hexagram from URL param (e.g. ?hex=1)
@@ -67,6 +58,13 @@ function renderGrid() {
         const cell = document.createElement('div');
         cell.className = 'hex-cell';
         cell.dataset.id = id;
+        // 记录上下卦（八卦）名，供八卦筛选用。code 低三位=下卦，高三位=上卦
+        if (code && code.length === 6) {
+            const lower = TRIGRAM_INFO[code.substring(0, 3)];
+            const upper = TRIGRAM_INFO[code.substring(3, 6)];
+            if (lower) cell.dataset.lower = lower.name;
+            if (upper) cell.dataset.upper = upper.name;
+        }
         // Build mini 6-line hexagram (display top-to-bottom = reverse of binary)
         let linesHtml = '';
         if (code) {
@@ -88,6 +86,55 @@ function renderGrid() {
         cell.addEventListener('click', () => showHexDetail(id));
         grid.appendChild(cell);
     }
+}
+
+// 当前选中的八卦（卦名），null 表示未筛选
+let activeTrigram = null;
+
+// 先天八卦序：乾 兑 离 震 巽 坎 艮 坤
+const TRIGRAM_ORDER = ['111', '110', '101', '100', '011', '010', '001', '000'];
+
+function renderTrigramFilter() {
+    const container = document.getElementById('trigram-filter');
+    if (!container) return;
+
+    TRIGRAM_ORDER.forEach(bits => {
+        const info = TRIGRAM_INFO[bits];
+        const btn = document.createElement('button');
+        btn.className = 'trigram-btn';
+        btn.type = 'button';
+        btn.dataset.trigram = info.name;
+        btn.title = `${info.name}（${info.nature}）`;
+        btn.innerHTML =
+            `<span class="trigram-btn-symbol">${info.symbol}</span>` +
+            `<span class="trigram-btn-name">${info.name}</span>`;
+        btn.addEventListener('click', () => {
+            if (activeTrigram === info.name) {
+                activeTrigram = null;
+                btn.classList.remove('active');
+            } else {
+                activeTrigram = info.name;
+                container.querySelectorAll('.trigram-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            applyFilter();
+        });
+        container.appendChild(btn);
+    });
+}
+
+// 综合卦名搜索 + 八卦筛选
+function applyFilter() {
+    const searchInput = document.getElementById('hex-search');
+    const query = searchInput ? searchInput.value.trim() : '';
+    document.querySelectorAll('.hex-cell').forEach(cell => {
+        const name = cell.querySelector('.hex-cell-name');
+        const textMatch = !query || (name && name.textContent.includes(query));
+        const trigramMatch = !activeTrigram ||
+            cell.dataset.upper === activeTrigram ||
+            cell.dataset.lower === activeTrigram;
+        cell.style.display = (textMatch && trigramMatch) ? '' : 'none';
+    });
 }
 
 async function fetchHex(id) {
