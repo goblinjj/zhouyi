@@ -20,6 +20,7 @@ const boardTitleVaried = hexBoard.querySelector('.board-title-varied');
 const boardInfoPrimary = hexBoard.querySelector('.board-info-primary');
 const boardInfoVaried = hexBoard.querySelector('.board-info-varied');
 const huHexContainer = document.getElementById('hu-hexagram');
+const aiAction = document.getElementById('ai-action');
 
 const REL_CN = { "Parents": "父母", "Offspring": "子孙", "Official": "官鬼", "Wealth": "妻财", "Brothers": "兄弟" };
 const BEAST_CN = {
@@ -284,6 +285,7 @@ window.startCasting = () => {
         t.querySelector('.hexagram-name').textContent = '';
         t.querySelector('.hexagram-palace').textContent = '';
     });
+    aiAction.style.display = 'none';
     huHexContainer.style.display = 'none';
     huHexContainer.querySelector('.board-lines').innerHTML = '';
     huHexContainer.querySelector('.board-info-primary').innerHTML = '';
@@ -610,7 +612,8 @@ function renderResult(castResult) {
     const focal = takashima.calculateFocalElement(hexs.raw, primaryBinary, variedBinary);
     addTakashimaButton(boardInfoPrimary, focal.hexCode, focal.index, focal.description);
     addStudyLink(boardInfoPrimary, primaryBinary, primaryChart.name);
-    addAiButton(boardInfoPrimary);
+    addAiButton(aiAction);
+    aiAction.style.display = 'block';
 
     if (variedChart) {
         setBoardTitle(boardTitleVaried, variedChart);
@@ -739,8 +742,8 @@ function renderBoard(boardEl, { primaryChart, primaryLines, rawLines, variedChar
 
         if (hasHidden) {
             const hs = hidden[index];
-            html += '<div class="bc bc-hidden">' + (hs
-                ? `伏${REL_CN[hs.relation]}${BRANCH_CN[hs.branch]}${ELEMENT_CN[hs.element]}`
+            html += '<div class="bc bc-hidden" title="伏神">' + (hs
+                ? `<span>${REL_CN[hs.relation]}</span><span>${BRANCH_CN[hs.branch]}${ELEMENT_CN[hs.element]}</span>`
                 : '') + '</div>';
         }
 
@@ -759,7 +762,11 @@ function renderBoard(boardEl, { primaryChart, primaryLines, rawLines, variedChar
 
         // 六兽只随日干而定，本卦变卦相同，故只在末列出现一次
         const beast = primaryChart.sixBeasts ? primaryChart.sixBeasts[index] : "";
-        html += `<div class="bc bc-beast">${BEAST_CN[beast] || ''}</div>`;
+        const beastText = BEAST_CN[beast] || '';
+        html += `<div class="bc bc-beast">` +
+            `<span class="beast-full">${beastText}</span>` +
+            `<span class="beast-short">${beastText.charAt(0)}</span>` +
+            `</div>`;
 
         row.innerHTML = html;
         linesEl.appendChild(row);
@@ -900,7 +907,8 @@ function addTakashimaButton(container, binaryCode, movingLineIndex, description)
     }
 
     // Update text
-    btn.innerText = description ? `查看高岛易断 (${description})` : "查看高岛易断";
+    btn.innerText = "爻辞";
+    btn.title = description ? `高岛易断 · ${description}` : "高岛易断";
 
     // Update click handler with current context
     btn.onclick = () => {
@@ -1168,7 +1176,8 @@ function addStudyLink(container, binaryCode, hexName) {
     const hexId = takashima.indexMap ? takashima.indexMap[binaryCode] : null;
     if (hexId) {
         link.href = `study.html?hex=${hexId}`;
-        link.textContent = `查看${hexName || '卦象'}完整解释`;
+        link.textContent = '卦辞';
+        link.title = `${hexName || '卦象'}完整解释`;
         link.style.display = '';
     } else {
         link.style.display = 'none';
