@@ -174,25 +174,6 @@ const STEM_MAP = {
     "己": "Ji", "庚": "Geng", "辛": "Xin", "壬": "Ren", "癸": "Gui"
 };
 
-const BRANCH_ELEMENT_CN = {
-    "子": "Water", "丑": "Earth", "寅": "Wood", "卯": "Wood",
-    "辰": "Earth", "巳": "Fire", "午": "Fire", "未": "Earth",
-    "申": "Metal", "酉": "Metal", "戌": "Earth", "亥": "Water"
-};
-
-// 五行生克
-const GENERATE_MAP = { "Metal": "Water", "Water": "Wood", "Wood": "Fire", "Fire": "Earth", "Earth": "Metal" };
-const OVERCOME_MAP = { "Metal": "Wood", "Wood": "Earth", "Earth": "Water", "Water": "Fire", "Fire": "Metal" };
-
-function getElementStrength(monthElement, lineElement) {
-    if (monthElement === lineElement) return "旺";           // 同我
-    if (GENERATE_MAP[monthElement] === lineElement) return "相"; // 月生爻
-    if (GENERATE_MAP[lineElement] === monthElement) return "休"; // 爻生月
-    if (OVERCOME_MAP[lineElement] === monthElement) return "囚"; // 爻克月
-    if (OVERCOME_MAP[monthElement] === lineElement) return "死"; // 月克爻
-    return "";
-}
-
 const CLASH_MAP = {
     "子": "午", "午": "子", "丑": "未", "未": "丑",
     "寅": "申", "申": "寅", "卯": "酉", "酉": "卯",
@@ -664,53 +645,45 @@ function getLineSymbol(binaryVal, rawVal) {
     return binaryVal === 1 ? '/' : '//';
 }
 
-// 一爻的状态标签，按四角分配：
-// 左上=月建旺衰，右上=十二长生（日辰），左下=旬空，右下=日破/月破
-function buildCornerTags(element, branchText) {
+// 纳甲三角标：右上=十二长生（日辰），右下=旬空，左下=日破/月破
+function buildBranchTags(element, branchText) {
     let html = '';
-
-    if (currentMonthBranch) {
-        const monthEl = BRANCH_ELEMENT_CN[currentMonthBranch];
-        const strength = monthEl && element ? getElementStrength(monthEl, element) : "";
-        if (strength) {
-            const cls = {
-                "旺": "tag-wang", "相": "tag-xiang",
-                "休": "tag-xiu", "囚": "tag-qiu", "死": "tag-si"
-            }[strength] || "";
-            html += `<span class="tag corner-tl ${cls}">${strength}</span>`;
-        }
-    }
 
     const changSheng = getChangSheng(element, currentDayBranch);
     if (changSheng) {
-        html += `<span class="tag corner-tr ${STAGE_CLASS[changSheng] || 'tag-cs-flat'}">${changSheng}</span>`;
+        html += `<span class="bb-tag bb-cs ${STAGE_CLASS[changSheng] || 'tag-cs-flat'}">${changSheng}</span>`;
     }
 
+    // 旬空与日/月破挂在下沿，同一条 flex 里横排，避免互相压盖
+    let bottom = '';
     if (currentXunKong && currentXunKong.includes(branchText)) {
-        html += '<span class="tag corner-bl tag-kong">空</span>';
+        bottom += '<span class="bb-tag tag-kong">空</span>';
     }
 
     const isRiPo = currentDayBranch && CLASH_MAP[branchText] === currentDayBranch;
     const isYuePo = currentMonthBranch && CLASH_MAP[branchText] === currentMonthBranch;
     if (isRiPo && isYuePo) {
-        html += '<span class="tag corner-br tag-ripo">日月破</span>';
+        bottom += '<span class="bb-tag tag-ripo">日月破</span>';
     } else if (isRiPo) {
-        html += '<span class="tag corner-br tag-ripo">日破</span>';
+        bottom += '<span class="bb-tag tag-ripo">日破</span>';
     } else if (isYuePo) {
-        html += '<span class="tag corner-br tag-yuepo">月破</span>';
+        bottom += '<span class="bb-tag tag-yuepo">月破</span>';
     }
+    if (bottom) html += `<span class="bb-bottom">${bottom}</span>`;
 
     return html;
 }
 
-// 六亲 / 纳甲 / 爻符 (/ 世应) 一格，本卦与变卦共用
-function buildGuaCell(chartData, index, symbol, isMoving, withShiYing) {
+// 六亲 / 纳甲 / 爻符 (/ 世应) 一格，本卦与变卦共用。
+// showTags：变卦只有动爻变出的那一爻参与生克，静爻位不挂角标。
+function buildGuaCell(chartData, index, symbol, isMoving, withShiYing, showTags) {
     const relText = REL_CN[chartData.relations[index]] || '';
     const branchText = BRANCH_CN[chartData.branches[index]] || '';
     const elText = ELEMENT_CN[chartData.elements[index]] || '';
+    const tags = showTags ? buildBranchTags(chartData.elements[index], branchText) : '';
 
     let html = `<span class="bc-rel">${relText}</span>` +
-        `<span class="bc-branch">${branchText}${elText}</span>` +
+        `<span class="bc-branch">${branchText}${elText}${tags}</span>` +
         `<span class="bc-sym${isMoving ? ' moving' : ''}">${symbol}</span>`;
 
     if (withShiYing) {
@@ -748,25 +721,18 @@ function renderBoard(boardEl, { primaryChart, primaryLines, rawLines, variedChar
         }
 
         html += `<div class="bc bc-gua bc-primary">` +
-            buildGuaCell(primaryChart, index, getLineSymbol(val, raw), isMoving, true) +
+            buildGuaCell(primaryChart, index, getLineSymbol(val, raw), isMoving, true, true) +
             `</div>`;
-
-        const branchText = BRANCH_CN[primaryChart.branches[index]] || '';
-        html += `<div class="bc bc-tags">${buildCornerTags(primaryChart.elements[index], branchText)}</div>`;
 
         if (variedChart) {
             html += `<div class="bc bc-gua bc-varied">` +
-                buildGuaCell(variedChart, index, getLineSymbol(variedLines[index], null), false, false) +
+                buildGuaCell(variedChart, index, getLineSymbol(variedLines[index], null), false, false, isMoving) +
                 `</div>`;
         }
 
         // 六兽只随日干而定，本卦变卦相同，故只在末列出现一次
         const beast = primaryChart.sixBeasts ? primaryChart.sixBeasts[index] : "";
-        const beastText = BEAST_CN[beast] || '';
-        html += `<div class="bc bc-beast">` +
-            `<span class="beast-full">${beastText}</span>` +
-            `<span class="beast-short">${beastText.charAt(0)}</span>` +
-            `</div>`;
+        html += `<div class="bc bc-beast">${BEAST_CN[beast] || ''}</div>`;
 
         row.innerHTML = html;
         linesEl.appendChild(row);
@@ -980,6 +946,16 @@ function collectHexagramInfo() {
     if (hexs.varied) {
         const variedChart = divination.chart(hexs.varied, currentDayStem);
         info += `\n变卦：${variedChart.name}\n`;
+
+        // 变爻（动爻变出的那一爻）才参与生克，逐条列出
+        for (let i = 0; i < 6; i++) {
+            if (hexs.raw[i] !== 6 && hexs.raw[i] !== 9) continue;
+            const rel = REL_CN[variedChart.relations[i]] || '';
+            const branch = BRANCH_CN[variedChart.branches[i]] || '';
+            const element = ELEMENT_CN[variedChart.elements[i]] || '';
+            const cs = getChangSheng(variedChart.elements[i], currentDayBranch);
+            info += `  ${lineNames[i]}变出：${rel} ${branch}${element}${cs ? ` [${cs}]` : ''}\n`;
+        }
 
         // 互卦：本卦下卦取 2、3、4 爻，上卦取 3、4、5 爻
         const huChart = divination.chart(divination.huGua(hexs.primary), currentDayStem);

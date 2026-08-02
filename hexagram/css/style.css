@@ -215,18 +215,7 @@ h1 {
     font-weight: 600;
 }
 
-/* ── Tags (旬空/日破/月破/旺衰) ── */
-.tag {
-    display: inline-block;
-    font-size: 10px;
-    padding: 0 4px;
-    border-radius: 2px;
-    border: 1px solid;
-    line-height: 1.5;
-    font-weight: 600;
-    vertical-align: middle;
-}
-
+/* ── 纳甲角标配色（旬空 / 日破月破 / 十二长生）── */
 .tag-kong {
     color: #7b2d8e;
     border-color: #7b2d8e;
@@ -243,36 +232,6 @@ h1 {
     color: #d35400;
     border-color: #d35400;
     background: rgba(211, 84, 0, 0.08);
-}
-
-.tag-wang {
-    color: #27ae60;
-    border-color: #27ae60;
-    background: rgba(39, 174, 96, 0.08);
-}
-
-.tag-xiang {
-    color: #2ecc71;
-    border-color: #2ecc71;
-    background: rgba(46, 204, 113, 0.08);
-}
-
-.tag-xiu {
-    color: #95a5a6;
-    border-color: #95a5a6;
-    background: rgba(149, 165, 166, 0.08);
-}
-
-.tag-qiu {
-    color: #d35400;
-    border-color: #d35400;
-    background: rgba(211, 84, 0, 0.08);
-}
-
-.tag-si {
-    color: #c0392b;
-    border-color: #c0392b;
-    background: rgba(192, 57, 43, 0.08);
 }
 
 /* 十二长生（以日辰为准）：用实心底色，与描边式的旺衰/空破标签区分开 */
@@ -410,29 +369,28 @@ button:disabled {
 
 /* ── 爻表：本卦 / 标签 / 变卦 / 六兽 逐列对齐 ── */
 .hex-board {
-    /* 列宽全部固定，表头与爻行才能共用同一套列；窄屏只需调 font-size 与 --tagw */
-    font-size: 15px;
-    --tagw: 66px;
-    --gap: 8px;
+    /* 列宽全部固定，表头与爻行才能共用同一套列；窄屏只需调 font-size */
+    font-size: 16px;
+    --gap: 10px;
     /* 本卦格内含 4 个子列 + 3 条 2px 间隙；变卦格 3 个子列 + 2 条 */
     --w-primary: calc(7.6em + 6px);
     --w-varied: calc(6.5em + 4px);
     --w-beast: 2.6em;
     /* 列序：[伏神] 本卦 标签 [变卦] 六兽 */
-    --cols: var(--w-primary) var(--tagw) var(--w-varied) var(--w-beast);
+    --cols: var(--w-primary) var(--w-varied) var(--w-beast);
     overflow-x: auto;
 }
 
 .hex-board.has-hidden {
-    --cols: 2em var(--w-primary) var(--tagw) var(--w-varied) var(--w-beast);
+    --cols: 2em var(--w-primary) var(--w-varied) var(--w-beast);
 }
 
 .hex-board.no-varied {
-    --cols: var(--w-primary) var(--tagw) var(--w-beast);
+    --cols: var(--w-primary) var(--w-beast);
 }
 
 .hex-board.has-hidden.no-varied {
-    --cols: 2em var(--w-primary) var(--tagw) var(--w-beast);
+    --cols: 2em var(--w-primary) var(--w-beast);
 }
 
 /* width:max-content + margin auto：放得下时居中，放不下时可横向滚动而不裁切左侧 */
@@ -488,7 +446,7 @@ button:disabled {
 
 .bl-row {
     align-items: center;
-    min-height: 34px;
+    min-height: 46px;
     border-bottom: 1px dashed rgba(196, 169, 125, 0.4);
 }
 
@@ -552,38 +510,46 @@ button:disabled {
     letter-spacing: 0;
 }
 
-.bc-beast .beast-short {
-    display: none;
-}
+
 
 .bc-beast {
     font-size: 11px;
     color: var(--text-muted);
 }
 
-/* 标签列：一格四角各放一个标签，淡底框圈出归属 */
-.bc-tags {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 1px 2px;
-    align-items: center;
-    min-height: 30px;
-    padding: 2px 3px;
-    background: rgba(196, 169, 125, 0.09);
-    border-radius: 3px;
+/* 纳甲角标：上沿=十二长生，下沿=旬空 / 日破月破。
+   绝对定位悬浮在文字上下方，不压盖纳甲本身，也不占用列宽。 */
+.bc-branch {
+    position: relative;
 }
 
-.bc-tags .tag {
+.bb-tag {
     font-size: 9px;
+    line-height: 1.3;
     padding: 0 2px;
-    line-height: 1.4;
+    border-radius: 2px;
+    border: 1px solid;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
-.corner-tl { grid-area: 1 / 1; justify-self: start; }
-.corner-tr { grid-area: 1 / 2; justify-self: end; }
-.corner-bl { grid-area: 2 / 1; justify-self: start; }
-.corner-br { grid-area: 2 / 2; justify-self: end; }
+.bb-cs {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: -2px;
+    pointer-events: none;
+}
+
+.bb-bottom {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: -2px;
+    display: flex;
+    gap: 2px;
+    pointer-events: none;
+}
 
 /* 起卦过程中逐爻追加的行（尚未成卦） */
 .cast-row {
@@ -1524,9 +1490,8 @@ button:disabled {
     }
 
     .hex-board {
-        font-size: 12.5px;
-        --tagw: 58px;
-        --gap: 6px;
+        font-size: 15px;
+        --gap: 8px;
         padding: 16px 8px;
     }
 
@@ -1571,9 +1536,8 @@ button:disabled {
         padding: 20px;
     }
 
-    .tag {
+    .bb-tag {
         font-size: 9px;
-        padding: 0 3px;
     }
 }
 
@@ -1583,24 +1547,13 @@ button:disabled {
     }
 
     .hex-board {
-        font-size: 12px;
-        --tagw: 52px;
-        --w-beast: 1.4em;
-        --gap: 4px;
+        font-size: 14px;
+        --gap: 5px;
         padding: 14px 4px;
     }
 
-    .bc-beast .beast-full {
-        display: none;
-    }
-
-    .bc-beast .beast-short {
-        display: inline;
-    }
-
-    .bc-tags .tag {
-        font-size: 9px;
-        padding: 0 2px;
+    .bb-tag {
+        font-size: 8px;
     }
 
     .coin-container {
@@ -1620,9 +1573,8 @@ button:disabled {
         padding: 2px 8px;
     }
 
-    .tag {
+    .bb-tag {
         font-size: 8px;
-        padding: 0 2px;
     }
 
     h1 {
