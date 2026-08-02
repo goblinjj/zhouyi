@@ -131,27 +131,38 @@
             </div>
 
             <div class="divination-area">
-                <div class="hex-pair">
-                    <div id="primary-hexagram" class="hexagram-container" style="display:none;">
-                        <h2>本卦</h2>
-                        <div class="hexagram-subtitle"></div>
-                        <div class="hexagram-lines"></div>
-                        <div class="hexagram-info"></div>
+                <div id="hex-board" class="hexagram-container hex-board no-varied" style="display:none;">
+                    <div class="board-head">
+                        <div class="board-title board-title-primary">
+                            <h2>本卦</h2>
+                            <div class="hexagram-name"></div>
+                            <div class="hexagram-palace"></div>
+                        </div>
+                        <div class="board-title board-title-varied">
+                            <h2>变卦</h2>
+                            <div class="hexagram-name"></div>
+                            <div class="hexagram-palace"></div>
+                        </div>
                     </div>
-
-                    <div id="varied-hexagram" class="hexagram-container" style="display:none;">
-                        <h2>变卦</h2>
-                        <div class="hexagram-subtitle"></div>
-                        <div class="hexagram-lines"></div>
-                        <div class="hexagram-info"></div>
+                    <div class="board-lines"></div>
+                    <div class="board-actions">
+                        <div class="hexagram-info board-info-primary"></div>
+                        <div class="hexagram-info board-info-varied"></div>
                     </div>
                 </div>
 
-                <div id="hu-hexagram" class="hexagram-container" style="display:none;">
-                    <h2>互卦</h2>
-                    <div class="hexagram-subtitle"></div>
-                    <div class="hexagram-lines"></div>
-                    <div class="hexagram-info"></div>
+                <div id="hu-hexagram" class="hexagram-container hex-board no-varied" style="display:none;">
+                    <div class="board-head">
+                        <div class="board-title board-title-primary">
+                            <h2>互卦</h2>
+                            <div class="hexagram-name"></div>
+                            <div class="hexagram-palace"></div>
+                        </div>
+                    </div>
+                    <div class="board-lines"></div>
+                    <div class="board-actions">
+                        <div class="hexagram-info board-info-primary"></div>
+                    </div>
                 </div>
             </div>
 

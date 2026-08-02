@@ -13,9 +13,27 @@ const manualHint = document.getElementById('manual-hint');
 const resetBtn = document.getElementById('reset-btn');
 const statusMsg = document.getElementById('status-message');
 const dateInfo = document.getElementById('date-info');
-const primaryHexContainer = document.getElementById('primary-hexagram');
-const variedHexContainer = document.getElementById('varied-hexagram');
+const hexBoard = document.getElementById('hex-board');
+const boardLines = hexBoard.querySelector('.board-lines');
+const boardTitlePrimary = hexBoard.querySelector('.board-title-primary');
+const boardTitleVaried = hexBoard.querySelector('.board-title-varied');
+const boardInfoPrimary = hexBoard.querySelector('.board-info-primary');
+const boardInfoVaried = hexBoard.querySelector('.board-info-varied');
 const huHexContainer = document.getElementById('hu-hexagram');
+
+const REL_CN = { "Parents": "父母", "Offspring": "子孙", "Official": "官鬼", "Wealth": "妻财", "Brothers": "兄弟" };
+const BEAST_CN = {
+    "Green Dragon": "青龙", "Vermilion Bird": "朱雀", "Hook Snake": "勾陈",
+    "Flying Snake": "腾蛇", "White Tiger": "白虎", "Black Tortoise": "玄武"
+};
+const ELEMENT_CN = { "Metal": "金", "Wood": "木", "Water": "水", "Fire": "火", "Earth": "土" };
+const BRANCH_CN = {
+    "Zi": "子", "Chou": "丑", "Yin": "寅", "Mao": "卯", "Chen": "辰", "Si": "巳",
+    "Wu": "午", "Wei": "未", "Shen": "申", "You": "酉", "Xu": "戌", "Hai": "亥"
+};
+const PALACE_CN = {
+    "Qian": "乾", "Dui": "兑", "Li": "离", "Zhen": "震", "Xun": "巽", "Kan": "坎", "Gen": "艮", "Kun": "坤"
+};
 
 const divination = new Divination();
 const takashima = new Takashima();
@@ -221,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (urlParams.has('test')) {
         divination.cast();
         castingStep = 6;
-        primaryHexContainer.style.display = 'block';
         coinContainer.style.display = 'none';
         castingBtn.style.display = 'none';
         resetBtn.style.display = 'inline-block';
@@ -257,13 +274,19 @@ window.startCasting = () => {
     castingStep = 0;
     divination.reset();
     resetManualPanel();
-    primaryHexContainer.style.display = 'none';
-    primaryHexContainer.querySelector('.hexagram-lines').innerHTML = '';
-    primaryHexContainer.querySelector('.hexagram-info').innerHTML = '';
-    variedHexContainer.style.display = 'none';
-    variedHexContainer.querySelector('.hexagram-lines').innerHTML = '';
+    hexBoard.style.display = 'none';
+    hexBoard.classList.add('no-varied');
+    hexBoard.classList.remove('has-hidden');
+    boardLines.innerHTML = '';
+    boardInfoPrimary.innerHTML = '';
+    boardInfoVaried.innerHTML = '';
+    [boardTitlePrimary, boardTitleVaried].forEach(t => {
+        t.querySelector('.hexagram-name').textContent = '';
+        t.querySelector('.hexagram-palace').textContent = '';
+    });
     huHexContainer.style.display = 'none';
-    huHexContainer.querySelector('.hexagram-lines').innerHTML = '';
+    huHexContainer.querySelector('.board-lines').innerHTML = '';
+    huHexContainer.querySelector('.board-info-primary').innerHTML = '';
 
     castingBtn.innerText = castingButtonText[0];
     castingBtn.disabled = false;
@@ -328,7 +351,6 @@ manualSubmitBtn.addEventListener('click', () => {
 
     divination.castResult = raw;
     castingStep = 6;
-    primaryHexContainer.style.display = 'block';
     coinContainer.style.display = 'none';
     castingBtn.style.display = 'none';
     manualInputBtn.style.display = 'none';
@@ -503,13 +525,13 @@ function finishToss(lineVal) {
     castingStep++;
 
     if (castingStep === 1) {
-        primaryHexContainer.style.display = 'block';
+        hexBoard.style.display = 'block';
     }
 
     const stepName = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"][castingStep - 1];
     statusMsg.innerText = `${stepName}掷得: ${getLineName(lineVal)}`;
 
-    renderSingleLine(primaryHexContainer, lineVal, castingStep - 1);
+    renderSingleLine(lineVal, castingStep - 1);
 
     castingBtn.disabled = false;
 
@@ -552,84 +574,65 @@ function getLineName(val) {
     return "";
 }
 
-function renderSingleLine(container, val, index) {
-    const linesContainer = container.querySelector('.hexagram-lines');
-    const lineRow = document.createElement('div');
-    lineRow.className = 'line-row';
-
-    const leftDiv = document.createElement('div');
-    leftDiv.className = 'line-info-left';
-    leftDiv.innerText = `[${index + 1}]`;
-
-    const graphicDiv = document.createElement('div');
-    graphicDiv.className = 'line-graphic';
-
-    let isMoving = false;
-    let movingSymbol = "";
-    if (val === 6) { isMoving = true; movingSymbol = "X"; }
-    else if (val === 9) { isMoving = true; movingSymbol = "O"; }
-    if (isMoving) graphicDiv.classList.add('moving');
-
-    const lineDiv = document.createElement('div');
-    const isYang = (val % 2 !== 0);
-    lineDiv.className = isYang ? 'yang-line' : 'yin-line';
-    graphicDiv.appendChild(lineDiv);
-
-    const rightDiv = document.createElement('div');
-    rightDiv.className = 'line-info-right';
-    rightDiv.innerHTML = `${getLineName(val)} ${movingSymbol}`;
-
-    lineRow.appendChild(leftDiv);
-    lineRow.appendChild(graphicDiv);
-    lineRow.appendChild(rightDiv);
-
-    linesContainer.appendChild(lineRow);
+// 起卦过程中逐爻追加（此时尚未成卦，只有爻符与阴阳老少）
+function renderSingleLine(val, index) {
+    const isMoving = (val === 6 || val === 9);
+    const row = document.createElement('div');
+    row.className = 'cast-row';
+    row.innerHTML =
+        `<span class="cast-idx">${["初", "二", "三", "四", "五", "上"][index]}爻</span>` +
+        `<span class="cast-sym${isMoving ? ' moving' : ''}">${getLineSymbol(val % 2 !== 0 ? 1 : 0, val)}</span>` +
+        `<span class="cast-name">${getLineName(val)}</span>`;
+    boardLines.appendChild(row);
 }
 
 function renderResult(castResult) {
     const hexs = divination.getHexagrams();
-
-    // Render Primary
     const primaryChart = divination.chart(hexs.primary, currentDayStem);
-    renderHexagram(primaryHexContainer, hexs.primary, primaryChart, hexs.raw, 'Primary');
-
-    // Determine focal element for Takashima explanation
-    // Construct binary codes
     const primaryBinary = hexs.primary.join('');
-    // Varied might be null if no moving lines. 
-    // The calculateFocalElement expects variedCode string for 6-moving case.
+
+    const variedChart = hexs.varied ? divination.chart(hexs.varied, currentDayStem) : null;
+    const variedName = variedChart ? variedChart.name : null;
+
+    // 本卦与变卦共用一张爻表，逐爻同行对齐
+    renderBoard(hexBoard, {
+        primaryChart,
+        primaryLines: hexs.primary,
+        rawLines: hexs.raw,
+        variedChart,
+        variedLines: hexs.varied
+    });
+    setBoardTitle(boardTitlePrimary, primaryChart);
+    hexBoard.style.display = 'block';
+
+    // 高岛易断取用爻：无动爻取卦辞，单动取该爻，多动另有取法
     const variedBinary = hexs.varied ? hexs.varied.join('') : "";
-
     const focal = takashima.calculateFocalElement(hexs.raw, primaryBinary, variedBinary);
+    addTakashimaButton(boardInfoPrimary, focal.hexCode, focal.index, focal.description);
+    addStudyLink(boardInfoPrimary, primaryBinary, primaryChart.name);
+    addAiButton(boardInfoPrimary);
 
-    // Add button to Primary container
-    addTakashimaButton(primaryHexContainer, focal.hexCode, focal.index, focal.description);
-    addStudyLink(primaryHexContainer, primaryBinary, primaryChart.name);
-    addAiButton(primaryHexContainer);
-
-    // Render Varied
-    let variedName = null;
-    if (hexs.varied) {
-        variedHexContainer.style.display = 'block';
-        const variedChart = divination.chart(hexs.varied, currentDayStem);
-        variedName = variedChart.name;
-        renderHexagram(variedHexContainer, hexs.varied, variedChart, null, 'Varied');
-
-        // Add Takashima button for varied hexagram (general text, no moving line)
+    if (variedChart) {
+        setBoardTitle(boardTitleVaried, variedChart);
         const variedBinaryCode = hexs.varied.join('');
-        addTakashimaButton(variedHexContainer, variedBinaryCode, null, "变卦卦辞");
-        addStudyLink(variedHexContainer, variedBinaryCode, variedName);
+        addTakashimaButton(boardInfoVaried, variedBinaryCode, null, "变卦卦辞");
+        addStudyLink(boardInfoVaried, variedBinaryCode, variedName);
 
         // 互卦：有动爻时由本卦内四爻互联生成
         const huLines = divination.huGua(hexs.primary);
         const huChart = divination.chart(huLines, currentDayStem);
         huHexContainer.style.display = 'block';
-        renderHexagram(huHexContainer, huLines, huChart, null, 'Hu');
+        renderBoard(huHexContainer, { primaryChart: huChart, primaryLines: huLines, rawLines: null });
+        setBoardTitle(huHexContainer.querySelector('.board-title-primary'), huChart);
+        const huInfo = huHexContainer.querySelector('.board-info-primary');
         const huBinaryCode = huLines.join('');
-        addTakashimaButton(huHexContainer, huBinaryCode, null, "互卦卦辞");
-        addStudyLink(huHexContainer, huBinaryCode, huChart.name);
+        addTakashimaButton(huInfo, huBinaryCode, null, "互卦卦辞");
+        addStudyLink(huInfo, huBinaryCode, huChart.name);
     } else {
-        variedHexContainer.style.display = 'none';
+        // 无动爻：清掉上一卦可能残留的变卦标题与按钮
+        boardTitleVaried.querySelector('.hexagram-name').textContent = '';
+        boardTitleVaried.querySelector('.hexagram-palace').textContent = '';
+        boardInfoVaried.innerHTML = '';
         huHexContainer.style.display = 'none';
     }
 
@@ -637,151 +640,130 @@ function renderResult(castResult) {
     if (!renderResult._skipSave) {
         saveToHistory(hexs.raw, primaryChart.name, variedName);
     }
-
-    requestAnimationFrame(syncPairRowHeights);
 }
 
-// 本卦/变卦并排时逐爻对齐：同一爻位取两侧较高者作为行高
-function syncPairRowHeights() {
-    const left = primaryHexContainer.querySelectorAll('.hexagram-lines .line-row');
-    const right = variedHexContainer.querySelectorAll('.hexagram-lines .line-row');
-    left.forEach(r => { r.style.minHeight = ''; });
-    right.forEach(r => { r.style.minHeight = ''; });
-
-    if (variedHexContainer.style.display === 'none') return;
-    if (left.length !== right.length) return;
-
-    for (let i = 0; i < left.length; i++) {
-        const h = Math.max(left[i].offsetHeight, right[i].offsetHeight);
-        left[i].style.minHeight = `${h}px`;
-        right[i].style.minHeight = `${h}px`;
-    }
-}
-
-let resizeSyncTimer = null;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeSyncTimer);
-    resizeSyncTimer = setTimeout(syncPairRowHeights, 150);
-});
-
-function renderHexagram(container, binaryLines, chartData, rawLines, type) {
-    const linesContainer = container.querySelector('.hexagram-lines');
-    linesContainer.innerHTML = '';
-
-    const REL_CN = { "Parents": "父母", "Offspring": "子孙", "Official": "官鬼", "Wealth": "妻财", "Brothers": "兄弟" };
-    const BEAST_CN = {
-        "Green Dragon": "青龙", "Vermilion Bird": "朱雀", "Hook Snake": "勾陈",
-        "Flying Snake": "腾蛇", "White Tiger": "白虎", "Black Tortoise": "玄武"
-    };
-    const ELEMENT_CN = { "Metal": "金", "Wood": "木", "Water": "水", "Fire": "火", "Earth": "土" };
-    const BRANCH_CN = {
-        "Zi": "子", "Chou": "丑", "Yin": "寅", "Mao": "卯", "Chen": "辰", "Si": "巳",
-        "Wu": "午", "Wei": "未", "Shen": "申", "You": "酉", "Xu": "戌", "Hai": "亥"
-    };
-
-    binaryLines.forEach((val, index) => {
-        const lineRow = document.createElement('div');
-        lineRow.className = 'line-row line-row-text';
-
-        const relation = chartData.relations[index];
-        const beast = chartData.sixBeasts ? chartData.sixBeasts[index] : "";
-        const branch = chartData.branches[index];
-        const element = chartData.elements[index];
-        const shi = (chartData.palace.shi === (index + 1)) ? "世" : "";
-        const ying = (chartData.palace.ying === (index + 1)) ? "应" : "";
-
-        let hiddenText = "";
-        if (chartData.hiddenSpirits && chartData.hiddenSpirits[index]) {
-            const hs = chartData.hiddenSpirits[index];
-            const hsRel = REL_CN[hs.relation];
-            const hsBranch = BRANCH_CN[hs.branch];
-            const hsEl = ELEMENT_CN[hs.element];
-            hiddenText = `<span class="hidden-spirit">伏${hsRel}${hsBranch}${hsEl}</span>`;
-        }
-
-        let isMoving = false;
-        let movingSymbol = "";
-        if (type === 'Primary' && rawLines) {
-            const raw = rawLines[index];
-            if (raw === 6) {
-                isMoving = true;
-                movingSymbol = "X";
-            } else if (raw === 9) {
-                isMoving = true;
-                movingSymbol = "O";
-            }
-        }
-
-        const relText = REL_CN[relation] || relation;
-        const beastText = BEAST_CN[beast] || "";
-        const branchText = BRANCH_CN[branch] || branch;
-        const elText = ELEMENT_CN[element] || element;
-
-        let tags = '';
-        const changSheng = getChangSheng(element, currentDayBranch);
-        if (changSheng) {
-            tags += `<span class="tag ${STAGE_CLASS[changSheng] || 'tag-cs-flat'}">${changSheng}</span>`;
-        }
-        if (currentXunKong && currentXunKong.includes(branchText)) {
-            tags += '<span class="tag tag-kong">空</span>';
-        }
-        if (currentDayBranch && CLASH_MAP[branchText] === currentDayBranch) {
-            tags += '<span class="tag tag-ripo">日破</span>';
-        }
-        if (currentMonthBranch && CLASH_MAP[branchText] === currentMonthBranch) {
-            tags += '<span class="tag tag-yuepo">月破</span>';
-        }
-        if (currentMonthBranch) {
-            const monthEl = BRANCH_ELEMENT_CN[currentMonthBranch];
-            if (monthEl && element) {
-                const strength = getElementStrength(monthEl, element);
-                if (strength) {
-                    const strengthClass = {
-                        "旺": "tag-wang", "相": "tag-xiang",
-                        "休": "tag-xiu", "囚": "tag-qiu", "死": "tag-si"
-                    }[strength] || "";
-                    tags += `<span class="tag ${strengthClass}">${strength}</span>`;
-                }
-            }
-        }
-
-        // 本卦/变卦并排后横向空间有限，改为纯文字两段式：主行 + 标签行
-        if (isMoving) lineRow.classList.add('moving');
-
-        const mainDiv = document.createElement('div');
-        mainDiv.className = 'line-main';
-        mainDiv.innerHTML =
-            `<span class="lm-beast">${beastText}</span>` +
-            `<span class="lm-rel">${relText}</span>` +
-            `<span class="lm-branch">${branchText}${elText}</span>` +
-            `<span class="lm-sym ${val === 1 ? 'lm-yang' : 'lm-yin'}"></span>` +
-            (shi || ying ? `<span class="lm-shi">${shi}${ying}</span>` : '') +
-            (movingSymbol ? `<span class="lm-move">${movingSymbol}</span>` : '');
-
-        const tagDiv = document.createElement('div');
-        tagDiv.className = 'line-tags';
-        tagDiv.innerHTML = tags + hiddenText;
-
-        lineRow.appendChild(mainDiv);
-        lineRow.appendChild(tagDiv);
-
-        linesContainer.appendChild(lineRow);
-    });
-
-    const subtitleContainer = container.querySelector('.hexagram-subtitle');
-    const PALACE_CN = {
-        "Qian": "乾", "Dui": "兑", "Li": "离", "Zhen": "震", "Xun": "巽", "Kan": "坎", "Gen": "艮", "Kun": "坤"
-    };
+// 卦名 + 宫位世应，写入表头对应的一栏
+function setBoardTitle(titleEl, chartData) {
     const pName = PALACE_CN[chartData.palace.palace] || chartData.palace.palace;
     const genText = chartData.palace.generation === 6 ? "六冲" :
         (chartData.palace.generation === "YouHun" ? "游魂" :
             (chartData.palace.generation === "GuiHun" ? "归魂" :
                 chartData.palace.generation + "世"));
+    titleEl.querySelector('.hexagram-name').textContent = chartData.name;
+    titleEl.querySelector('.hexagram-palace').textContent =
+        `${pName}宫${ELEMENT_CN[PALACE_ELEMENTS[chartData.palace.palace]]} - ${genText}`;
+}
 
-    subtitleContainer.innerHTML = `
-        <div class="hexagram-name">${chartData.name}</div>
-        <div class="hexagram-palace">${pName}宫${ELEMENT_CN[PALACE_ELEMENTS[chartData.palace.palace]]} - ${genText}</div>
-    `;
+// 爻符：老阳 O、老阴 X（动爻），少阳 /、少阴 //（静爻）
+function getLineSymbol(binaryVal, rawVal) {
+    if (rawVal === 9) return 'O';
+    if (rawVal === 6) return 'X';
+    return binaryVal === 1 ? '/' : '//';
+}
+
+// 一爻的状态标签，按四角分配：
+// 左上=月建旺衰，右上=十二长生（日辰），左下=旬空，右下=日破/月破
+function buildCornerTags(element, branchText) {
+    let html = '';
+
+    if (currentMonthBranch) {
+        const monthEl = BRANCH_ELEMENT_CN[currentMonthBranch];
+        const strength = monthEl && element ? getElementStrength(monthEl, element) : "";
+        if (strength) {
+            const cls = {
+                "旺": "tag-wang", "相": "tag-xiang",
+                "休": "tag-xiu", "囚": "tag-qiu", "死": "tag-si"
+            }[strength] || "";
+            html += `<span class="tag corner-tl ${cls}">${strength}</span>`;
+        }
+    }
+
+    const changSheng = getChangSheng(element, currentDayBranch);
+    if (changSheng) {
+        html += `<span class="tag corner-tr ${STAGE_CLASS[changSheng] || 'tag-cs-flat'}">${changSheng}</span>`;
+    }
+
+    if (currentXunKong && currentXunKong.includes(branchText)) {
+        html += '<span class="tag corner-bl tag-kong">空</span>';
+    }
+
+    const isRiPo = currentDayBranch && CLASH_MAP[branchText] === currentDayBranch;
+    const isYuePo = currentMonthBranch && CLASH_MAP[branchText] === currentMonthBranch;
+    if (isRiPo && isYuePo) {
+        html += '<span class="tag corner-br tag-ripo">日月破</span>';
+    } else if (isRiPo) {
+        html += '<span class="tag corner-br tag-ripo">日破</span>';
+    } else if (isYuePo) {
+        html += '<span class="tag corner-br tag-yuepo">月破</span>';
+    }
+
+    return html;
+}
+
+// 六亲 / 纳甲 / 爻符 (/ 世应) 一格，本卦与变卦共用
+function buildGuaCell(chartData, index, symbol, isMoving, withShiYing) {
+    const relText = REL_CN[chartData.relations[index]] || '';
+    const branchText = BRANCH_CN[chartData.branches[index]] || '';
+    const elText = ELEMENT_CN[chartData.elements[index]] || '';
+
+    let html = `<span class="bc-rel">${relText}</span>` +
+        `<span class="bc-branch">${branchText}${elText}</span>` +
+        `<span class="bc-sym${isMoving ? ' moving' : ''}">${symbol}</span>`;
+
+    if (withShiYing) {
+        const shi = chartData.palace.shi === (index + 1) ? "世" : "";
+        const ying = chartData.palace.ying === (index + 1) ? "应" : "";
+        html += `<span class="bc-shi">${shi}${ying}</span>`;
+    }
+    return html;
+}
+
+// 渲染一张爻表。variedChart 为空时只有本卦一栏（起卦中 / 互卦 / 无动爻）
+function renderBoard(boardEl, { primaryChart, primaryLines, rawLines, variedChart, variedLines }) {
+    const linesEl = boardEl.querySelector('.board-lines');
+    linesEl.innerHTML = '';
+
+    const hidden = primaryChart.hiddenSpirits || {};
+    const hasHidden = Object.keys(hidden).length > 0;
+    boardEl.classList.toggle('no-varied', !variedChart);
+    boardEl.classList.toggle('has-hidden', hasHidden);
+
+    primaryLines.forEach((val, index) => {
+        const raw = rawLines ? rawLines[index] : null;
+        const isMoving = raw === 6 || raw === 9;
+
+        const row = document.createElement('div');
+        row.className = 'bl-row';
+
+        let html = '';
+
+        if (hasHidden) {
+            const hs = hidden[index];
+            html += '<div class="bc bc-hidden">' + (hs
+                ? `伏${REL_CN[hs.relation]}${BRANCH_CN[hs.branch]}${ELEMENT_CN[hs.element]}`
+                : '') + '</div>';
+        }
+
+        html += `<div class="bc bc-gua bc-primary">` +
+            buildGuaCell(primaryChart, index, getLineSymbol(val, raw), isMoving, true) +
+            `</div>`;
+
+        const branchText = BRANCH_CN[primaryChart.branches[index]] || '';
+        html += `<div class="bc bc-tags">${buildCornerTags(primaryChart.elements[index], branchText)}</div>`;
+
+        if (variedChart) {
+            html += `<div class="bc bc-gua bc-varied">` +
+                buildGuaCell(variedChart, index, getLineSymbol(variedLines[index], null), false, false) +
+                `</div>`;
+        }
+
+        // 六兽只随日干而定，本卦变卦相同，故只在末列出现一次
+        const beast = primaryChart.sixBeasts ? primaryChart.sixBeasts[index] : "";
+        html += `<div class="bc bc-beast">${BEAST_CN[beast] || ''}</div>`;
+
+        row.innerHTML = html;
+        linesEl.appendChild(row);
+    });
 }
 
 // Takashima Modal Logic
@@ -914,7 +896,7 @@ function addTakashimaButton(container, binaryCode, movingLineIndex, description)
         btn.style.fontSize = '14px';
         btn.style.padding = '5px 10px';
         btn.style.backgroundColor = '#666'; // Distinct from main action
-        container.querySelector('.hexagram-info').appendChild(btn);
+        container.appendChild(btn);
     }
 
     // Update text
@@ -954,20 +936,6 @@ aiModal.addEventListener('click', (e) => {
 function collectHexagramInfo() {
     const hexs = divination.getHexagrams();
     const primaryChart = divination.chart(hexs.primary, currentDayStem);
-
-    const REL_CN = { "Parents": "父母", "Offspring": "子孙", "Official": "官鬼", "Wealth": "妻财", "Brothers": "兄弟" };
-    const BEAST_CN = {
-        "Green Dragon": "青龙", "Vermilion Bird": "朱雀", "Hook Snake": "勾陈",
-        "Flying Snake": "腾蛇", "White Tiger": "白虎", "Black Tortoise": "玄武"
-    };
-    const ELEMENT_CN = { "Metal": "金", "Wood": "木", "Water": "水", "Fire": "火", "Earth": "土" };
-    const BRANCH_CN = {
-        "Zi": "子", "Chou": "丑", "Yin": "寅", "Mao": "卯", "Chen": "辰", "Si": "巳",
-        "Wu": "午", "Wei": "未", "Shen": "申", "You": "酉", "Xu": "戌", "Hai": "亥"
-    };
-    const PALACE_CN = {
-        "Qian": "乾", "Dui": "兑", "Li": "离", "Zhen": "震", "Xun": "巽", "Kan": "坎", "Gen": "艮", "Kun": "坤"
-    };
 
     const pName = PALACE_CN[primaryChart.palace.palace] || primaryChart.palace.palace;
     const palaceEl = ELEMENT_CN[PALACE_ELEMENTS[primaryChart.palace.palace]] || '';
@@ -1023,7 +991,7 @@ function addAiButton(container) {
         btn = document.createElement('button');
         btn.className = 'ai-btn';
         btn.style.marginTop = '10px';
-        container.querySelector('.hexagram-info').appendChild(btn);
+        container.appendChild(btn);
     }
     btn.innerText = 'AI 解卦';
     btn.onclick = () => {
@@ -1195,7 +1163,7 @@ function addStudyLink(container, binaryCode, hexName) {
         link = document.createElement('a');
         link.className = 'study-link';
         link.target = '_blank';
-        container.querySelector('.hexagram-info').appendChild(link);
+        container.appendChild(link);
     }
     const hexId = takashima.indexMap ? takashima.indexMap[binaryCode] : null;
     if (hexId) {
@@ -1318,7 +1286,6 @@ function restoreFromHistory(record) {
 
     divination.castResult = record.raw;
     castingStep = 6;
-    primaryHexContainer.style.display = 'block';
     coinContainer.style.display = 'none';
     castingBtn.style.display = 'none';
     resetBtn.style.display = 'inline-block';

@@ -357,31 +357,6 @@ button:disabled {
     gap: 20px;
 }
 
-/* 本卦 / 变卦 左右并排；无变卦时本卦独占整行 */
-.hex-pair {
-    display: flex;
-    align-items: stretch;
-    gap: 12px;
-}
-
-.hex-pair > .hexagram-container {
-    flex: 1 1 0;
-    min-width: 0;
-}
-
-/* 并排时列宽收窄：标题区留固定高度，按钮不许撑破列宽 */
-.hex-pair .hexagram-subtitle {
-    min-height: 3.2em;
-}
-
-.hex-pair .hexagram-info button {
-    max-width: 100%;
-}
-
-.hex-pair .study-link {
-    font-size: 12px;
-}
-
 .hexagram-container {
     width: 100%;
     margin-bottom: 0;
@@ -412,199 +387,6 @@ button:disabled {
     font-weight: 300;
 }
 
-/* ── Hexagram Lines ── */
-.hexagram-lines {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 10px;
-    margin: 16px 0;
-    align-items: center;
-}
-
-.line-row {
-    display: flex;
-    align-items: center;
-    min-height: 30px;
-    width: 100%;
-    justify-content: center;
-}
-
-.line-info-left {
-    flex: 1;
-    font-size: 12px;
-    text-align: left;
-    padding-right: 10px;
-    color: var(--text-muted);
-    letter-spacing: 0.02em;
-}
-
-.line-graphic {
-    width: 180px;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    position: relative;
-}
-
-/* Yang Line */
-.yang-line {
-    width: 100%;
-    height: 8px;
-    background-color: var(--line-yang-color);
-    border-radius: 1px;
-}
-
-/* Yin Line */
-.yin-line {
-    width: 100%;
-    height: 8px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.yin-line::before,
-.yin-line::after {
-    content: '';
-    width: 42%;
-    height: 100%;
-    background-color: var(--line-yin-color);
-    display: block;
-    border-radius: 1px;
-}
-
-/* Moving Lines */
-.moving .yang-line {
-    background-color: var(--line-moving-color);
-}
-
-.moving .yin-line::before,
-.moving .yin-line::after {
-    background-color: var(--line-moving-color);
-}
-
-.moving-indicator {
-    position: absolute;
-    right: -20px;
-    color: var(--line-moving-color);
-    font-weight: bold;
-}
-
-.line-info-right {
-    flex: 1;
-    font-size: 12px;
-    padding-left: 10px;
-    color: var(--text-muted);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 3px;
-    letter-spacing: 0.02em;
-    text-align: right;
-}
-
-/* ── 结果行（纯文字，无爻画横条）── */
-.line-row-text {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: center;
-    min-height: 38px;
-    gap: 1px;
-    padding: 2px 0;
-    border-bottom: 1px dashed rgba(196, 169, 125, 0.35);
-}
-
-.line-row-text:first-child {
-    border-bottom: none;
-}
-
-.line-main {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: center;
-    gap: 4px;
-    font-size: 13px;
-    color: var(--text-color);
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-}
-
-.lm-beast {
-    color: var(--text-muted);
-}
-
-.lm-branch {
-    font-weight: 600;
-}
-
-/* 微型爻符：替代原来 180px 的爻画横条，仅用于分辨阴阳 */
-.lm-sym {
-    display: inline-flex;
-    justify-content: space-between;
-    width: 20px;
-    height: 5px;
-    flex-shrink: 0;
-    align-self: center;
-}
-
-.lm-yang {
-    background-color: var(--line-yang-color);
-    border-radius: 1px;
-}
-
-.lm-yin::before,
-.lm-yin::after {
-    content: '';
-    width: 42%;
-    height: 100%;
-    background-color: var(--line-yin-color);
-    border-radius: 1px;
-}
-
-.moving .lm-yang {
-    background-color: var(--line-moving-color);
-}
-
-.moving .lm-yin::before,
-.moving .lm-yin::after {
-    background-color: var(--line-moving-color);
-}
-
-.lm-shi {
-    color: var(--accent-color);
-    font-weight: 700;
-}
-
-.lm-move {
-    color: var(--line-moving-color);
-    font-weight: 700;
-}
-
-.line-tags {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    line-height: 1.4;
-}
-
-.line-tags:empty {
-    display: none;
-}
-
-.hidden-spirit {
-    font-size: 10px;
-    color: #b03a2e;
-    letter-spacing: 0;
-}
-
-.hexagram-subtitle {
-    text-align: center;
-    margin-bottom: 12px;
-}
-
 .hexagram-name {
     font-size: 1.2em;
     font-weight: 600;
@@ -624,6 +406,228 @@ button:disabled {
     font-weight: 600;
     color: var(--text-color);
     letter-spacing: 0.05em;
+}
+
+/* ── 爻表：本卦 / 标签 / 变卦 / 六兽 逐列对齐 ── */
+.hex-board {
+    /* 列宽全部固定，表头与爻行才能共用同一套列；窄屏只需调 font-size 与 --tagw */
+    font-size: 15px;
+    --tagw: 66px;
+    --gap: 8px;
+    /* 本卦格内含 4 个子列 + 3 条 2px 间隙；变卦格 3 个子列 + 2 条 */
+    --w-primary: calc(7.6em + 6px);
+    --w-varied: calc(6.5em + 4px);
+    /* 列序：[伏神] 本卦 标签 [变卦] 六兽 */
+    --cols: var(--w-primary) var(--tagw) var(--w-varied) 2.6em;
+    overflow-x: auto;
+}
+
+.hex-board.has-hidden {
+    --cols: 4.8em var(--w-primary) var(--tagw) var(--w-varied) 2.6em;
+}
+
+.hex-board.no-varied {
+    --cols: var(--w-primary) var(--tagw) 2.6em;
+}
+
+.hex-board.has-hidden.no-varied {
+    --cols: 4.8em var(--w-primary) var(--tagw) 2.6em;
+}
+
+/* width:max-content + margin auto：放得下时居中，放不下时可横向滚动而不裁切左侧 */
+.board-head,
+.bl-row {
+    display: grid;
+    grid-template-columns: var(--cols);
+    gap: var(--gap);
+    width: max-content;
+    margin: 0 auto;
+}
+
+.board-head {
+    margin-bottom: 10px;
+    align-items: end;
+}
+
+/* 表头两栏各自压在对应的爻列上方 */
+.board-title-primary {
+    grid-column: 1 / -3;
+}
+
+.board-title-varied {
+    grid-column: -3 / -1;
+}
+
+.no-varied .board-title-primary {
+    grid-column: 1 / -1;
+}
+
+.no-varied .board-title-varied {
+    display: none;
+}
+
+.board-title h2 {
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.board-title .hexagram-name {
+    font-size: 17px;
+}
+
+.board-title .hexagram-palace {
+    font-size: 12px;
+}
+
+.board-lines {
+    display: flex;
+    flex-direction: column-reverse;
+    margin: 0 0 4px;
+}
+
+.bl-row {
+    align-items: center;
+    min-height: 34px;
+    border-bottom: 1px dashed rgba(196, 169, 125, 0.4);
+}
+
+.bl-row:first-child {
+    border-bottom: none;
+}
+
+.bc {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--text-color);
+    white-space: nowrap;
+}
+
+/* 本卦 / 变卦格内部：六亲、纳甲、爻符、世应 各占固定宽度 */
+.bc-gua {
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    gap: 2px;
+}
+
+.bc-primary {
+    grid-template-columns: 2.4em 2.4em 1.7em 1.1em;
+}
+
+.bc-varied {
+    grid-template-columns: 2.4em 2.4em 1.7em;
+}
+
+.bc-branch {
+    font-weight: 600;
+}
+
+.bc-sym {
+    font-family: "Menlo", "Consolas", monospace;
+    font-size: 1.05em;
+    letter-spacing: -0.05em;
+    color: var(--text-muted);
+}
+
+.bc-sym.moving {
+    color: var(--line-moving-color);
+    font-weight: 700;
+}
+
+.bc-shi {
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.bc-hidden {
+    font-size: 10px;
+    color: #b03a2e;
+    text-align: right;
+    letter-spacing: 0;
+}
+
+.bc-beast {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* 标签列：一格四角各放一个标签，淡底框圈出归属 */
+.bc-tags {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1px 2px;
+    align-items: center;
+    min-height: 30px;
+    padding: 2px 3px;
+    background: rgba(196, 169, 125, 0.09);
+    border-radius: 3px;
+}
+
+.bc-tags .tag {
+    font-size: 9px;
+    padding: 0 2px;
+    line-height: 1.4;
+}
+
+.corner-tl { grid-area: 1 / 1; justify-self: start; }
+.corner-tr { grid-area: 1 / 2; justify-self: end; }
+.corner-bl { grid-area: 2 / 1; justify-self: start; }
+.corner-br { grid-area: 2 / 2; justify-self: end; }
+
+/* 起卦过程中逐爻追加的行（尚未成卦） */
+.cast-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 32px;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.cast-idx {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    width: 3em;
+    text-align: right;
+}
+
+.cast-sym {
+    font-family: "Menlo", "Consolas", monospace;
+    width: 2em;
+    text-align: center;
+}
+
+.cast-sym.moving {
+    color: var(--line-moving-color);
+    font-weight: 700;
+}
+
+.cast-name {
+    width: 6em;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.9em;
+}
+
+/* 本卦 / 变卦 的按钮各占一半 */
+.board-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.board-actions > .hexagram-info {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.board-actions > .hexagram-info:empty {
+    display: none;
+}
+
+.board-actions button {
+    max-width: 100%;
 }
 
 /* ── Coin Animation ── */
@@ -1485,37 +1489,35 @@ button:disabled {
         font-size: 2em;
     }
 
-    .line-info-left {
+    .hex-board {
+        font-size: 12.5px;
+        --tagw: 58px;
+        --gap: 5px;
+        padding: 16px 8px;
+    }
+
+    .board-title h2 {
+        font-size: 14px;
+    }
+
+    .board-title .hexagram-name {
+        font-size: 15px;
+    }
+
+    .board-title .hexagram-palace {
         font-size: 11px;
     }
 
-    .line-info-right {
-        font-size: 11px;
+    .bc-beast {
+        font-size: 10px;
     }
 
-    .line-graphic {
-        width: 130px;
-    }
-
-    .hex-pair {
-        gap: 8px;
-    }
-
-    .hex-pair > .hexagram-container {
-        padding: 14px 6px;
-    }
-
-    .line-main {
-        font-size: 11px;
-        gap: 3px;
-    }
-
-    .line-row-text {
-        min-height: 34px;
-    }
-
-    .hidden-spirit {
+    .bc-hidden {
         font-size: 9px;
+    }
+
+    .board-actions {
+        gap: 8px;
     }
 
     .coin-container {
@@ -1546,33 +1548,15 @@ button:disabled {
         padding: 16px 10px;
     }
 
-    .line-info-left {
-        font-size: 10px;
-    }
-
-    .line-info-right {
-        font-size: 10px;
-    }
-
-    .line-graphic {
-        width: 110px;
-    }
-
-    .hex-pair {
-        gap: 5px;
-    }
-
-    .hex-pair > .hexagram-container {
-        padding: 12px 4px;
-    }
-
-    .line-main {
-        font-size: 10px;
-        gap: 2px;
-    }
-
-    .hex-pair .study-link {
+    .hex-board {
         font-size: 11px;
+        --tagw: 50px;
+        --gap: 3px;
+        padding: 14px 4px;
+    }
+
+    .bc-tags .tag {
+        font-size: 8px;
     }
 
     .coin-container {
