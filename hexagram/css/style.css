@@ -1184,7 +1184,6 @@ button:disabled {
     gap: 8px;
     margin: 0 auto 16px;
     max-width: 420px;
-    container-type: inline-size;
 }
 
 .manual-row {
@@ -1203,18 +1202,12 @@ button:disabled {
     letter-spacing: 0.05em;
 }
 
+/* 四个选项恒为一行：. 少阳 / .. 少阴 / O 老阳 / X 老阴 */
 .manual-options {
     flex: 1;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 6px;
-}
-
-/* 一行容纳不下 4 个选项时，改为 2×2：老阳/少阳，老阴/少阴 */
-@container (max-width: 360px) {
-    .manual-options {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
 .manual-options label {
@@ -1232,7 +1225,9 @@ button:disabled {
     box-sizing: border-box;
     text-align: center;
     font-family: "Noto Serif SC", "Songti SC", serif;
-    font-size: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
     padding: 4px 6px;
     border: 1px solid var(--border-color);
     border-radius: 3px;
@@ -1242,6 +1237,17 @@ button:disabled {
     transition: all 0.2s;
     letter-spacing: 0.03em;
     white-space: nowrap;
+}
+
+/* 点号落在基线上，靠不对称内边距抬到按钮中线（与爻表 .bc-sym-dot 观感一致） */
+.manual-options .opt-dot {
+    letter-spacing: -0.02em;
+    padding-top: 0;
+    padding-bottom: 8px;
+}
+
+.manual-options .opt-moving {
+    color: var(--line-moving-color);
 }
 
 .manual-options input[type="radio"]:checked + .opt-btn {
