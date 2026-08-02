@@ -493,11 +493,13 @@ button:disabled {
     font-weight: 700;
 }
 
-/* 静爻的点号落在基线上，抬到中线并拉开间距，两点才分得清 */
+/* 静爻的点号：等宽字体下每点独占一格会被拉开，改用比例字体让两点紧挨；
+   点落在基线上，需抬到中线 */
 .bc-sym-dot {
-    letter-spacing: 0.25em;
+    font-family: inherit;
+    letter-spacing: -0.02em;
     font-weight: 700;
-    transform: translateY(-0.35em);
+    transform: translateY(-0.3em);
 }
 
 .bc-shi {
