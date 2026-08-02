@@ -275,6 +275,26 @@ h1 {
     background: rgba(192, 57, 43, 0.08);
 }
 
+/* 十二长生（以日辰为准）：用实心底色，与描边式的旺衰/空破标签区分开 */
+.tag-cs-good,
+.tag-cs-bad,
+.tag-cs-flat {
+    color: #faf6ef;
+    border-color: transparent;
+}
+
+.tag-cs-good {
+    background: #1f7a4d;
+}
+
+.tag-cs-bad {
+    background: #a61e4d;
+}
+
+.tag-cs-flat {
+    background: #8c8378;
+}
+
 /* ── Controls ── */
 .controls {
     text-align: center;
@@ -335,6 +355,31 @@ button:disabled {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+/* 本卦 / 变卦 左右并排；无变卦时本卦独占整行 */
+.hex-pair {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.hex-pair > .hexagram-container {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* 并排时列宽收窄：标题区留固定高度，按钮不许撑破列宽 */
+.hex-pair .hexagram-subtitle {
+    min-height: 3.2em;
+}
+
+.hex-pair .hexagram-info button {
+    max-width: 100%;
+}
+
+.hex-pair .study-link {
+    font-size: 12px;
 }
 
 .hexagram-container {
@@ -456,6 +501,103 @@ button:disabled {
     gap: 3px;
     letter-spacing: 0.02em;
     text-align: right;
+}
+
+/* ── 结果行（纯文字，无爻画横条）── */
+.line-row-text {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 38px;
+    gap: 1px;
+    padding: 2px 0;
+    border-bottom: 1px dashed rgba(196, 169, 125, 0.35);
+}
+
+.line-row-text:first-child {
+    border-bottom: none;
+}
+
+.line-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-color);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.lm-beast {
+    color: var(--text-muted);
+}
+
+.lm-branch {
+    font-weight: 600;
+}
+
+/* 微型爻符：替代原来 180px 的爻画横条，仅用于分辨阴阳 */
+.lm-sym {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 20px;
+    height: 5px;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.lm-yang {
+    background-color: var(--line-yang-color);
+    border-radius: 1px;
+}
+
+.lm-yin::before,
+.lm-yin::after {
+    content: '';
+    width: 42%;
+    height: 100%;
+    background-color: var(--line-yin-color);
+    border-radius: 1px;
+}
+
+.moving .lm-yang {
+    background-color: var(--line-moving-color);
+}
+
+.moving .lm-yin::before,
+.moving .lm-yin::after {
+    background-color: var(--line-moving-color);
+}
+
+.lm-shi {
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.lm-move {
+    color: var(--line-moving-color);
+    font-weight: 700;
+}
+
+.line-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    line-height: 1.4;
+}
+
+.line-tags:empty {
+    display: none;
+}
+
+.hidden-spirit {
+    font-size: 10px;
+    color: #b03a2e;
+    letter-spacing: 0;
 }
 
 .hexagram-subtitle {
@@ -1089,6 +1231,33 @@ button:disabled {
     margin: 0 auto;
 }
 
+/* 未选满六爻时的提示与高亮 */
+.manual-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--accent-color);
+    margin: 0 0 10px;
+    letter-spacing: 0.05em;
+}
+
+.manual-row-missing .manual-label {
+    color: var(--accent-color);
+}
+
+.manual-row-missing .opt-btn {
+    border-color: var(--accent-color);
+}
+
+.manual-row-missing {
+    animation: manualShake 0.4s ease;
+}
+
+@keyframes manualShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
 /* ── Study Link ── */
 .study-link {
     display: block;
@@ -1328,6 +1497,27 @@ button:disabled {
         width: 130px;
     }
 
+    .hex-pair {
+        gap: 8px;
+    }
+
+    .hex-pair > .hexagram-container {
+        padding: 14px 6px;
+    }
+
+    .line-main {
+        font-size: 11px;
+        gap: 3px;
+    }
+
+    .line-row-text {
+        min-height: 34px;
+    }
+
+    .hidden-spirit {
+        font-size: 9px;
+    }
+
     .coin-container {
         width: 320px;
         height: 200px;
@@ -1366,6 +1556,23 @@ button:disabled {
 
     .line-graphic {
         width: 110px;
+    }
+
+    .hex-pair {
+        gap: 5px;
+    }
+
+    .hex-pair > .hexagram-container {
+        padding: 12px 4px;
+    }
+
+    .line-main {
+        font-size: 10px;
+        gap: 2px;
+    }
+
+    .hex-pair .study-link {
+        font-size: 11px;
     }
 
     .coin-container {

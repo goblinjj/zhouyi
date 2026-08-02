@@ -9,6 +9,7 @@ const castingBtn = document.getElementById('cast-btn');
 const manualInputBtn = document.getElementById('manual-input-btn');
 const manualInputPanel = document.getElementById('manual-input-panel');
 const manualSubmitBtn = document.getElementById('manual-submit-btn');
+const manualHint = document.getElementById('manual-hint');
 const resetBtn = document.getElementById('reset-btn');
 const statusMsg = document.getElementById('status-message');
 const dateInfo = document.getElementById('date-info');
@@ -179,6 +180,23 @@ const CLASH_MAP = {
     "辰": "戌", "戌": "辰", "巳": "亥", "亥": "巳"
 };
 
+// ── 十二长生（以日辰为准，阳生顺行；火土同宫长生在寅）──
+const BRANCH_ORDER = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+const TWELVE_STAGES = ["长生", "沐浴", "冠带", "临官", "帝旺", "衰", "病", "死", "墓", "绝", "胎", "养"];
+const CHANG_SHENG_START = { "Metal": "巳", "Wood": "亥", "Water": "申", "Fire": "寅", "Earth": "寅" };
+const STAGE_CLASS = {
+    "长生": "tag-cs-good", "冠带": "tag-cs-good", "临官": "tag-cs-good", "帝旺": "tag-cs-good",
+    "病": "tag-cs-bad", "死": "tag-cs-bad", "墓": "tag-cs-bad", "绝": "tag-cs-bad"
+};
+
+// 取某爻五行在日支上所处的十二长生位
+function getChangSheng(element, dayBranch) {
+    const start = CHANG_SHENG_START[element];
+    if (!start || !dayBranch) return "";
+    const offset = (BRANCH_ORDER.indexOf(dayBranch) - BRANCH_ORDER.indexOf(start) + 12) % 12;
+    return TWELVE_STAGES[offset];
+}
+
 let currentDayStem = "Jia";
 let currentXunKong = "";
 let currentDayBranch = "";
@@ -221,9 +239,24 @@ const castingButtonText = [
 let castingStep = 0;
 const coinContainer = document.getElementById('coin-container');
 
+// 手动排盘面板恢复初始态：六爻全部未选中
+function resetManualPanel() {
+    manualInputPanel.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; });
+    manualInputPanel.querySelectorAll('.manual-row-missing').forEach(row => row.classList.remove('manual-row-missing'));
+    manualHint.style.display = 'none';
+}
+
+// 选中某爻后立即消掉该行的未选提示
+manualInputPanel.addEventListener('change', (e) => {
+    const row = e.target.closest('.manual-row');
+    if (row) row.classList.remove('manual-row-missing');
+    if (!manualInputPanel.querySelector('.manual-row-missing')) manualHint.style.display = 'none';
+});
+
 window.startCasting = () => {
     castingStep = 0;
     divination.reset();
+    resetManualPanel();
     primaryHexContainer.style.display = 'none';
     primaryHexContainer.querySelector('.hexagram-lines').innerHTML = '';
     primaryHexContainer.querySelector('.hexagram-info').innerHTML = '';
@@ -267,10 +300,31 @@ manualInputBtn.addEventListener('click', () => {
 
 manualSubmitBtn.addEventListener('click', () => {
     const raw = [];
+    const missing = [];
+    const LINE_NAMES = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
     for (let i = 0; i < 6; i++) {
         const selected = document.querySelector(`input[name="line${i}"]:checked`);
+        if (!selected) {
+            missing.push(i);
+            continue;
+        }
         raw.push(parseInt(selected.value));
     }
+
+    // 六爻必须全部选定才能排盘
+    if (missing.length > 0) {
+        manualHint.textContent = `请先选择：${missing.map(i => LINE_NAMES[i]).join('、')}`;
+        manualHint.style.display = 'block';
+        missing.forEach(i => {
+            const row = document.querySelector(`.manual-row[data-line="${i}"]`);
+            if (!row) return;
+            row.classList.remove('manual-row-missing');
+            void row.offsetWidth; // 重启动画
+            row.classList.add('manual-row-missing');
+        });
+        return;
+    }
+    manualHint.style.display = 'none';
 
     divination.castResult = raw;
     castingStep = 6;
@@ -583,7 +637,32 @@ function renderResult(castResult) {
     if (!renderResult._skipSave) {
         saveToHistory(hexs.raw, primaryChart.name, variedName);
     }
+
+    requestAnimationFrame(syncPairRowHeights);
 }
+
+// 本卦/变卦并排时逐爻对齐：同一爻位取两侧较高者作为行高
+function syncPairRowHeights() {
+    const left = primaryHexContainer.querySelectorAll('.hexagram-lines .line-row');
+    const right = variedHexContainer.querySelectorAll('.hexagram-lines .line-row');
+    left.forEach(r => { r.style.minHeight = ''; });
+    right.forEach(r => { r.style.minHeight = ''; });
+
+    if (variedHexContainer.style.display === 'none') return;
+    if (left.length !== right.length) return;
+
+    for (let i = 0; i < left.length; i++) {
+        const h = Math.max(left[i].offsetHeight, right[i].offsetHeight);
+        left[i].style.minHeight = `${h}px`;
+        right[i].style.minHeight = `${h}px`;
+    }
+}
+
+let resizeSyncTimer = null;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeSyncTimer);
+    resizeSyncTimer = setTimeout(syncPairRowHeights, 150);
+});
 
 function renderHexagram(container, binaryLines, chartData, rawLines, type) {
     const linesContainer = container.querySelector('.hexagram-lines');
@@ -602,7 +681,7 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
 
     binaryLines.forEach((val, index) => {
         const lineRow = document.createElement('div');
-        lineRow.className = 'line-row';
+        lineRow.className = 'line-row line-row-text';
 
         const relation = chartData.relations[index];
         const beast = chartData.sixBeasts ? chartData.sixBeasts[index] : "";
@@ -617,7 +696,7 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
             const hsRel = REL_CN[hs.relation];
             const hsBranch = BRANCH_CN[hs.branch];
             const hsEl = ELEMENT_CN[hs.element];
-            hiddenText = `<span style="color:red; font-size:0.8em; margin-left:5px;">(伏: ${hsRel}${hsBranch}${hsEl})</span>`;
+            hiddenText = `<span class="hidden-spirit">伏${hsRel}${hsBranch}${hsEl}</span>`;
         }
 
         let isMoving = false;
@@ -638,9 +717,11 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
         const branchText = BRANCH_CN[branch] || branch;
         const elText = ELEMENT_CN[element] || element;
 
-        const leftText = `${beastText} ${relText}`;
-
         let tags = '';
+        const changSheng = getChangSheng(element, currentDayBranch);
+        if (changSheng) {
+            tags += `<span class="tag ${STAGE_CLASS[changSheng] || 'tag-cs-flat'}">${changSheng}</span>`;
+        }
         if (currentXunKong && currentXunKong.includes(branchText)) {
             tags += '<span class="tag tag-kong">空</span>';
         }
@@ -664,27 +745,25 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
             }
         }
 
-        const rightText = `${branchText}${elText} ${shi}${ying} ${movingSymbol} ${tags} ${hiddenText}`;
+        // 本卦/变卦并排后横向空间有限，改为纯文字两段式：主行 + 标签行
+        if (isMoving) lineRow.classList.add('moving');
 
-        const leftDiv = document.createElement('div');
-        leftDiv.className = 'line-info-left';
-        leftDiv.innerHTML = leftText;
+        const mainDiv = document.createElement('div');
+        mainDiv.className = 'line-main';
+        mainDiv.innerHTML =
+            `<span class="lm-beast">${beastText}</span>` +
+            `<span class="lm-rel">${relText}</span>` +
+            `<span class="lm-branch">${branchText}${elText}</span>` +
+            `<span class="lm-sym ${val === 1 ? 'lm-yang' : 'lm-yin'}"></span>` +
+            (shi || ying ? `<span class="lm-shi">${shi}${ying}</span>` : '') +
+            (movingSymbol ? `<span class="lm-move">${movingSymbol}</span>` : '');
 
-        const graphicDiv = document.createElement('div');
-        graphicDiv.className = 'line-graphic';
-        if (isMoving) graphicDiv.classList.add('moving');
+        const tagDiv = document.createElement('div');
+        tagDiv.className = 'line-tags';
+        tagDiv.innerHTML = tags + hiddenText;
 
-        const lineDiv = document.createElement('div');
-        lineDiv.className = val === 1 ? 'yang-line' : 'yin-line';
-        graphicDiv.appendChild(lineDiv);
-
-        const rightDiv = document.createElement('div');
-        rightDiv.className = 'line-info-right';
-        rightDiv.innerHTML = rightText;
-
-        lineRow.appendChild(leftDiv);
-        lineRow.appendChild(graphicDiv);
-        lineRow.appendChild(rightDiv);
+        lineRow.appendChild(mainDiv);
+        lineRow.appendChild(tagDiv);
 
         linesContainer.appendChild(lineRow);
     });
@@ -901,7 +980,7 @@ function collectHexagramInfo() {
     info += `世爻：第${primaryChart.palace.shi}爻  应爻：第${primaryChart.palace.ying}爻\n\n`;
 
     const lineNames = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
-    info += `六爻详情（从初爻到上爻）：\n`;
+    info += `六爻详情（从初爻到上爻；方括号标注世应、动爻、旬空、日破，以及以日辰为准的十二长生）：\n`;
 
     for (let i = 0; i < 6; i++) {
         const rel = REL_CN[primaryChart.relations[i]] || primaryChart.relations[i];
@@ -916,8 +995,10 @@ function collectHexagramInfo() {
         if (currentXunKong && currentXunKong.includes(branch)) xunkongTag = ' [旬空]';
         let ripoTag = '';
         if (currentDayBranch && CLASH_MAP[branch] === currentDayBranch) ripoTag = ' [日破]';
+        const cs = getChangSheng(primaryChart.elements[i], currentDayBranch);
+        const csTag = cs ? ` [${cs}]` : '';
 
-        info += `${lineNames[i]}：${beast} ${rel} ${branch}${element}${shiYing}${movingText}${xunkongTag}${ripoTag}\n`;
+        info += `${lineNames[i]}：${beast} ${rel} ${branch}${element}${shiYing}${movingText}${xunkongTag}${ripoTag}${csTag}\n`;
     }
 
     if (hexs.varied) {
