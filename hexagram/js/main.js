@@ -560,11 +560,12 @@ function getLineName(val) {
 // 起卦过程中逐爻追加（此时尚未成卦，只有爻符与阴阳老少）
 function renderSingleLine(val, index) {
     const isMoving = (val === 6 || val === 9);
+    const symbol = getLineSymbol(val % 2 !== 0 ? 1 : 0, val);
     const row = document.createElement('div');
     row.className = 'cast-row';
     row.innerHTML =
         `<span class="cast-idx">${["初", "二", "三", "四", "五", "上"][index]}爻</span>` +
-        `<span class="cast-sym${isMoving ? ' moving' : ''}">${getLineSymbol(val % 2 !== 0 ? 1 : 0, val)}</span>` +
+        `<span class="cast-sym${isMoving ? ' moving' : ''}${isDotSymbol(symbol) ? ' bc-sym-dot' : ''}">${symbol}</span>` +
         `<span class="cast-name">${getLineName(val)}</span>`;
     boardLines.appendChild(row);
 }
@@ -638,11 +639,16 @@ function setBoardTitle(titleEl, chartData) {
         `${pName}宫${ELEMENT_CN[PALACE_ELEMENTS[chartData.palace.palace]]} - ${genText}`;
 }
 
-// 爻符：老阳 O、老阴 X（动爻），少阳 /、少阴 //（静爻）
+// 爻符：老阳 O、老阴 X（动爻），少阳 .、少阴 ..（静爻）
 function getLineSymbol(binaryVal, rawVal) {
     if (rawVal === 9) return 'O';
     if (rawVal === 6) return 'X';
-    return binaryVal === 1 ? '/' : '//';
+    return binaryVal === 1 ? '.' : '..';
+}
+
+// 点号落在基线上，需要单独抬到行的中线
+function isDotSymbol(symbol) {
+    return symbol === '.' || symbol === '..';
 }
 
 // 纳甲三角标：右上=十二长生（日辰），右下=旬空，左下=日破/月破
@@ -684,7 +690,7 @@ function buildGuaCell(chartData, index, symbol, isMoving, withShiYing, showTags)
 
     let html = `<span class="bc-rel">${relText}</span>` +
         `<span class="bc-branch">${branchText}${elText}${tags}</span>` +
-        `<span class="bc-sym${isMoving ? ' moving' : ''}">${symbol}</span>`;
+        `<span class="bc-sym${isMoving ? ' moving' : ''}${isDotSymbol(symbol) ? ' bc-sym-dot' : ''}">${symbol}</span>`;
 
     if (withShiYing) {
         const shi = chartData.palace.shi === (index + 1) ? "世" : "";

@@ -493,6 +493,13 @@ button:disabled {
     font-weight: 700;
 }
 
+/* 静爻的点号落在基线上，抬到中线并拉开间距，两点才分得清 */
+.bc-sym-dot {
+    letter-spacing: 0.25em;
+    font-weight: 700;
+    transform: translateY(-0.35em);
+}
+
 .bc-shi {
     color: var(--accent-color);
     font-weight: 700;
@@ -579,6 +586,7 @@ button:disabled {
     color: var(--line-moving-color);
     font-weight: 700;
 }
+
 
 .cast-name {
     width: 6em;
