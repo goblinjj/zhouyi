@@ -842,9 +842,12 @@ function renderTakashimaContent(result) {
     modalBody.innerHTML = bodyHtml;
 
     buildModalNav(modalBody);
+    bindSectionToggles(modalBody);
+}
 
-    // Bind per-section toggle buttons
-    modalBody.querySelectorAll('.section-toggle-btn').forEach(btn => {
+// 原文 / 译文互切
+function bindSectionToggles(bodyElement) {
+    bodyElement.querySelectorAll('.section-toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const sec = btn.closest('.modal-section');
             const origEl = sec.querySelector('.section-original');
@@ -856,6 +859,96 @@ function renderTakashimaContent(result) {
             btn.classList.toggle('active', !showingModern);
         });
     });
+}
+
+// 八卦：二进制 → 卦名/卦象/取象
+const TRIGRAM_INFO = {
+    '111': { name: '乾', symbol: '☰', nature: '天' },
+    '110': { name: '兑', symbol: '☱', nature: '泽' },
+    '101': { name: '离', symbol: '☲', nature: '火' },
+    '100': { name: '震', symbol: '☳', nature: '雷' },
+    '011': { name: '巽', symbol: '☴', nature: '风' },
+    '010': { name: '坎', symbol: '☵', nature: '水' },
+    '001': { name: '艮', symbol: '☶', nature: '山' },
+    '000': { name: '坤', symbol: '☷', nature: '地' },
+};
+
+function formatPinyin(raw) {
+    if (!raw) return '';
+    return raw.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+// 「卦辞」按钮：整卦全文（卦辞 + 总注 + 总断 + 六爻爻辞）就地展开
+async function showHexDetailModal(binaryCode) {
+    modalTitle.innerText = '加载中...';
+    modalBody.innerHTML = '正在获取卦象全文，请稍候...';
+    modal.style.display = 'block';
+
+    const hex = await takashima.getHexagram(binaryCode);
+    if (!hex) {
+        modalTitle.innerText = '加载失败';
+        modalBody.innerHTML = '无法获取该卦象数据。';
+        return;
+    }
+
+    renderHexDetail(hex);
+}
+
+function renderHexDetail(hex) {
+    mainSectionIdCounter = 0;
+
+    const pinyin = formatPinyin(hex.pinyin);
+    modalTitle.innerHTML = escapeHtml(hex.name) +
+        (pinyin ? `<span class="hex-title-pinyin">${pinyin}</span>` : '');
+
+    let html = '';
+
+    // 卦头：宫位 + 上下卦取象
+    const code = hex.code || '';
+    let trigramHtml = '';
+    if (code.length === 6) {
+        const lower = TRIGRAM_INFO[code.substring(0, 3)];
+        const upper = TRIGRAM_INFO[code.substring(3, 6)];
+        if (upper && lower) {
+            trigramHtml = `<span class="hex-info-trigrams">` +
+                `${upper.symbol} ${upper.name}（${upper.nature}）上 · ${lower.symbol} ${lower.name}（${lower.nature}）下` +
+                `</span>`;
+        }
+    }
+    if (trigramHtml || hex.palace) {
+        html += `<div class="hex-detail-header">`;
+        if (hex.palace) html += `<span class="hex-info-palace">${escapeHtml(hex.palace)}</span>`;
+        html += trigramHtml;
+        html += `</div>`;
+    }
+
+    html += sectionHtml('卦辞', hex.guaci, hex.modern_guaci, 'modal-classical-text');
+    html += sectionHtml('总注', hex.general_text, hex.modern_general_text, 'modal-modern-text');
+    html += sectionHtml('高岛易断（总断）', hex.takashima_general, hex.modern_takashima_general, 'modal-takashima-text');
+
+    if (hex.lines) {
+        const lineLabels = ['初', '二', '三', '四', '五', '上'];
+        for (let i = 1; i <= 6; i++) {
+            const line = hex.lines[String(i)];
+            if (!line) continue;
+            const label = lineLabels[i - 1];
+            html += sectionHtml(`${label}爻 · 爻辞`, line.text, line.modern_text, 'modal-classical-text');
+            html += sectionHtml(`${label}爻 · 高岛易断`, line.takashima_explanation, line.modern_takashima_explanation, 'modal-takashima-text');
+        }
+
+        // 用九（乾）/ 用六（坤）
+        const extra = hex.lines['7'];
+        if (extra) {
+            html += sectionHtml('用九/用六 · 辞', extra.text, extra.modern_text, 'modal-classical-text');
+            html += sectionHtml('用九/用六 · 卦辞', extra.guaci, extra.modern_guaci, 'modal-classical-text');
+            html += sectionHtml('用九/用六 · 高岛易断', extra.takashima_explanation, extra.modern_takashima_explanation, 'modal-takashima-text');
+        }
+    }
+
+    modalBody.innerHTML = html;
+
+    buildModalNav(modalBody);
+    bindSectionToggles(modalBody);
 }
 
 function escapeHtml(text) {
@@ -1148,21 +1241,21 @@ aiRetryBtn.addEventListener('click', () => {
 });
 
 function addStudyLink(container, binaryCode, hexName) {
-    let link = container.querySelector('.study-link');
-    if (!link) {
-        link = document.createElement('a');
-        link.className = 'study-link';
-        link.target = '_blank';
-        container.appendChild(link);
+    let btn = container.querySelector('.guaci-btn');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.className = 'guaci-btn';
+        btn.type = 'button';
+        btn.textContent = '卦辞';
+        container.appendChild(btn);
     }
     const hexId = takashima.indexMap ? takashima.indexMap[binaryCode] : null;
     if (hexId) {
-        link.href = `study.html?hex=${hexId}`;
-        link.textContent = '卦辞';
-        link.title = `${hexName || '卦象'}完整解释`;
-        link.style.display = '';
+        btn.title = `${hexName || '卦象'}完整解释`;
+        btn.onclick = () => showHexDetailModal(binaryCode);
+        btn.style.display = '';
     } else {
-        link.style.display = 'none';
+        btn.style.display = 'none';
     }
 }
 

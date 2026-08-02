@@ -621,12 +621,9 @@ button:disabled {
     max-width: 100%;
 }
 
-.board-actions .study-link {
-    margin-top: 0;
-    padding: 6px 18px;
-    border: 1px solid var(--accent-gold);
-    border-radius: 3px;
-    background: rgba(184, 134, 11, 0.06);
+.board-actions .guaci-btn {
+    margin-top: 0 !important;
+    padding: 6px 18px !important;
 }
 
 .board-actions .takashima-btn {
@@ -901,6 +898,39 @@ button:disabled {
     width: 40px;
     height: 2px;
     background: var(--accent-color);
+}
+
+.hex-title-pinyin {
+    font-size: 0.6em;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-left: 10px;
+    letter-spacing: 0.03em;
+}
+
+/* 整卦全文头部：宫位 + 上下卦取象 */
+.hex-detail-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    background: rgba(196, 169, 125, 0.08);
+    border-radius: 3px;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.hex-info-palace {
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+.hex-info-trigrams {
+    letter-spacing: 0.03em;
 }
 
 #modal-body {
@@ -1271,21 +1301,23 @@ button:disabled {
     75% { transform: translateX(4px); }
 }
 
-/* ── Study Link ── */
-.study-link {
-    display: block;
-    margin-top: 8px;
+/* ── 卦辞按钮（与「爻辞」同列，描边样式以作区分） ── */
+.guaci-btn {
+    margin-top: 12px !important;
+    padding: 6px 16px !important;
     white-space: nowrap;
-    font-size: 13px;
-    color: var(--accent-gold);
-    text-decoration: none;
-    letter-spacing: 0.05em;
-    transition: color 0.2s;
+    font-size: 13px !important;
+    letter-spacing: 0.08em;
+    color: var(--accent-gold) !important;
+    background: rgba(184, 134, 11, 0.06) !important;
+    border: 1px solid var(--accent-gold) !important;
+    box-shadow: none;
 }
 
-.study-link:hover {
-    color: var(--accent-gold-light);
-    text-decoration: underline;
+.guaci-btn:hover {
+    color: var(--accent-gold-light) !important;
+    background: rgba(184, 134, 11, 0.16) !important;
+    box-shadow: 0 3px 10px rgba(184, 134, 11, 0.2);
 }
 
 /* ── AI Interpret Modal ── */

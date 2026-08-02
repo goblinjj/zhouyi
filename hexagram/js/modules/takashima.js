@@ -20,6 +20,31 @@ export class Takashima {
     }
 
     /**
+     * Fetch the full hexagram record (卦辞/总注/六爻全文) for a binary code.
+     * @param {string} binaryCode - The 6-bit binary string.
+     * @returns {Promise<object|null>} hexagram data, or null when unavailable.
+     */
+    async getHexagram(binaryCode) {
+        if (!this.indexMap) return null;
+
+        const hexId = this.indexMap[binaryCode];
+        if (!hexId) return null;
+
+        if (this.cache[hexId]) return this.cache[hexId];
+
+        try {
+            const res = await fetch(`${BASE}data/takashima/${hexId}.json`);
+            if (!res.ok) throw new Error(`Failed to load Hexagram ${hexId}`);
+            const hex = await res.json();
+            this.cache[hexId] = hex;
+            return hex;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
+
+    /**
      * Get explanation for a hexagram and optional moving line.
      * Async operation as it might need to fetch data.
      * @param {string} binaryCode - The 6-bit binary string.
