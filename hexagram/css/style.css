@@ -355,8 +355,7 @@ button:disabled {
     letter-spacing: 0.12em;
 }
 
-.bgz-day { color: var(--accent-color); }
-.bgz-kong { color: var(--accent-gold); }
+/* 干支值由 .wx-* 逐字着色，此处只保留未识别字符的兜底墨色 */
 
 .hexagram-container {
     width: 100%;

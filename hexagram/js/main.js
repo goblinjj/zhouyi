@@ -1,5 +1,5 @@
 import { Divination } from './core/divination.js';
-import { PALACE_ELEMENTS } from './data/constants.js';
+import { PALACE_ELEMENTS, BRANCH_ELEMENTS } from './data/constants.js';
 import { Solar } from 'lunar-javascript';
 import { Takashima } from './modules/takashima.js';
 import { calcTrueSolarTime, calcTrueSolarTimeOffset, calcSunriseSunset, calcUnequalShichen, findShichen, calcHourGanZhi } from '@shared/true-solar-time';
@@ -35,6 +35,14 @@ const BRANCH_CN = {
 };
 const PALACE_CN = {
     "Qian": "乾", "Dui": "兑", "Li": "离", "Zhen": "震", "Xun": "巽", "Kan": "坎", "Gen": "艮", "Kun": "坤"
+};
+
+// 中文干支字 → 五行，供对照带逐字着色。地支部分从 BRANCH_ELEMENTS 派生，
+// 保持 constants.js 是唯一真值源；天干五行本项目他处未用到，只此一份
+const GANZHI_ELEMENT = {
+    ...Object.fromEntries(Object.entries(BRANCH_CN).map(([en, cn]) => [cn, BRANCH_ELEMENTS[en]])),
+    "甲": "Wood", "乙": "Wood", "丙": "Fire", "丁": "Fire", "戊": "Earth",
+    "己": "Earth", "庚": "Metal", "辛": "Metal", "壬": "Water", "癸": "Water"
 };
 
 const divination = new Divination();
@@ -241,16 +249,24 @@ let currentMonthGanZhi = "";
 let currentDayGanZhi = "";
 let currentGanZhiText = "";
 
+// 干支逐字按各自五行着色：天干与地支五行常不同（乙未＝木＋土），整体染会失真
+function tintGanZhi(text) {
+    return [...text].map(ch => {
+        const el = GANZHI_ELEMENT[ch];
+        return el ? `<span class="wx-${el}">${ch}</span>` : ch;
+    }).join('');
+}
+
 // 卦象上方的月建/日辰对照条。只填内容，显隐跟随卦盘
 function renderBoardGanZhi() {
     if (!boardGanZhi) return;
     const items = [
-        ['月建', currentMonthGanZhi || currentMonthBranch, 'bgz-month'],
-        ['日辰', currentDayGanZhi || currentDayBranch, 'bgz-day'],
-        ['旬空', currentXunKong, 'bgz-kong']
+        ['月建', currentMonthGanZhi || currentMonthBranch],
+        ['日辰', currentDayGanZhi || currentDayBranch],
+        ['旬空', currentXunKong]
     ].filter(([, v]) => v);
     boardGanZhi.innerHTML = items
-        .map(([k, v, cls]) => `<span class="bgz-item ${cls}"><em>${k}</em>${v}</span>`)
+        .map(([k, v]) => `<span class="bgz-item"><em>${k}</em>${tintGanZhi(v)}</span>`)
         .join('');
 }
 
