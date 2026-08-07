@@ -20,6 +20,7 @@ const boardTitleVaried = hexBoard.querySelector('.board-title-varied');
 const boardInfoPrimary = hexBoard.querySelector('.board-info-primary');
 const boardInfoVaried = hexBoard.querySelector('.board-info-varied');
 const huHexContainer = document.getElementById('hu-hexagram');
+const boardGanZhi = document.getElementById('board-ganzhi');
 const aiAction = document.getElementById('ai-action');
 
 const REL_CN = { "Parents": "父母", "Offspring": "子孙", "Official": "官鬼", "Wealth": "妻财", "Brothers": "兄弟" };
@@ -111,7 +112,10 @@ function refreshDate() {
     currentXunKong = dateData.xunKong || "";
     currentDayBranch = dateData.dayBranch || "";
     currentMonthBranch = dateData.monthBranch || "";
+    currentMonthGanZhi = dateData.monthGanZhi || "";
+    currentDayGanZhi = dateData.dayGanZhi || "";
     currentGanZhiText = dateData.ganZhiText || "";
+    renderBoardGanZhi();
 }
 
 function initDate() {
@@ -189,6 +193,8 @@ function initDate() {
             xunKong,
             dayBranch,
             monthBranch: ganZhiMonth.substring(1),
+            monthGanZhi: ganZhiMonth,
+            dayGanZhi: ganZhiDay,
             ganZhiText: `${ganZhiYear}年 ${ganZhiMonth}月 ${ganZhiDay}日 ${ganZhiHour}时`
         };
 
@@ -231,7 +237,22 @@ let currentDayStem = "Jia";
 let currentXunKong = "";
 let currentDayBranch = "";
 let currentMonthBranch = "";
+let currentMonthGanZhi = "";
+let currentDayGanZhi = "";
 let currentGanZhiText = "";
+
+// 卦象上方的月建/日辰对照条。只填内容，显隐跟随卦盘
+function renderBoardGanZhi() {
+    if (!boardGanZhi) return;
+    const items = [
+        ['月建', currentMonthGanZhi || currentMonthBranch, 'bgz-month'],
+        ['日辰', currentDayGanZhi || currentDayBranch, 'bgz-day'],
+        ['旬空', currentXunKong, 'bgz-kong']
+    ].filter(([, v]) => v);
+    boardGanZhi.innerHTML = items
+        .map(([k, v, cls]) => `<span class="bgz-item ${cls}"><em>${k}</em>${v}</span>`)
+        .join('');
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     initCitySelector();
@@ -282,6 +303,7 @@ window.startCasting = () => {
     castingStep = 0;
     divination.reset();
     resetManualPanel();
+    boardGanZhi.style.display = 'none';
     hexBoard.style.display = 'none';
     hexBoard.classList.add('no-varied');
     hexBoard.classList.remove('has-hidden');
@@ -534,6 +556,7 @@ function finishToss(lineVal) {
     castingStep++;
 
     if (castingStep === 1) {
+        boardGanZhi.style.display = 'flex';
         hexBoard.style.display = 'block';
     }
 
@@ -613,6 +636,8 @@ function renderResult(castResult) {
         variedLines: hexs.varied
     });
     setBoardTitle(boardTitlePrimary, primaryChart);
+    renderBoardGanZhi();
+    boardGanZhi.style.display = 'flex';
     hexBoard.style.display = 'block';
 
     // 高岛易断取用爻：无动爻取卦辞，单动取该爻，多动另有取法
@@ -1312,6 +1337,8 @@ function saveToHistory(raw, primaryName, variedName) {
         dayStem: currentDayStem,
         dayBranch: currentDayBranch,
         monthBranch: currentMonthBranch,
+        monthGanZhi: currentMonthGanZhi,
+        dayGanZhi: currentDayGanZhi,
         xunKong: currentXunKong
     };
 
@@ -1384,6 +1411,12 @@ function restoreFromHistory(record) {
     if (record.dayBranch) currentDayBranch = record.dayBranch;
     if (record.monthBranch) currentMonthBranch = record.monthBranch;
     if (record.xunKong) currentXunKong = record.xunKong;
+
+    // 旧记录只存了地支，干支从 ganZhiDate（"丙午年 丙申月 甲寅日 甲子时"）里回捞
+    const gz = record.ganZhiDate || '';
+    currentMonthGanZhi = record.monthGanZhi || (gz.match(/(\S{2})月/) || [])[1] || '';
+    currentDayGanZhi = record.dayGanZhi || (gz.match(/(\S{2})日/) || [])[1] || '';
+    renderBoardGanZhi();
 
     // Update date display to history record time
     if (record.date && record.ganZhiDate) {

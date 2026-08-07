@@ -316,6 +316,39 @@ button:disabled {
     gap: 20px;
 }
 
+/* ── 卦象上方的月建/日辰对照条 ── */
+.board-ganzhi {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 28px;
+    padding: 10px 16px;
+    background: rgba(250, 246, 239, 0.5);
+    border: 1px solid var(--border-light);
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+}
+
+.bgz-item {
+    font-size: 1.02em;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text-color);
+}
+
+.bgz-item em {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    margin-right: 6px;
+    letter-spacing: 0.12em;
+}
+
+.bgz-day { color: var(--accent-color); }
+.bgz-kong { color: var(--accent-gold); }
+
 .hexagram-container {
     width: 100%;
     margin-bottom: 0;
