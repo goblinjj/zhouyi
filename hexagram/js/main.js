@@ -1,8 +1,8 @@
 import { Divination } from './core/divination.js';
 import { PALACE_ELEMENTS } from './data/constants.js';
-import { Solar, Lunar } from 'lunar-javascript';
+import { Solar } from 'lunar-javascript';
 import { Takashima } from './modules/takashima.js';
-import { calcTrueSolarTime, calcSunriseSunset, calcUnequalShichen, findShichen, calcHourGanZhi } from '@shared/true-solar-time';
+import { calcTrueSolarTime, calcTrueSolarTimeOffset, calcSunriseSunset, calcUnequalShichen, findShichen, calcHourGanZhi } from '@shared/true-solar-time';
 import { CITIES } from '@shared/cities';
 
 const castingBtn = document.getElementById('cast-btn');
@@ -111,6 +111,7 @@ function refreshDate() {
     currentXunKong = dateData.xunKong || "";
     currentDayBranch = dateData.dayBranch || "";
     currentMonthBranch = dateData.monthBranch || "";
+    currentGanZhiText = dateData.ganZhiText || "";
 }
 
 function initDate() {
@@ -120,31 +121,59 @@ function initDate() {
         const lunar = d.getLunar();
         const bazi = lunar.getEightChar();
 
+        // 年、月柱以交节的精确时刻为准（bazi 层已按时刻切换，lunar.getMonthZhi() 则是
+        // 交节当日零点就切，交节日会整段偏差）。交节是全球同一物理瞬间，与经度无关，
+        // 因此真太阳时不参与年月柱。
         const ganZhiYear = bazi.getYear();
         const ganZhiMonth = bazi.getMonth();
-        const ganZhiDay = bazi.getDay();
-        let ganZhiHour = bazi.getTime();
+
+        const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+        // 日界取子时（晚子时归次日）。开真太阳时则以真太阳时的子时为界，
+        // 否则以北京时间 23:00 为界。dayShift 是相对民用日的进位。
+        let dayShift = 0;
+        let hourBranch = '';
         let tstNote = '';
 
         if (useTrueSolarTime) {
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            // 真太阳时相对民用时可达 ±3 小时（如新疆），本身就可能跨日
+            const offsetMin = calcTrueSolarTimeOffset(dateStr, currentCity.lng, currentCity.tz);
+            const civilMin = now.getHours() * 60 + now.getMinutes();
+            dayShift = Math.floor((civilMin + offsetMin) / 1440);
+
             const tst = calcTrueSolarTime(dateStr, timeStr, currentCity.lng, currentCity.tz);
             const sunData = calcSunriseSunset(dateStr, currentCity.lat, currentCity.lng, currentCity.tz);
             if (sunData) {
                 const shichenTable = calcUnequalShichen(sunData.sunrise, sunData.sunset);
                 const sc = findShichen(tst.hours, tst.minutes, shichenTable);
                 if (sc) {
-                    const dayStem = ganZhiDay[0];
-                    const isLateZi = sc.subBranch === '晚子';
-                    ganZhiHour = calcHourGanZhi(dayStem, sc.branch, isLateZi);
+                    if (sc.subBranch === '晚子') dayShift += 1;
+                    hourBranch = sc.branch;
                     const tstTime = `${String(tst.hours).padStart(2,'0')}:${String(tst.minutes).padStart(2,'0')}`;
                     const scStart = `${String(sc.start.h).padStart(2,'0')}:${String(sc.start.m).padStart(2,'0')}`;
                     const scEnd = `${String(sc.end.h).padStart(2,'0')}:${String(sc.end.m).padStart(2,'0')}`;
                     tstNote = ` <span style="font-size:0.85em;color:var(--accent-gold);">(${tstTime}- ${sc.name}(${scStart}~${scEnd}))</span>`;
                 }
             }
+        } else if (now.getHours() >= 23) {
+            dayShift = 1;
         }
+
+        // 日柱、日支、旬空统一从进位后的同一个 Lunar 取，避免三者错位
+        const dayLunar = dayShift === 0
+            ? lunar
+            : Solar.fromDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayShift, 12, 0, 0)).getLunar();
+        const ganZhiDay = dayLunar.getDayInGanZhi();
+        const dayStem = ganZhiDay.substring(0, 1);
+        const xunKong = dayLunar.getDayXunKong();
+        const dayBranch = dayLunar.getDayZhi();
+
+        // 时柱：晚子时的日干进位已经体现在 ganZhiDay 里，故 isLateZi 一律传 false
+        if (!hourBranch) {
+            hourBranch = BRANCH_ORDER[Math.floor(((now.getHours() + 1) % 24) / 2)];
+        }
+        const ganZhiHour = calcHourGanZhi(dayStem, hourBranch, false);
 
         dateInfo.innerHTML = `
             ${d.getYear()}年${d.getMonth()}月${d.getDay()}日
@@ -153,13 +182,14 @@ function initDate() {
             ${ganZhiYear}年 ${ganZhiMonth}月 ${ganZhiDay}日
             <span class="shichen-highlight">${ganZhiHour}时</span>${tstNote}
             <br>
-            <span class="xunkong-info">空亡: ${lunar.getDayXunKong()}</span>
+            <span class="xunkong-info">空亡: ${xunKong}</span>
         `;
         return {
-            dayStem: bazi.getDay().substring(0, 1),
-            xunKong: lunar.getDayXunKong(),
-            dayBranch: lunar.getDayZhi(),
-            monthBranch: lunar.getMonthZhi()
+            dayStem,
+            xunKong,
+            dayBranch,
+            monthBranch: ganZhiMonth.substring(1),
+            ganZhiText: `${ganZhiYear}年 ${ganZhiMonth}月 ${ganZhiDay}日 ${ganZhiHour}时`
         };
 
     } catch (e) {
@@ -201,15 +231,11 @@ let currentDayStem = "Jia";
 let currentXunKong = "";
 let currentDayBranch = "";
 let currentMonthBranch = "";
+let currentGanZhiText = "";
 
 document.addEventListener('DOMContentLoaded', () => {
     initCitySelector();
-    const dateData = initDate();
-    const dayGan = dateData.dayStem;
-    currentDayStem = STEM_MAP[dayGan] || "Jia";
-    currentXunKong = dateData.xunKong || "";
-    currentDayBranch = dateData.dayBranch || "";
-    currentMonthBranch = dateData.monthBranch || "";
+    refreshDate();
 
     renderHistoryList();
 
@@ -1275,14 +1301,11 @@ function saveToHistory(raw, primaryName, variedName) {
     const pad = n => String(n).padStart(2, '0');
     const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-    const d = Solar.fromDate(now);
-    const lunar = d.getLunar();
-    const bazi = lunar.getEightChar();
-
     const record = {
         id: Date.now(),
         date: dateStr,
-        ganZhiDate: `${bazi.getYear()}年 ${bazi.getMonth()}月 ${bazi.getDay()}日 ${bazi.getTime()}时`,
+        // 与页头干支保持同一套日界/月令规则，勿改回 bazi.getDay()/getTime()
+        ganZhiDate: currentGanZhiText,
         raw: raw,
         primaryName: primaryName,
         variedName: variedName,

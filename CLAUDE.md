@@ -111,7 +111,17 @@ Framework-independent modules used by multiple sub-apps:
 
 All three sub-apps reference these via the Vite alias `"@shared": "../shared"` (defined in each `vite.config.js`, including hexagram's). Note `Astrology/src/data/cities.js` is a thin re-export of `@shared/cities` — edit the shared file, not the copy.
 
-**True-solar-time scope:** the correction adjusts the *hour pillar only*; month/day/year pillars use the user-entered civil date. The conversion is implemented as a time offset (not a datetime substitution) so midnight crossings don't shift the day pillar.
+**True-solar-time scope differs per sub-app — don't unify them blindly.**
+
+In **Astrology** and **qimen** the correction adjusts the *hour pillar only*; month/day/year pillars use the user-entered civil date. The conversion is a time offset (not a datetime substitution) so midnight crossings don't shift the day pillar.
+
+**hexagram is deliberately different** (`js/main.js#initDate`): it divines for *now*, so the day pillar follows the true-solar-time clock. Three rules, all interlocking — changing one alone desynchronizes the others:
+
+- **Year/month pillars** come from `bazi.getYear()/getMonth()`, which switch at the *exact* 交节 instant. Never use `lunar.getMonthZhi()` — that flips at midnight of the 交节 day, so the whole 立秋-day daytime would carry the wrong 月建 (and wrong 月破).
+- **Day boundary is 子时, 晚子 belonging to the next day.** With true solar time off, that's civil 23:00. With it on, it's the 晚子时 start from `calcUnequalShichen` *in true-solar-time coordinates*, plus a `dayShift` for the offset itself crossing midnight (Xinjiang runs ~2.5h behind civil time, so civil 01:00 there is still the previous solar day).
+- **日柱, 日支, 旬空 must all come from the same shifted `Lunar`**, and the hour pillar from the already-shifted day stem (`calcHourGanZhi(..., isLateZi = false)` — the carry is in the day stem, passing `true` double-counts it). `saveToHistory` reuses `currentGanZhiText` for the same reason.
+
+Note the 时辰 table is anchored on midnight as 子时's center and only varies with day *length*, so building it from civil-time sunrise/sunset and querying it with true-solar-time is correct, not a unit mismatch.
 
 ### Cloudflare Functions
 
