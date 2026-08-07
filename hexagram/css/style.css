@@ -23,6 +23,15 @@
     --border-color: #c4a97d;
     --border-light: #ddd0bc;
     --shadow-color: rgba(74, 52, 32, 0.12);
+
+    /* 五行本色，取国画颜料的沉稳版本以适配宣纸底（对比度均 ≥4.7:1）。
+       金的"白"与土的"黄"在浅底上不可读，分别落到银灰与赭石；
+       五色的明度梯度（金最浅 → 水最深）仍保留五行本色的相对关系。 */
+    --wx-wood: #1f6b2e;   /* 木・松绿 */
+    --wx-fire: #a82f21;   /* 火・朱砂 */
+    --wx-earth: #7d5e12;  /* 土・赭石 */
+    --wx-metal: #5f6569;  /* 金・银灰 */
+    --wx-water: #1c2b33;  /* 水・玄墨 */
 }
 
 * {
@@ -513,6 +522,14 @@ button:disabled {
 .bc-branch {
     font-weight: 600;
 }
+
+/* 纳甲地支按五行着色。六亲、爻符、世应保持墨色，每行只有一处彩字，
+   角标各自带 color，不受这里继承影响 */
+.wx-Wood { color: var(--wx-wood); }
+.wx-Fire { color: var(--wx-fire); }
+.wx-Earth { color: var(--wx-earth); }
+.wx-Metal { color: var(--wx-metal); }
+.wx-Water { color: var(--wx-water); }
 
 .bc-sym {
     font-family: "Menlo", "Consolas", monospace;

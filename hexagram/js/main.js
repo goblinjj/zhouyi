@@ -757,7 +757,7 @@ function buildGuaCell(chartData, index, symbol, isMoving, withShiYing, showTags)
     const tags = showTags ? buildBranchTags(chartData.elements[index], branchText) : '';
 
     let html = `<span class="bc-rel">${relText}</span>` +
-        `<span class="bc-branch">${branchText}${elText}${tags}</span>` +
+        `<span class="bc-branch wx-${chartData.elements[index]}">${branchText}${elText}${tags}</span>` +
         `<span class="bc-sym${isMoving ? ' moving' : ''}${isDotSymbol(symbol) ? ' bc-sym-dot' : ''}">${symbol}</span>`;
 
     if (withShiYing) {
@@ -790,7 +790,7 @@ function renderBoard(boardEl, { primaryChart, primaryLines, rawLines, variedChar
         if (hasHidden) {
             const hs = hidden[index];
             html += '<div class="bc bc-hidden" title="伏神">' + (hs
-                ? `<span>${REL_CN[hs.relation]}</span><span>${BRANCH_CN[hs.branch]}${ELEMENT_CN[hs.element]}</span>`
+                ? `<span>${REL_CN[hs.relation]}</span><span class="wx-${hs.element}">${BRANCH_CN[hs.branch]}${ELEMENT_CN[hs.element]}</span>`
                 : '') + '</div>';
         }
 

@@ -148,3 +148,5 @@ Each API directory has an `index.json` listing endpoint; `llms.txt` documents th
 ## Design System
 
 Chinese ink-painting aesthetic: background `#f4ece1`, paper `#faf6ef`, text `#3a2e2a`, accent red `#8b2500`, accent gold `#b8860b`, border `#c4a97d`. Font stack: Ma Shan Zheng, Noto Serif SC, serif.
+
+**五行 palette** (`hexagram/css/style.css` `:root`, applied to 纳甲 via `.wx-{Wood|Fire|Earth|Metal|Water}`): wood `#1f6b2e`, fire `#a82f21`, earth `#7d5e12`, metal `#5f6569`, water `#1c2b33`. These are deliberately *not* the literal 五行 colors — metal's white and earth's yellow are unreadable on the paper background, so they land on 银灰 and 赭石 while keeping the light-to-dark ordering of the original five. All clear 4.7:1 on `#f4ece1`; re-check contrast before adjusting any of them. Only 纳甲 is tinted — 六亲, 爻符, and 世应 stay ink-colored so each row carries one colored token.
