@@ -702,6 +702,25 @@ function isDotSymbol(symbol) {
     return symbol === '.' || symbol === '..';
 }
 
+// 爻的旬空/日破/月破判定。卦盘角标与 AI 卦象文案共用，避免两处口径漂移
+function judgeBranchState(branch) {
+    return {
+        isKong: !!(currentXunKong && branch && currentXunKong.includes(branch)),
+        isRiPo: !!(currentDayBranch && CLASH_MAP[branch] === currentDayBranch),
+        isYuePo: !!(currentMonthBranch && CLASH_MAP[branch] === currentMonthBranch)
+    };
+}
+
+// 同上判定的文本形式，供 AI 提示词使用
+function branchStateText(branch) {
+    const { isKong, isRiPo, isYuePo } = judgeBranchState(branch);
+    let text = isKong ? ' [旬空]' : '';
+    if (isRiPo && isYuePo) text += ' [日月破]';
+    else if (isRiPo) text += ' [日破]';
+    else if (isYuePo) text += ' [月破]';
+    return text;
+}
+
 // 纳甲三角标：右上=十二长生（日辰），右下=旬空，左下=日破/月破
 function buildBranchTags(element, branchText) {
     let html = '';
@@ -713,12 +732,10 @@ function buildBranchTags(element, branchText) {
 
     // 旬空与日/月破挂在下沿，同一条 flex 里横排，避免互相压盖
     let bottom = '';
-    if (currentXunKong && currentXunKong.includes(branchText)) {
+    const { isKong, isRiPo, isYuePo } = judgeBranchState(branchText);
+    if (isKong) {
         bottom += '<span class="bb-tag tag-kong">空</span>';
     }
-
-    const isRiPo = currentDayBranch && CLASH_MAP[branchText] === currentDayBranch;
-    const isYuePo = currentMonthBranch && CLASH_MAP[branchText] === currentMonthBranch;
     if (isRiPo && isYuePo) {
         bottom += '<span class="bb-tag tag-ripo">日月破</span>';
     } else if (isRiPo) {
@@ -1069,10 +1086,16 @@ function collectHexagramInfo() {
                 primaryChart.palace.generation + "世"));
 
     let info = `本卦：${primaryChart.name}（${pName}宫${palaceEl} ${genText}）\n`;
-    info += `世爻：第${primaryChart.palace.shi}爻  应爻：第${primaryChart.palace.ying}爻\n\n`;
+    info += `世爻：第${primaryChart.palace.shi}爻  应爻：第${primaryChart.palace.ying}爻\n`;
+    // 月建、日辰是判旺衰生克的基准，显式列出，不让模型从日期串里自行推断
+    if (currentMonthGanZhi || currentDayGanZhi) {
+        info += `月建：${currentMonthGanZhi || currentMonthBranch}  日辰：${currentDayGanZhi || currentDayBranch}` +
+            `${currentXunKong ? `  旬空：${currentXunKong}` : ''}\n`;
+    }
+    info += `\n`;
 
     const lineNames = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
-    info += `六爻详情（从初爻到上爻；方括号标注世应、动爻、旬空、日破，以及以日辰为准的十二长生）：\n`;
+    info += `六爻详情（从初爻到上爻；方括号标注世应、动爻、旬空、日破/月破，以及以日辰为准的十二长生）：\n`;
 
     for (let i = 0; i < 6; i++) {
         const rel = REL_CN[primaryChart.relations[i]] || primaryChart.relations[i];
@@ -1083,14 +1106,11 @@ function collectHexagramInfo() {
         const movingText = isMoving ? (hexs.raw[i] === 9 ? "（动爻-老阳）" : "（动爻-老阴）") : "";
         const shiYing = primaryChart.palace.shi === (i + 1) ? " [世]" : (primaryChart.palace.ying === (i + 1) ? " [应]" : "");
 
-        let xunkongTag = '';
-        if (currentXunKong && currentXunKong.includes(branch)) xunkongTag = ' [旬空]';
-        let ripoTag = '';
-        if (currentDayBranch && CLASH_MAP[branch] === currentDayBranch) ripoTag = ' [日破]';
+        const stateTags = branchStateText(branch);
         const cs = getChangSheng(primaryChart.elements[i], currentDayBranch);
         const csTag = cs ? ` [${cs}]` : '';
 
-        info += `${lineNames[i]}：${beast} ${rel} ${branch}${element}${shiYing}${movingText}${xunkongTag}${ripoTag}${csTag}\n`;
+        info += `${lineNames[i]}：${beast} ${rel} ${branch}${element}${shiYing}${movingText}${stateTags}${csTag}\n`;
     }
 
     if (hexs.varied) {
@@ -1104,7 +1124,7 @@ function collectHexagramInfo() {
             const branch = BRANCH_CN[variedChart.branches[i]] || '';
             const element = ELEMENT_CN[variedChart.elements[i]] || '';
             const cs = getChangSheng(variedChart.elements[i], currentDayBranch);
-            info += `  ${lineNames[i]}变出：${rel} ${branch}${element}${cs ? ` [${cs}]` : ''}\n`;
+            info += `  ${lineNames[i]}变出：${rel} ${branch}${element}${branchStateText(branch)}${cs ? ` [${cs}]` : ''}\n`;
         }
 
         // 互卦：本卦下卦取 2、3、4 爻，上卦取 3、4、5 爻
@@ -1268,7 +1288,7 @@ aiSubmitBtn.addEventListener('click', () => {
 const aiCopyBtn = document.getElementById('ai-copy-btn');
 aiCopyBtn.addEventListener('click', async () => {
     const q = aiQuestion.value.trim();
-    let prompt = `你是一位精通六爻占卜的易学大师，请根据以下卦象信息进行专业解读。\n\n解卦顺序（务必按此顺序展开分析）：\n1. 世应分析：先从应爻、世爻入手，解析卦主（求占之人）与所占之事之间的关系与态势（世为己、应为他/事，看其旺衰、生克、动静、比和冲合）\n2. 用神剖判：再根据所占之事取用神（如问财取财爻、问官取官爻、问婚取应爻或官鬼/妻财等），结合日月生克、动变化出，解释求占之事当前的状态与吉凶\n3. 卦象背景与事态演进：回归卦象本身（卦名、卦辞、上下卦象意），并按"本卦→互卦→变卦"的三段时序串讲事情的来龙去脉：\n   - 本卦＝现状/起局：当前所处的态势与格局；\n   - 互卦＝过程/中段：如何从现状走向结局——发展路径、所经曲折阻力、可借助或须防范的因素、潜藏隐情（互卦由本卦内四爻互联而成，下卦取二三四爻、上卦取三四五爻，专主"过程"）；\n   - 变卦＝结局/终局：事情最终的走向与结果（变卦由动爻变出，专主"结果"）。\n   务必讲清三者的因果衔接：现状如何、要经历怎样的过程、最终落到什么结局。\n\n在以上主线之上，补充六兽参考、动爻与变爻（据动爻判定结局吉凶）、旬空与日破；若有互卦则重点回答"如何达到这个结局"（关键节点、助力与障碍、可操作建议），若无动爻（无互卦）则事态静定、不展开此项。最后给出综合判断与实际可行的建议。\n\n卦象信息：\n${currentHexagramInfo}`;
+    let prompt = `你是一位精通六爻占卜的易学大师，请根据以下卦象信息进行专业解读。\n\n解卦顺序（务必按此顺序展开分析）：\n1. 世应分析：先从应爻、世爻入手，解析卦主（求占之人）与所占之事之间的关系与态势（世为己、应为他/事，看其旺衰、生克、动静、比和冲合）\n2. 用神剖判：再根据所占之事取用神（如问财取财爻、问官取官爻、问婚取应爻或官鬼/妻财等），结合日月生克、动变化出，解释求占之事当前的状态与吉凶\n3. 卦象背景与事态演进：回归卦象本身（卦名、卦辞、上下卦象意），并按"本卦→互卦→变卦"的三段时序串讲事情的来龙去脉：\n   - 本卦＝现状/起局：当前所处的态势与格局；\n   - 互卦＝过程/中段：如何从现状走向结局——发展路径、所经曲折阻力、可借助或须防范的因素、潜藏隐情（互卦由本卦内四爻互联而成，下卦取二三四爻、上卦取三四五爻，专主"过程"）；\n   - 变卦＝结局/终局：事情最终的走向与结果（变卦由动爻变出，专主"结果"）。\n   务必讲清三者的因果衔接：现状如何、要经历怎样的过程、最终落到什么结局。\n\n在以上主线之上，补充六兽参考、动爻与变爻（据动爻判定结局吉凶）、旬空与日破月破（月破多主事体落空难成，日破需结合旺衰分辨真破与暗动）；若有互卦则重点回答"如何达到这个结局"（关键节点、助力与障碍、可操作建议），若无动爻（无互卦）则事态静定、不展开此项。最后给出综合判断与实际可行的建议。\n\n卦象信息：\n${currentHexagramInfo}`;
     if (q) prompt += `\n\n占卜事件：${q}`;
     try {
         await navigator.clipboard.writeText(prompt);
@@ -1406,16 +1426,17 @@ function clearAllHistory() {
 }
 
 function restoreFromHistory(record) {
-    // Restore date context
-    if (record.dayStem) currentDayStem = record.dayStem;
-    if (record.dayBranch) currentDayBranch = record.dayBranch;
-    if (record.monthBranch) currentMonthBranch = record.monthBranch;
-    if (record.xunKong) currentXunKong = record.xunKong;
-
-    // 旧记录只存了地支，干支从 ganZhiDate（"丙午年 丙申月 甲寅日 甲子时"）里回捞
+    // 干支串是唯一可信来源。旧记录的 monthBranch 存的是 lunar.getMonthZhi()（交节当日零点
+    // 就切，会偏一个月），而 ganZhiDate 一直用按交节时刻的 bazi.getMonth()。对照带与日/月破
+    // 必须同源，否则交节日的旧卦会出现"月建乙未、却按申画月破"的自相矛盾。
     const gz = record.ganZhiDate || '';
     currentMonthGanZhi = record.monthGanZhi || (gz.match(/(\S{2})月/) || [])[1] || '';
     currentDayGanZhi = record.dayGanZhi || (gz.match(/(\S{2})日/) || [])[1] || '';
+
+    if (record.dayStem) currentDayStem = record.dayStem;
+    if (record.xunKong) currentXunKong = record.xunKong;
+    currentDayBranch = currentDayGanZhi.substring(1) || record.dayBranch || '';
+    currentMonthBranch = currentMonthGanZhi.substring(1) || record.monthBranch || '';
     renderBoardGanZhi();
 
     // Update date display to history record time
