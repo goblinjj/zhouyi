@@ -224,7 +224,7 @@ h1 {
     font-weight: 600;
 }
 
-/* ── 纳甲角标配色（旬空 / 日破月破 / 十二长生）── */
+/* ── 纳甲角标配色（旬空 / 日辰冲爻三态 / 月破 / 十二长生）── */
 .tag-kong {
     color: #7b2d8e;
     border-color: #7b2d8e;
@@ -241,6 +241,20 @@ h1 {
     color: #d35400;
     border-color: #d35400;
     background: rgba(211, 84, 0, 0.08);
+}
+
+/* 暗动：静爻月令旺相而被日辰冲，仍有力，取青碧与"真破"的赤色分开 */
+.tag-andong {
+    color: #0f6f68;
+    border-color: #0f6f68;
+    background: rgba(15, 111, 104, 0.08);
+}
+
+/* 冲散：动爻/变爻被日辰冲，力已涣散，取灰蓝取其散意 */
+.tag-chongsan {
+    color: #4a6572;
+    border-color: #4a6572;
+    background: rgba(74, 101, 114, 0.08);
 }
 
 /* 十二长生（以日辰为准）：用实心底色，与描边式的旺衰/空破标签区分开 */

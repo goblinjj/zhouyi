@@ -1,5 +1,5 @@
 import { Divination } from './core/divination.js';
-import { PALACE_ELEMENTS, BRANCH_ELEMENTS, BRANCH_CN, tintGanZhi } from './data/constants.js';
+import { PALACE_ELEMENTS, BRANCH_ELEMENTS, BRANCH_CN, GANZHI_ELEMENT, tintGanZhi } from './data/constants.js';
 import { Solar } from 'lunar-javascript';
 import { Takashima } from './modules/takashima.js';
 import { openXunKongCalendar } from './modules/xunkong-calendar.js';
@@ -224,12 +224,31 @@ const STAGE_CLASS = {
     "病": "tag-cs-bad", "死": "tag-cs-bad", "墓": "tag-cs-bad", "绝": "tag-cs-bad"
 };
 
+// 日辰冲爻三态各自的角标配色
+const DAY_CLASH_CLASS = { "冲散": "tag-chongsan", "暗动": "tag-andong", "日破": "tag-ripo" };
+
 // 取某爻五行在日支上所处的十二长生位
 function getChangSheng(element, dayBranch) {
     const start = CHANG_SHENG_START[element];
     if (!start || !dayBranch) return "";
     const offset = (BRANCH_ORDER.indexOf(dayBranch) - BRANCH_ORDER.indexOf(start) + 12) % 12;
     return TWELVE_STAGES[offset];
+}
+
+// ── 月令旺衰（以月建五行为准）──
+// 旺＝与月建同五行，相＝月建生我，休＝我生月建，囚＝我克月建，死＝月建克我
+const ELEMENT_GENERATES = { "Wood": "Fire", "Fire": "Earth", "Earth": "Metal", "Metal": "Water", "Water": "Wood" };
+const ELEMENT_OVERCOMES = { "Wood": "Earth", "Earth": "Water", "Water": "Fire", "Fire": "Metal", "Metal": "Wood" };
+
+function getMonthWangShuai(element) {
+    const monthEl = GANZHI_ELEMENT[currentMonthBranch];
+    if (!element || !monthEl) return "";
+    if (element === monthEl) return "旺";
+    if (ELEMENT_GENERATES[monthEl] === element) return "相";
+    if (ELEMENT_GENERATES[element] === monthEl) return "休";
+    if (ELEMENT_OVERCOMES[element] === monthEl) return "囚";
+    if (ELEMENT_OVERCOMES[monthEl] === element) return "死";
+    return "";
 }
 
 let currentDayStem = "Jia";
@@ -723,27 +742,42 @@ function isDotSymbol(symbol) {
     return symbol === '.' || symbol === '..';
 }
 
-// 爻的旬空/日破/月破判定。卦盘角标与 AI 卦象文案共用，避免两处口径漂移
-function judgeBranchState(branch) {
+// 爻的旬空 / 日辰相冲 / 月破判定。卦盘角标与 AI 卦象文案共用，避免两处口径漂移。
+// 日辰冲爻分三种：动爻或变爻被冲＝冲散；静爻月令旺相＝暗动；静爻月令休囚死＝日破。
+// element 为英文五行键（Wood/Fire/…），isDynamic 表示该爻是动爻或变卦中变出的那一爻。
+function judgeBranchState(branch, element, isDynamic) {
+    const isClashed = !!(currentDayBranch && CLASH_MAP[branch] === currentDayBranch);
+    let dayClash = "";
+    if (isClashed) {
+        if (isDynamic) {
+            dayClash = "冲散";
+        } else {
+            const ws = getMonthWangShuai(element);
+            dayClash = (ws === "旺" || ws === "相") ? "暗动" : "日破";
+        }
+    }
     return {
         isKong: !!(currentXunKong && branch && currentXunKong.includes(branch)),
-        isRiPo: !!(currentDayBranch && CLASH_MAP[branch] === currentDayBranch),
+        dayClash,
         isYuePo: !!(currentMonthBranch && CLASH_MAP[branch] === currentMonthBranch)
     };
 }
 
 // 同上判定的文本形式，供 AI 提示词使用
-function branchStateText(branch) {
-    const { isKong, isRiPo, isYuePo } = judgeBranchState(branch);
+function branchStateText(branch, element, isDynamic) {
+    const { isKong, dayClash, isYuePo } = judgeBranchState(branch, element, isDynamic);
     let text = isKong ? ' [旬空]' : '';
-    if (isRiPo && isYuePo) text += ' [日月破]';
-    else if (isRiPo) text += ' [日破]';
-    else if (isYuePo) text += ' [月破]';
+    // 日破与月破同时成立（日支＝月支）时合并成一个词，其余情况各自成标
+    if (dayClash === '日破' && isYuePo) text += ' [日月破]';
+    else {
+        if (dayClash) text += ` [${dayClash}]`;
+        if (isYuePo) text += ' [月破]';
+    }
     return text;
 }
 
-// 纳甲三角标：右上=十二长生（日辰），右下=旬空，左下=日破/月破
-function buildBranchTags(element, branchText) {
+// 纳甲三角标：上沿=十二长生（日辰），下沿=旬空 / 日辰冲爻（冲散·暗动·日破）/ 月破
+function buildBranchTags(element, branchText, isDynamic) {
     let html = '';
 
     const changSheng = getChangSheng(element, currentDayBranch);
@@ -753,16 +787,19 @@ function buildBranchTags(element, branchText) {
 
     // 旬空与日/月破挂在下沿，同一条 flex 里横排，避免互相压盖
     let bottom = '';
-    const { isKong, isRiPo, isYuePo } = judgeBranchState(branchText);
+    const { isKong, dayClash, isYuePo } = judgeBranchState(branchText, element, isDynamic);
     if (isKong) {
         bottom += '<span class="bb-tag tag-kong">空</span>';
     }
-    if (isRiPo && isYuePo) {
+    if (dayClash === '日破' && isYuePo) {
         bottom += '<span class="bb-tag tag-ripo">日月破</span>';
-    } else if (isRiPo) {
-        bottom += '<span class="bb-tag tag-ripo">日破</span>';
-    } else if (isYuePo) {
-        bottom += '<span class="bb-tag tag-yuepo">月破</span>';
+    } else {
+        if (dayClash) {
+            bottom += `<span class="bb-tag ${DAY_CLASH_CLASS[dayClash]}">${dayClash}</span>`;
+        }
+        if (isYuePo) {
+            bottom += '<span class="bb-tag tag-yuepo">月破</span>';
+        }
     }
     if (bottom) html += `<span class="bb-bottom">${bottom}</span>`;
 
@@ -771,11 +808,11 @@ function buildBranchTags(element, branchText) {
 
 // 六亲 / 纳甲 / 爻符 (/ 世应) 一格，本卦与变卦共用。
 // showTags：变卦只有动爻变出的那一爻参与生克，静爻位不挂角标。
-function buildGuaCell(chartData, index, symbol, isMoving, withShiYing, showTags) {
+function buildGuaCell(chartData, index, symbol, isMoving, withShiYing, showTags, isDynamic) {
     const relText = REL_CN[chartData.relations[index]] || '';
     const branchText = BRANCH_CN[chartData.branches[index]] || '';
     const elText = ELEMENT_CN[chartData.elements[index]] || '';
-    const tags = showTags ? buildBranchTags(chartData.elements[index], branchText) : '';
+    const tags = showTags ? buildBranchTags(chartData.elements[index], branchText, isDynamic) : '';
 
     let html = `<span class="bc-rel">${relText}</span>` +
         `<span class="bc-branch wx-${chartData.elements[index]}">${branchText}${elText}${tags}</span>` +
@@ -816,12 +853,12 @@ function renderBoard(boardEl, { primaryChart, primaryLines, rawLines, variedChar
         }
 
         html += `<div class="bc bc-gua bc-primary">` +
-            buildGuaCell(primaryChart, index, getLineSymbol(val, raw), isMoving, true, true) +
+            buildGuaCell(primaryChart, index, getLineSymbol(val, raw), isMoving, true, true, isMoving) +
             `</div>`;
 
         if (variedChart) {
             html += `<div class="bc bc-gua bc-varied">` +
-                buildGuaCell(variedChart, index, getLineSymbol(variedLines[index], null), false, false, isMoving) +
+                buildGuaCell(variedChart, index, getLineSymbol(variedLines[index], null), false, false, isMoving, true) +
                 `</div>`;
         }
 
@@ -1116,7 +1153,8 @@ function collectHexagramInfo() {
     info += `\n`;
 
     const lineNames = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
-    info += `六爻详情（从初爻到上爻；方括号标注世应、动爻、旬空、日破/月破，以及以日辰为准的十二长生）：\n`;
+    info += `六爻详情（从初爻到上爻；方括号标注世应、动爻、旬空、月破，日辰冲爻的三态（冲散/暗动/日破），以及以日辰为准的十二长生）：\n`;
+    info += `　　日辰冲爻取象：动爻或变爻被日辰冲＝冲散（其力涣散、事难聚合）；静爻得月令旺相而被日辰冲＝暗动（暗中发动、力仍在）；静爻月令休囚死而被日辰冲＝日破（真破，主落空）。\n`;
 
     for (let i = 0; i < 6; i++) {
         const rel = REL_CN[primaryChart.relations[i]] || primaryChart.relations[i];
@@ -1127,7 +1165,7 @@ function collectHexagramInfo() {
         const movingText = isMoving ? (hexs.raw[i] === 9 ? "（动爻-老阳）" : "（动爻-老阴）") : "";
         const shiYing = primaryChart.palace.shi === (i + 1) ? " [世]" : (primaryChart.palace.ying === (i + 1) ? " [应]" : "");
 
-        const stateTags = branchStateText(branch);
+        const stateTags = branchStateText(branch, primaryChart.elements[i], isMoving);
         const cs = getChangSheng(primaryChart.elements[i], currentDayBranch);
         const csTag = cs ? ` [${cs}]` : '';
 
@@ -1145,7 +1183,7 @@ function collectHexagramInfo() {
             const branch = BRANCH_CN[variedChart.branches[i]] || '';
             const element = ELEMENT_CN[variedChart.elements[i]] || '';
             const cs = getChangSheng(variedChart.elements[i], currentDayBranch);
-            info += `  ${lineNames[i]}变出：${rel} ${branch}${element}${branchStateText(branch)}${cs ? ` [${cs}]` : ''}\n`;
+            info += `  ${lineNames[i]}变出：${rel} ${branch}${element}${branchStateText(branch, variedChart.elements[i], true)}${cs ? ` [${cs}]` : ''}\n`;
         }
 
         // 互卦：本卦下卦取 2、3、4 爻，上卦取 3、4、5 爻
@@ -1309,7 +1347,7 @@ aiSubmitBtn.addEventListener('click', () => {
 const aiCopyBtn = document.getElementById('ai-copy-btn');
 aiCopyBtn.addEventListener('click', async () => {
     const q = aiQuestion.value.trim();
-    let prompt = `你是一位精通六爻占卜的易学大师，请根据以下卦象信息进行专业解读。\n\n解卦顺序（务必按此顺序展开分析）：\n1. 世应分析：先从应爻、世爻入手，解析卦主（求占之人）与所占之事之间的关系与态势（世为己、应为他/事，看其旺衰、生克、动静、比和冲合）\n2. 用神剖判：再根据所占之事取用神（如问财取财爻、问官取官爻、问婚取应爻或官鬼/妻财等），结合日月生克、动变化出，解释求占之事当前的状态与吉凶\n3. 卦象背景与事态演进：回归卦象本身（卦名、卦辞、上下卦象意），并按"本卦→互卦→变卦"的三段时序串讲事情的来龙去脉：\n   - 本卦＝现状/起局：当前所处的态势与格局；\n   - 互卦＝过程/中段：如何从现状走向结局——发展路径、所经曲折阻力、可借助或须防范的因素、潜藏隐情（互卦由本卦内四爻互联而成，下卦取二三四爻、上卦取三四五爻，专主"过程"）；\n   - 变卦＝结局/终局：事情最终的走向与结果（变卦由动爻变出，专主"结果"）。\n   务必讲清三者的因果衔接：现状如何、要经历怎样的过程、最终落到什么结局。\n\n在以上主线之上，补充六兽参考、动爻与变爻（据动爻判定结局吉凶）、旬空与日破月破（月破多主事体落空难成，日破需结合旺衰分辨真破与暗动）；若有互卦则重点回答"如何达到这个结局"（关键节点、助力与障碍、可操作建议），若无动爻（无互卦）则事态静定、不展开此项。最后给出综合判断与实际可行的建议。\n\n卦象信息：\n${currentHexagramInfo}`;
+    let prompt = `你是一位精通六爻占卜的易学大师，请根据以下卦象信息进行专业解读。\n\n解卦顺序（务必按此顺序展开分析）：\n1. 世应分析：先从应爻、世爻入手，解析卦主（求占之人）与所占之事之间的关系与态势（世为己、应为他/事，看其旺衰、生克、动静、比和冲合）\n2. 用神剖判：再根据所占之事取用神（如问财取财爻、问官取官爻、问婚取应爻或官鬼/妻财等），结合日月生克、动变化出，解释求占之事当前的状态与吉凶\n3. 卦象背景与事态演进：回归卦象本身（卦名、卦辞、上下卦象意），并按"本卦→互卦→变卦"的三段时序串讲事情的来龙去脉：\n   - 本卦＝现状/起局：当前所处的态势与格局；\n   - 互卦＝过程/中段：如何从现状走向结局——发展路径、所经曲折阻力、可借助或须防范的因素、潜藏隐情（互卦由本卦内四爻互联而成，下卦取二三四爻、上卦取三四五爻，专主"过程"）；\n   - 变卦＝结局/终局：事情最终的走向与结果（变卦由动爻变出，专主"结果"）。\n   务必讲清三者的因果衔接：现状如何、要经历怎样的过程、最终落到什么结局。\n\n在以上主线之上，补充六兽参考、动爻与变爻（据动爻判定结局吉凶）、旬空与月破（月破多主事体落空难成），以及日辰冲爻的三态：动爻或变爻遇日冲为"冲散"（其力涣散、聚而复散、事多反复难成），静爻得月令旺相而遇日冲为"暗动"（暗中发动，虽静而有力，常主背后有人或事暗中推动），静爻月令休囚死而遇日冲为"日破"（真破，主落空无用）；若有互卦则重点回答"如何达到这个结局"（关键节点、助力与障碍、可操作建议），若无动爻（无互卦）则事态静定、不展开此项。最后给出综合判断与实际可行的建议。\n\n卦象信息：\n${currentHexagramInfo}`;
     if (q) prompt += `\n\n占卜事件：${q}`;
     try {
         await navigator.clipboard.writeText(prompt);
