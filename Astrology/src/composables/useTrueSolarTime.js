@@ -7,6 +7,7 @@ import {
   geographicTimeDiff,
   calcTrueSolarTime,
   calcSunriseSunset,
+  calcDayDuration,
   calcUnequalShichen,
   findShichen,
   formatTime,
@@ -21,6 +22,7 @@ export {
   geographicTimeDiff,
   calcTrueSolarTime,
   calcSunriseSunset,
+  calcDayDuration,
   calcUnequalShichen,
   findShichen,
   formatTime,
@@ -69,9 +71,7 @@ export function useTrueSolarTime() {
     }
 
     const { sunrise, sunset } = sunResult
-    const sunriseMin = sunrise.h * 60 + sunrise.m
-    const sunsetMin = sunset.h * 60 + sunset.m
-    const dayDurationMin = sunsetMin - sunriseMin
+    const dayDurationMin = calcDayDuration(sunrise, sunset)
     const nightDurationMin = 1440 - dayDurationMin
 
     const shichenTable = calcUnequalShichen(sunrise, sunset)

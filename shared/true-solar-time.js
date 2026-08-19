@@ -18,6 +18,10 @@ export const EARTHLY_BRANCHES = [
   '午', '未', '申', '酉', '戌', '亥',
 ]
 
+// Floor for a single shichen's length (minutes) at extreme latitudes.
+// Keeps every shichen positive when the daylight span cannot be represented.
+const MIN_SHICHEN_MIN = 20
+
 // Angular center of each shichen (degrees, 0° = midnight, 180° = noon)
 // 子=0°, 丑=30°, 寅=60°, 卯=90°, ..., 亥=330°
 const SHICHEN_ANGLES = Array.from({ length: 12 }, (_, i) => i * 30)
@@ -126,6 +130,21 @@ export function calcSunriseSunset(dateStr, latitude, longitude, timezoneOffset) 
   }
 }
 
+/**
+ * Daylight length in minutes, correcting for the day-crossing wrap.
+ *
+ * calcSunriseSunset returns clock times normalized into [00:00, 24:00), so at
+ * high latitudes near the summer solstice a sunset past midnight comes back as
+ * e.g. 00:10 and a naive (sunset - sunrise) goes negative. Sunset always
+ * follows sunrise, so a negative difference can only mean the wrap happened.
+ *
+ * @returns {number} daylight length in minutes, always in [0, 1440)
+ */
+export function calcDayDuration(sunrise, sunset) {
+  const diff = (sunset.h * 60 + sunset.m) - (sunrise.h * 60 + sunrise.m)
+  return diff < 0 ? diff + 1440 : diff
+}
+
 function fractionalHoursToHM(frac) {
   let totalMin = Math.round(frac * 60)
   totalMin = ((totalMin % 1440) + 1440) % 1440
@@ -160,13 +179,20 @@ function minutesToHM(totalMin) {
  * @returns {Array<{ name: string, branch: string, start: {h,m}, end: {h,m}, durationMin: number }>}
  */
 export function calcUnequalShichen(sunrise, sunset) {
-  const sunriseMin = sunrise.h * 60 + sunrise.m
-  const sunsetMin = sunset.h * 60 + sunset.m
-  const dayDuration = sunsetMin - sunriseMin
+  const dayDuration = calcDayDuration(sunrise, sunset)
 
   // Cosine amplitude: determines how much shichen durations vary
   // Sum constraint: Σ(6 daytime) = dayDuration requires this exact value
-  const amplitude = (dayDuration - 720) / 3.732
+  //
+  // Clamped so the shortest shichen keeps MIN_SHICHEN_MIN minutes. Beyond
+  // |amplitude| = 120 the cosine drives 子时 (or 午时) negative, which happens
+  // outside the polar circles too — Reykjavik (64.15°N) sees ~21h of daylight
+  // at the solstice, giving amplitude ≈ 147. Past this point no cosine profile
+  // can both fill the daylight span and keep 12 positive shichen, so the sum
+  // constraint is the one that gives way.
+  const rawAmplitude = (dayDuration - 720) / 3.732
+  const maxAmplitude = 120 - MIN_SHICHEN_MIN
+  const amplitude = Math.max(-maxAmplitude, Math.min(maxAmplitude, rawAmplitude))
 
   // Calculate duration for each of the 12 shichen
   const durations = SHICHEN_ANGLES.map(angle => {
