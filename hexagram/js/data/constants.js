@@ -9,6 +9,27 @@ export const BRANCH_ELEMENTS = {
     "Shen": "Metal", "You": "Metal", "Xu": "Earth", "Hai": "Water"
 };
 
+export const BRANCH_CN = {
+    "Zi": "子", "Chou": "丑", "Yin": "寅", "Mao": "卯", "Chen": "辰", "Si": "巳",
+    "Wu": "午", "Wei": "未", "Shen": "申", "You": "酉", "Xu": "戌", "Hai": "亥"
+};
+
+// 中文干支字 → 五行，供对照带与旬空日历逐字着色。地支部分从 BRANCH_ELEMENTS 派生，
+// 保持这里是唯一真值源；天干五行只此一份
+export const GANZHI_ELEMENT = {
+    ...Object.fromEntries(Object.entries(BRANCH_CN).map(([en, cn]) => [cn, BRANCH_ELEMENTS[en]])),
+    "甲": "Wood", "乙": "Wood", "丙": "Fire", "丁": "Fire", "戊": "Earth",
+    "己": "Earth", "庚": "Metal", "辛": "Metal", "壬": "Water", "癸": "Water"
+};
+
+// 干支逐字按各自五行着色：天干与地支五行常不同（乙未＝木＋土），整体染会失真
+export function tintGanZhi(text) {
+    return [...text].map(ch => {
+        const el = GANZHI_ELEMENT[ch];
+        return el ? `<span class="wx-${el}">${ch}</span>` : ch;
+    }).join('');
+}
+
 export const NA_JIA_TABLE = {
     "111": { inner: ["Zi", "Yin", "Chen"], outer: ["Wu", "Shen", "Xu"] }, // Qian
     "000": { inner: ["Wei", "Si", "Mao"], outer: ["Chou", "Hai", "You"] }, // Kun

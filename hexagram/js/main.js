@@ -1,7 +1,8 @@
 import { Divination } from './core/divination.js';
-import { PALACE_ELEMENTS, BRANCH_ELEMENTS } from './data/constants.js';
+import { PALACE_ELEMENTS, BRANCH_ELEMENTS, BRANCH_CN, tintGanZhi } from './data/constants.js';
 import { Solar } from 'lunar-javascript';
 import { Takashima } from './modules/takashima.js';
+import { openXunKongCalendar } from './modules/xunkong-calendar.js';
 import { calcTrueSolarTime, calcTrueSolarTimeOffset, calcSunriseSunset, calcUnequalShichen, findShichen, calcHourGanZhi } from '@shared/true-solar-time';
 import { CITIES } from '@shared/cities';
 
@@ -29,20 +30,8 @@ const BEAST_CN = {
     "Flying Snake": "腾蛇", "White Tiger": "白虎", "Black Tortoise": "玄武"
 };
 const ELEMENT_CN = { "Metal": "金", "Wood": "木", "Water": "水", "Fire": "火", "Earth": "土" };
-const BRANCH_CN = {
-    "Zi": "子", "Chou": "丑", "Yin": "寅", "Mao": "卯", "Chen": "辰", "Si": "巳",
-    "Wu": "午", "Wei": "未", "Shen": "申", "You": "酉", "Xu": "戌", "Hai": "亥"
-};
 const PALACE_CN = {
     "Qian": "乾", "Dui": "兑", "Li": "离", "Zhen": "震", "Xun": "巽", "Kan": "坎", "Gen": "艮", "Kun": "坤"
-};
-
-// 中文干支字 → 五行，供对照带逐字着色。地支部分从 BRANCH_ELEMENTS 派生，
-// 保持 constants.js 是唯一真值源；天干五行本项目他处未用到，只此一份
-const GANZHI_ELEMENT = {
-    ...Object.fromEntries(Object.entries(BRANCH_CN).map(([en, cn]) => [cn, BRANCH_ELEMENTS[en]])),
-    "甲": "Wood", "乙": "Wood", "丙": "Fire", "丁": "Fire", "戊": "Earth",
-    "己": "Earth", "庚": "Metal", "辛": "Metal", "壬": "Water", "癸": "Water"
 };
 
 const divination = new Divination();
@@ -123,6 +112,7 @@ function refreshDate() {
     currentMonthGanZhi = dateData.monthGanZhi || "";
     currentDayGanZhi = dateData.dayGanZhi || "";
     currentGanZhiText = dateData.ganZhiText || "";
+    currentDayDate = dateData.dayDate || "";
     renderBoardGanZhi();
 }
 
@@ -172,10 +162,10 @@ function initDate() {
             dayShift = 1;
         }
 
-        // 日柱、日支、旬空统一从进位后的同一个 Lunar 取，避免三者错位
-        const dayLunar = dayShift === 0
-            ? lunar
-            : Solar.fromDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayShift, 12, 0, 0)).getLunar();
+        // 日柱、日支、旬空统一从进位后的同一个 Lunar 取，避免三者错位。
+        // shiftedDay 同时是旬空日历的锚点日——它才是日柱真正所属的公历日
+        const shiftedDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayShift, 12, 0, 0);
+        const dayLunar = dayShift === 0 ? lunar : Solar.fromDate(shiftedDay).getLunar();
         const ganZhiDay = dayLunar.getDayInGanZhi();
         const dayStem = ganZhiDay.substring(0, 1);
         const xunKong = dayLunar.getDayXunKong();
@@ -203,6 +193,7 @@ function initDate() {
             monthBranch: ganZhiMonth.substring(1),
             monthGanZhi: ganZhiMonth,
             dayGanZhi: ganZhiDay,
+            dayDate: `${shiftedDay.getFullYear()}-${String(shiftedDay.getMonth() + 1).padStart(2, '0')}-${String(shiftedDay.getDate()).padStart(2, '0')}`,
             ganZhiText: `${ganZhiYear}年 ${ganZhiMonth}月 ${ganZhiDay}日 ${ganZhiHour}时`
         };
 
@@ -248,16 +239,11 @@ let currentMonthBranch = "";
 let currentMonthGanZhi = "";
 let currentDayGanZhi = "";
 let currentGanZhiText = "";
+// 日柱所属的公历日（YYYY-MM-DD），旬空日历用它定位当前格
+let currentDayDate = "";
 
-// 干支逐字按各自五行着色：天干与地支五行常不同（乙未＝木＋土），整体染会失真
-function tintGanZhi(text) {
-    return [...text].map(ch => {
-        const el = GANZHI_ELEMENT[ch];
-        return el ? `<span class="wx-${el}">${ch}</span>` : ch;
-    }).join('');
-}
-
-// 卦象上方的月建/日辰对照条。只填内容，显隐跟随卦盘
+// 卦象上方的月建/日辰对照条。只填内容，显隐跟随卦盘。
+// 旬空一项可点开日历，查换旬与出空填实之日
 function renderBoardGanZhi() {
     if (!boardGanZhi) return;
     const items = [
@@ -266,8 +252,26 @@ function renderBoardGanZhi() {
         ['旬空', currentXunKong]
     ].filter(([, v]) => v);
     boardGanZhi.innerHTML = items
-        .map(([k, v]) => `<span class="bgz-item"><em>${k}</em>${tintGanZhi(v)}</span>`)
+        .map(([k, v]) => {
+            const attrs = k === '旬空'
+                ? ' bgz-clickable" role="button" tabindex="0" title="查看旬空日历"'
+                : '"';
+            return `<span class="bgz-item${attrs}><em>${k}</em>${tintGanZhi(v)}</span>`;
+        })
         .join('');
+}
+
+// 事件委托：对照条内容每次刷新都会重建，绑在容器上避免重复挂监听
+if (boardGanZhi) {
+    boardGanZhi.addEventListener('click', (e) => {
+        if (e.target.closest('.bgz-clickable')) openXunKongCalendar(currentDayDate);
+    });
+    boardGanZhi.addEventListener('keydown', (e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.bgz-clickable')) {
+            e.preventDefault();
+            openXunKongCalendar(currentDayDate);
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -317,6 +321,7 @@ manualInputPanel.addEventListener('change', (e) => {
 
 window.startCasting = () => {
     castingStep = 0;
+    refreshDate();
     divination.reset();
     resetManualPanel();
     boardGanZhi.style.display = 'none';
@@ -1375,6 +1380,7 @@ function saveToHistory(raw, primaryName, variedName) {
         monthBranch: currentMonthBranch,
         monthGanZhi: currentMonthGanZhi,
         dayGanZhi: currentDayGanZhi,
+        dayDate: currentDayDate,
         xunKong: currentXunKong
     };
 
@@ -1441,6 +1447,21 @@ function clearAllHistory() {
     renderHistoryList();
 }
 
+// 旧历史记录没存 dayDate，只有起卦当时的民用日期。晚子时／真太阳时的进位最多一天，
+// 所以拿 dayGanZhi 在民用日与次日之间对一下即可还原日柱所属的公历日
+function resolveDayDate(civilDateStr, dayGanZhi) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(civilDateStr || '');
+    if (!m) return '';
+    const base = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    const pad = n => String(n).padStart(2, '0');
+    for (const offset of [0, 1]) {
+        const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + offset, 12, 0, 0);
+        const ymd = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        if (!dayGanZhi || Solar.fromDate(d).getLunar().getDayInGanZhi() === dayGanZhi) return ymd;
+    }
+    return `${m[1]}-${m[2]}-${m[3]}`;
+}
+
 function restoreFromHistory(record) {
     // 干支串是唯一可信来源。旧记录的 monthBranch 存的是 lunar.getMonthZhi()（交节当日零点
     // 就切，会偏一个月），而 ganZhiDate 一直用按交节时刻的 bazi.getMonth()。对照带与日/月破
@@ -1453,6 +1474,7 @@ function restoreFromHistory(record) {
     if (record.xunKong) currentXunKong = record.xunKong;
     currentDayBranch = currentDayGanZhi.substring(1) || record.dayBranch || '';
     currentMonthBranch = currentMonthGanZhi.substring(1) || record.monthBranch || '';
+    currentDayDate = record.dayDate || resolveDayDate(record.date, currentDayGanZhi);
     renderBoardGanZhi();
 
     // Update date display to history record time
