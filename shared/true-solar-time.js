@@ -56,7 +56,12 @@ export function equationOfTime(doy) {
  */
 export function geographicTimeDiff(longitude, timezoneOffset) {
   const standardMeridian = timezoneOffset * 15
-  return (longitude - standardMeridian) * 4
+  // Normalize into (-180, 180]: UTC+13/+14 zones sit past the 180th meridian
+  // while their cities carry west-longitude coordinates (Apia -171.76, tz 13),
+  // which would otherwise yield a bogus ~-24h offset.
+  let diff = longitude - standardMeridian
+  diff = (((diff + 180) % 360) + 360) % 360 - 180
+  return diff * 4
 }
 
 /**
